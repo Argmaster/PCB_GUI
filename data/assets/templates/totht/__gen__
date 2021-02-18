@@ -1,0 +1,213 @@
+from src.py.bpyx import *
+from src.py.pinout import *
+
+# ? -<>
+# ? --<>
+# ? ---<>
+
+depth = Template.caseDepth
+rootObject = None
+
+if Template.caseType == "C":
+    # ? Create case of transistor type cut cylinder
+    depth = Template.caseWidth / 2
+    rootObject = Complex.Arc(
+        depth,
+        "-125deg",
+        "125deg",
+        Template.caseHeight,
+        material=Template.caseMaterial,
+    )
+    Modifier.Bevel(
+        width=depth / 40,
+        segments=3,
+        limit_method="ANGLE",
+        angle_limit="30deg",
+    )
+    Transform.Move(0, 0, Template.caseHeight / 2)
+    Material.Smooth()
+
+elif Template.caseType == "S":
+    # ? Create case of transistor type cube
+    rootObject = Simple.Cube(
+        depth,
+        Template.caseWidth,
+        Template.caseHeight,
+        material=Template.caseMaterial,
+    )
+    Transform.Move(0, 0, Template.caseHeight / 2)
+    if Template.caseHoleRadius:
+        cuttingCylinder = Simple.Cylinder(
+            Template.caseHoleRadius * 2,
+            Template.caseHoleRadius * 2,
+            depth * 2,
+        )
+        Transform.Rotate(y="90deg")
+        Transform.Move(z=Template.caseHeight * 0.66)
+        Modifier.Boolean(cuttingCylinder, this=rootObject)
+        Blender.Object.delete(cuttingCylinder)
+    Modifier.Bevel(
+        width=depth / 40,
+        segments=1,
+    )
+
+# ? ---<>
+# ? --<>
+# ? -<>
+
+# ! -<>
+# ! --<>
+# ! ---<> Backplate creation
+
+if Template.backplateThickness and Template.backplateHeight:
+    backplate = Simple.Plane(
+        Template.backplateHeight,
+        Template.caseWidth,
+        material=Template.pinMaterial,
+    )
+    Transform.Rotate(y="90deg")
+    Transform.Move(x=Template.backplateThickness / 2, z=Template.backplateHeight / 2)
+    with Blender.Mode.Edit(backplate) as Edit:
+        if Template.backplateCutCorners:
+            Edit.deselectAll()
+            Edit.selectByPosition(z=lambda x: x > Template.backplateHeight / 2)
+            Edit.bevel(
+                "VERTICES", offset=Template.backplateCutCorners, offset_type="WIDTH"
+            )
+            Edit.selectAll()
+        Edit.extrude((0, Template.backplateThickness, 0))
+    if Template.backplateHoleRadius:
+        cuttingCylinder = Simple.Cylinder(
+            Template.backplateHoleRadius * 2,
+            Template.backplateHoleRadius * 2,
+            Template.backplateThickness * 2,
+        )
+        Transform.Rotate(y="90deg")
+        Transform.Move(
+            z=+Template.caseHeight
+            + (Template.backplateHeight - Template.caseHeight) * 0.5
+        )
+        Blender.Object.setActive(backplate)
+        Modifier.Boolean(cuttingCylinder)
+        Blender.Object.delete(cuttingCylinder)
+        Blender.Object.selectOne(backplate)
+    Transform.Move(
+        -Template.backplateThickness / 2 - depth / 2,
+    )
+    Modifier.Bevel(
+        width=Template.backplateThickness / 20,
+        segments=1,
+        limit_method="ANGLE",
+        angle_limit="30deg",
+    )
+
+# ! ---<>
+# ! --<>
+# ! -<>
+
+# ? Add resistor label
+Complex.Text(
+    Template.label,
+    Template.fontPath,
+    Template.fontSize,
+    Template.fontDepth,
+    material=Template.fontMaterial,
+)
+Transform.Rotate(z="90deg")
+Transform.Move(0, 0, Template.caseHeight)
+
+Global.Merge(rootObject)
+
+
+# & -<>
+# & --<>
+# & ---<> Add pins
+
+if not Template.bend:
+    if Template.pinCount:
+        if Template.pinStyle == "T":
+            pin = Complex.Function(
+                Complex.Generators.pinI,
+                0,
+                Template.pinLength,
+                Template.pinThickness,
+                Template.pinWidth,
+                Template.bendRadius,
+                material=Template.pinMaterial,
+                widen=True,
+                widen_above=Template.pinLength * 0.25,
+                widen_by=Template.pinWidth,
+            )
+        elif Template.pinStyle == "I":
+            Simple.Cube(
+                Template.pinThickness,
+                Template.pinWidth,
+                Template.pinLength,
+                material=Template.pinMaterial,
+            )
+        elif Template.pinStyle == "O":
+            Simple.Cylinder(
+                Template.pinThickness,
+                Template.pinWidth,
+                Template.pinLength,
+                material=Template.pinMaterial,
+            )
+            Material.Smooth()
+        Transform.Move(
+            Template.pinOffset,
+            -Template.pinSpacing * (Template.pinCount - 1) / 2,
+            -Template.pinLength / 2,
+        )
+        Modifier.Array((0, Template.pinSpacing, 0), Template.pinCount)
+        Modifier.Bevel(
+            width=min(Template.pinThickness, Template.pinWidth) / 10,
+            segments=1,
+        )
+        Global.Merge(rootObject)
+        Transform.Move(-Template.pinOffset, z=Template.pinLength * 0.33)
+
+else:
+    Transform.Rotate(y="-90deg")
+    lift = depth / 2 + Template.backplateThickness
+    Transform.Move(-Template.pinLength, z=lift)
+
+    if Template.pinCount:
+        bevel_by = min(Template.pinThickness, Template.pinWidth)
+        Complex.Function(
+            Complex.Generators.pinL,
+            Template.pinLength + bevel_by,
+            Template.pinLength + lift,
+            Template.pinThickness,
+            Template.pinWidth,
+            Template.bendRadius,
+            material=Template.pinMaterial,
+            widen=Template.pinStyle == "T",
+            widen_above=Template.pinLength * 0.25,
+            widen_by=Template.pinWidth,
+        )
+        Transform.Rotate(z="180deg")
+        Transform.Move(
+            -(Template.pinLength + bevel_by) / 2,
+            -Template.pinSpacing * (Template.pinCount - 1) / 2,
+            (-Template.pinLength - lift) / 2 + lift + Template.pinOffset,
+        )
+        Modifier.Array((0, Template.pinSpacing, 0), Template.pinCount)
+        if Template.pinStyle == "O":
+            Modifier.Bevel(
+                width=bevel_by / 2,
+                segments=5,
+                limit_method="ANGLE",
+                angle_limit="45deg",
+            )
+            Material.Smooth()
+        else:
+            Modifier.Bevel(
+                width=bevel_by / 10,
+                segments=2,
+            )
+        Global.Merge(rootObject)
+        Transform.Move(Template.pinThickness / 2)
+
+# & ---<>
+# & --<>
+# & -<>

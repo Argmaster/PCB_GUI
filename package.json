@@ -1,0 +1,30 @@
+{
+  "name": "pcb_assembler_gui",
+  "version": "0.0.0",
+  "description": "Application for modifying nexus files",
+  "main": "src/js/main.js",
+  "scripts": {
+    "test": "electron .",
+    "build-win": "electron-packager . --platform win32 --arch x64 --icon img/icon.ico --out dist/ --overwrite",
+    "pack-win": "electron-installer-windows --src dist/pcb-win32-x64/ --dest dist/installers/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Argmaster/nexus.git"
+  },
+  "author": "Krzysztof Wiśniewski",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Argmaster/nexus/issues"
+  },
+  "homepage": "https://github.com/Argmaster/nexus#readme",
+  "devDependencies": {
+    "electron": "^11.2.2",
+    "electron-installer-windows": "^3.0.0",
+    "electron-packager": "^15.2.0"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "jquery-ui-dist": "^1.12.1"
+  }
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PCB assembler 3D GUI</title>
+        <link rel="stylesheet" href="../css/index.css" />
+        <link rel="stylesheet" href="../css/models.css" />
+        <link
+            rel="stylesheet"
+            href="../../node_modules/jquery-ui-dist/jquery-ui.theme.min.css"
+        />
+        <script>
+            const $ = (jQuery = require("jquery"));
+        </script>
+        <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="../../node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+        <script defer>
+            const fs = require("fs");
+            var blender_executable = `${process.cwd()}\\blender\\blender.exe`;
+        </script>
+        <script defer src="../js/index.js"></script>
+        <script defer src="../js/models.js"></script>
+        <script defer>
+            function makeDataDirs() {
+                if (!fs.existsSync("./blender/blender.exe")) {
+                    dialog.showErrorBox(
+                        "blender.exe not found.",
+                        "Unable to find blender executable, exiting."
+                    );
+                    let w = remote.getCurrentWindow();
+                    w.close();
+                }
+                try {
+                    fs.mkdirSync("./temp");
+                } catch (e) {}
+                try {
+                    fs.mkdirSync("./data");
+                } catch (e) {}
+                try {
+                    fs.mkdirSync("./data/user");
+                } catch (e) {}
+                try {
+                    fs.mkdirSync("./data/assets");
+                } catch (e) {}
+                try {
+                    fs.mkdirSync("./data/assets/models");
+                } catch (e) {}
+                try {
+                    fs.mkdirSync("./data/assets/templates");
+                } catch (e) {}
+            }
+            makeDataDirs();
+        </script>
+    </head>
+    <body>
+        <div id="global-container">
+            <nav id="bookmarks-container">
+                <div id="bookmarks-container-overflow">
+                    <div class="bookmark-box bookmark-inactive">Global</div>
+                    <div class="bookmark-box bookmark-inactive">Models</div>
+                    <div class="bookmark-box bookmark-inactive">Gerber</div>
+                </div>
+            </nav>
+            <main id="workspace-container">
+                <div class="workspace-box">
+                    <input class="standard-text-input" type="path" />
+                </div>
+                <div class="workspace-box">
+                    <div id="model-workspace-box">
+                        <div id="model-box-container"></div>
+                        <div id="model-edit-panel"></div>
+                    </div>
+                </div>
+                <div class="workspace-box">
+                    Gerber
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
