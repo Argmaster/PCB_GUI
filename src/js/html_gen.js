@@ -465,8 +465,8 @@ exports.getModelContainerHTML = function (model) {
     <div class="model-box">
         <div class="model-data">
             <div class="model-image">
-                <img class="model-icon" src="${model.package_path}/__ico__.png"/>
-                <img class="model-icon model-icon-disable" src="${model.package_path}/__pin__.png"/>
+                <img class="model-icon" src="${model.package_path}/__top__.png"/>
+                <img class="model-icon model-icon-disable" src="${model.package_path}/__bot__.png"/>
             </div>
             <div class="model-meta">
                 <div class="model-title">
@@ -511,7 +511,7 @@ exports.genEditModelMenuHTML = function (model, userpref) {
     </div>
     <div class="model-edit-pinroot">
         <div class="model-edit-pinroot-img-box">
-            <img class="model-edit-pinroot-img" src="${model.package_path}/__pin__.png"/>
+            <img class="model-edit-pinroot-img" src="${model.package_path}/__bot__.png"/>
             <div class="pin-ptr">
                 <span></span>
             </div>

@@ -7,7 +7,6 @@ import time
 
 sys.path.append(os.getcwd())
 from src.py.bpyx import *
-from src.py.pinout import Pinout
 
 
 SAFETY_HEADER = """
@@ -84,7 +83,7 @@ class TemplatePackage:
         # clear workspace
         Global.deleteAll()
         exec(
-            self.make_safe(self.gen_source),
+            compile(self.make_safe(self.gen_source), "<__gen__.source>", "exec"),
             {
                 "time": time,
                 "bpy": bpy,
@@ -107,46 +106,97 @@ class TemplatePackage:
             },
         )
 
+    def makeBotIcon(self, template_params, path_to_save):
+        Global.deleteAll()
+        self.execute(template_params)
+        bpy_obj = Global.getActive()
+        # get current object dimensions
+        width, height, z = bpy_obj.dimensions
+        # scale it up to be 1
+        max_dim = max(width, height)
+        scale = 1 / max_dim
+        Transform.scale(scale, scale, scale)
+        # get new dimensions
+        width, height, z = bpy_obj.dimensions
+        bbox_md = Object.bboxMaxDist(bpy_obj)
+        bpy.ops.object.light_add(
+            type="SUN",
+        )
+        Object.RotateTo(Global.getActive(), y="-180deg")
+        camera = Camera(
+            location=(bpy_obj.location.x, bpy_obj.location.y, -(1 + z + bbox_md)),
+            rotation=(0, "180deg", 0),
+        )
+        camera.ortho_scale = bbox_md * 2.1
+        camera.type = "ORTHO"
+        camera.setMain()
+        Global.eevee()
+        Global.render(f"{path_to_save}/__bot__.png", 1920, 1920)
 
-def stdout(mess):
-    sys.stdout.write(json.dumps(mess) + "\n")
-    sys.stdout.flush()
+
+class stdin:
+    code: str
+    data: Any
+
+    def __init__(self) -> None:
+        line = sys.stdin.readline().strip()
+        while not line:
+            line = sys.stdin.readline().strip()
+        block = json.loads(line)
+        self.code = block["code"]
+        self.data = block["data"]
+
+    @staticmethod
+    def stdout(status: str, trace: str="", data: Any=None) -> None:
+        sys.stdout.flush()
+        sys.stdout.write(
+            json.dumps({"status": status, "trace": trace, "data": data}) + "\n"
+        )
+        sys.stdout.flush()
 
 
-def stdin():
-    return json.loads(sys.stdin.readline())
+class IO:
+    IO_in: stdin
 
+    def mainloop(self) -> None:
+        stdin.stdout("READY")
+        callbacks = {
+            "GMF": self.genModelFile,
+            "MBI": self.makeBotIcon,
+            "GTP": self.getTemplateParams,
+            "EXC": self.exc,
+        }
+        while True:
+            try:
+                self.IO_in = stdin()
+                callbacks[self.IO_in.code](self.IO_in)
+            except Exception as e:
+                stdin.stdout("ERROR", str(e.args), "")
 
-def getTemplateParams():
-    stdout(TemplatePackage(stdin()).params_json())
+    def makeBotIcon(self, IO_in: stdin):
+        tp = TemplatePackage(IO_in.data["template_path"])
+        tp.makeBotIcon(
+            IO_in.data["template_params"],
+            TType.PathExpression.resolve(IO_in.data["model_path"]),
+        )
+        IO_in.stdout("OK")
 
+    def getTemplateParams(self, IO_in: stdin):
+        IO_in.stdout("OK", "", TemplatePackage(IO_in.data['template_path']).params_json())
 
-def genModelFile():
-    TemplatePackage(stdin()).execute(ModelPackage(stdin()).params())
-    Global.Export(stdin())
+    def genModelFile(self, IO_in: stdin):
+        TemplatePackage(IO_in.data['template_path']).execute(ModelPackage(stdin()).params())
+        Global.Export(IO_in.data['output_path'])
+        IO_in.stdout("OK")
 
-
-def exc():
-    stdout("OK")
-    time.sleep(0.1)
-    exit()
-
-
-def IO():
-    stdout("READY")
-    callbacks = {
-        "GMF": genModelFile,
-        "GTP": getTemplateParams,
-        "EXC": exc,
-    }
-    while True:
-        code = stdin()
-        if code:
-            callbacks[code]()
+    def exc(self, IO_in: stdin):
+        IO_in.stdout("OK")
+        time.sleep(0.5)
+        exit()
 
 
 if __name__ == "__main__":
     # pkg = TemplatePackage("./totht")
     # pkg.execute({})
     # Blender.Object.exportObject("./test.glb")
-    IO()
+    IO().mainloop()

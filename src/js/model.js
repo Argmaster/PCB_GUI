@@ -1,4 +1,5 @@
 const fs = require("fs");
+const BlenderIO = require("./blenderio").BlenderIO;
 
 class ModelPackage {
     constructor(package_path, templates) {
@@ -22,18 +23,18 @@ class ModelPackage {
     params() {
         return this.prm_dict;
     }
-    /*dumpPinJson(_json) {
-        this.pin_dict = _json;
-        fs.writeFileSync(this.pin_path, JSON.stringify(this.pin_dict));
-    }
-    async genPinoutImage() {
+    async makeIcons() {
         let blender_io = new BlenderIO();
         await blender_io.begin();
-        await blender_io.sendCode("GPI");
-        blender_io.write(this.package_path);
-        blender_io.write(this.template.package_path);
-        this.params = await blender_io.read();
-        await blender_io.sendCode("EXC");
-    }*/
+        await blender_io.call({
+            code: "MBI",
+            data: {
+                template_path: this.template.package_path,
+                template_params: this.params(),
+                model_path: this.package_path,
+            },
+        });
+        await blender_io.call({ code: "EXC", data: "" });
+    }
 }
 exports.ModelPackage = ModelPackage;

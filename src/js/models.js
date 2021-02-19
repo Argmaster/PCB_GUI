@@ -7,9 +7,7 @@ const {
     getModelContainerHTML,
     genEditModelMenuHTML,
 } = require("../js/html_gen");
-const UserPref = require("../js/userpref").UserPref;
 
-const userpref = new UserPref();
 let templates = {};
 let models = {};
 
@@ -41,6 +39,8 @@ async function loadTemplates() {
 async function loadModelSpec(dir) {
     try {
         let model = new ModelPackage(dir, templates);
+        if (!fs.existsSync(model.bot_path))
+            await model.makeIcons();
         models[model._model] = model;
     } catch (e) {
         alert(`Unable to load model <${dir}> due to error: ${e}`);
@@ -57,9 +57,9 @@ async function loadModels() {
     }
 }
 function loadModelGUI() {
-    const mode_container = $("#model-box-container");
+    const model_container = $("#model-box-container");
     for (const key in models) {
-        mode_container.append(getModelContainerHTML(models[key]));
+        model_container.append(getModelContainerHTML(models[key]));
     }
 }
 function attachFilters(model) {
@@ -151,8 +151,6 @@ async function initializeAssets() {
     $(".model-edit-button").each(function () {
         $(this).on("click", loadEditModelMenu);
     });
-    setInterval(() => {
-        userpref.save();
-    }, 1000);
+
 }
 $(initializeAssets);

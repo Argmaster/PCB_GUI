@@ -4,8 +4,13 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>PCB assembler 3D GUI</title>
+
+        <link rel="stylesheet" href="../../data/assets/themes/default.css" />
+        <link rel="stylesheet" id="theme-style" href="" />
         <link rel="stylesheet" href="../css/index.css" />
         <link rel="stylesheet" href="../css/models.css" />
+        <link rel="stylesheet" href="../css/gerber.css" />
+        <link rel="stylesheet" href="../css/global.css" />
         <link
             rel="stylesheet"
             href="../../node_modules/jquery-ui-dist/jquery-ui.theme.min.css"
@@ -17,10 +22,21 @@
         <script src="../../node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
         <script defer>
             const fs = require("fs");
+            const dialog = require("electron").remote.dialog;
+            const UserPref = require("../js/userpref").UserPref;
+
+            const userpref = new UserPref();
             var blender_executable = `${process.cwd()}\\blender\\blender.exe`;
+            $(() => {
+                setInterval(() => {
+                    userpref.save();
+                }, 1000);
+            });
         </script>
         <script defer src="../js/index.js"></script>
         <script defer src="../js/models.js"></script>
+        <script defer src="../js/gerber.js"></script>
+        <script defer src="../js/global.js"></script>
         <script defer>
             function makeDataDirs() {
                 if (!fs.existsSync("./blender/blender.exe")) {
@@ -64,7 +80,34 @@
             </nav>
             <main id="workspace-container">
                 <div class="workspace-box">
-                    <input class="standard-text-input" type="path" />
+                    <div class="globals-flex-container">
+                        <div class="global-content-box">
+                            <div class="global-content-box-title">
+                                Template Assets
+                            </div>
+                        </div>
+                        <div class="global-content-box">
+                            <div class="global-content-box-title">
+                                Model Assets
+                            </div>
+                        </div>
+                        <div class="global-content-box">
+                            <div class="global-content-box-title">Settings</div>
+                            <div class="global-content-section">
+                                <div class="global-content-section-row">
+                                    <div class="glob-sub-cont">
+                                        <div class="global-content-label">
+                                            Available GUI themes
+                                        </div>
+                                    </div>
+                                    <div class="glob-sub-cont">
+                                        <select class="standard-text-input" id="theme-select">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="workspace-box">
                     <div id="model-workspace-box">
@@ -73,7 +116,30 @@
                     </div>
                 </div>
                 <div class="workspace-box">
-                    Gerber
+                    <div class="gerber-layer-container">
+                        <h1 class="gerber-header">Geber top layers</h1>
+                        <div class="gereber-sublabel">Bottom most</div>
+                        <div
+                            class="gerber-layer-list"
+                            id="gerber-layers-top"
+                        ></div>
+                        <div class="gereber-sublabel">Top most</div>
+                        <div class="div-button centered gerber-add-layer">
+                            Add layer
+                        </div>
+                    </div>
+                    <div class="gerber-layer-container">
+                        <h1 class="gerber-header">Geber bottom layers</h1>
+                        <div class="gereber-sublabel">Bottom most</div>
+                        <div
+                            class="gerber-layer-list"
+                            id="gerber-layers-bot"
+                        ></div>
+                        <div class="gereber-sublabel">Top most</div>
+                        <div class="div-button centered gerber-add-layer">
+                            Add layer
+                        </div>
+                    </>
                 </div>
             </main>
         </div>

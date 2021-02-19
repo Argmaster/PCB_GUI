@@ -44,6 +44,29 @@ class UserPref {
         }
         return this.pref.models[model][prop];
     }
+    setUserPref(prefdict, prop, value) {
+        if (this.pref[prefdict] == undefined) {
+            this.pref[prefdict] = {};
+        }
+        if (this.pref[prefdict][prop] != value) {
+            this.pref[prefdict][prop] = value;
+            this.modified = true;
+        }
+    }
+    getUserPref(prefdict, prop) {
+        if (this.pref[prefdict] == undefined) {
+            this.pref[prefdict] = {};
+        }
+        return this.pref[prefdict][prop];
+    }
+    delUserPref(prefdict, prop) {
+        if (this.pref[prefdict] == undefined) {
+            this.pref[prefdict] = {};
+        } else if (this.pref[prefdict][prop] != undefined) {
+            delete this.pref[prefdict][prop];
+            this.modified = true;
+        }
+    }
     load() {
         try {
             this.pref = JSON.parse(fs.readFileSync(this.pref_path));

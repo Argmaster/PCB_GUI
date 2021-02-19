@@ -1,0 +1,84 @@
+.gerber-header {
+    font-weight: 300;
+    font-size: 1.1rem;
+}
+.gerber-layer-container {
+    padding: 1rem;
+    margin-left: 1rem;
+    margin-top: 1rem;
+    background-color: var(--background-level-2);
+    width: fit-content;
+    border-radius: 1rem;
+}
+.gerber-layer-list {
+    width: 60rem;
+    padding: 1rem;
+    padding-bottom: 0;
+}
+.gerber-layer-box {
+    user-select: none;
+    cursor: move;
+    padding: 0.2rem;
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+    background-color: var(--background-level-3);
+    border-radius: 2rem;
+    transition: all 150ms ease;
+}
+.gerber-layer-box:hover {
+    background-color: var(--background-level-3-hover);
+}
+.gerber-layer-main {
+    display: flex;
+    flex-direction: row;
+}
+.gerber-layer-main .standard-text-input {
+    width: 100%;
+}
+.gerber-layer-main select {
+    max-width: 14rem;
+    min-width: 14rem;
+}
+.gerber-layer-main .div-button {
+    margin-top: 0rem;
+    margin-bottom: 0.4rem;
+    margin-right: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+.centered {
+    margin-left: auto;
+    margin-right: auto;
+}
+.gerber-layer-remove-icon {
+    display: block;
+    padding: 1rem;
+    cursor: pointer;
+}
+.layer-custom-settings {
+    display: none;
+}
+.layer-custom-settings div {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+}
+.layer-custom-settings label {
+    display: inline-block;
+    min-width: 10rem;
+    max-width: 10rem;
+    text-align: right;
+}
+.layer-custom-settings input {
+    width: 100%;
+}
+.gereber-sublabel {
+    font-size: 0.9rem;
+    color: var(--gerber-sublabel-text);
+    background-color: var(--gerber-sublabel-background);
+    padding: 0.5rem 1.5rem;
+    width: fit-content;
+    margin-left: 2rem;
+    margin-top: 1rem;
+    border-radius: 1rem;
+}

@@ -1,0 +1,64 @@
+* {
+    --main-text: #cdcfd8;
+
+    --scroll-track: #16191d;
+    --scroll-thumb: #1f5fb3;
+    --scroll-thumb-hover: #1d6cd4;
+    --scroll-corner: #16191d;
+
+    --background-level-1: #1a1c1f;
+    --background-level-2: #24262c;
+    --background-level-2-text: #cdd3df;
+    --background-level-2-border: #626275;
+    --background-level-3: #2d3036;
+    --background-level-3-hover: #3a5a99;
+    --background-level-3-text: #dde1eb;
+
+    --gerber-sublabel-text: #b6b6cf;
+    --gerber-sublabel-background: #2d3036;
+
+    --model-container: #23272c;
+    --model-container-border: #23272c;
+    --model-container-active: #23272c;
+    --model-container-border-active: #2063bb;
+    --model-container-title-underline: #ffffff21;
+    --model-container-text-light: #dbdbdb;
+    --model-container-text-dimmed: #b3b3b3;
+    --model-image-border: #515158;
+    --model-mark-inner: #191d20;
+    --model-mark-border: #424850;
+    --model-mark-inner-active: #233285;
+    --model-mark-border-active: #3e61fa;
+
+    --model-edit-image-border: #384049;
+    --pin-pointer-outer: #ffffff;
+    --pin-pointer-inner: #364afd;
+
+    --text-input-changed-background: #2e9b2e;
+    --text-input-changed-border: #277a2e;
+    --text-input-mistake-background: #c7273d;
+    --text-input-mistake-border: #9e1c2d;
+
+    --std-input-background: #25282e;
+    --std-input-border: #6064744f;
+    --std-input-background-hover: #1e3a6e;
+    --std-input-border-hover: #1e599c;
+
+    --std-button-background: #2e3138;
+    --std-button-border: #343c44;
+    --std-button-background-hover: #234791;
+    --std-button-border-hover: #1f60b6;
+
+    --bookmark-container-background: #1a1c1f;
+    --bookmark-border: #185db8;
+
+    --bookmark-background-active: #162f61;
+    --bookmark-background-inactive: #232831;
+    --bookmark-border-active: #153c8a;
+    --bookmark-border-inactive: #333846;
+
+    --bookmark-background-active-hover: #1b3874;
+    --bookmark-background-inactive-hover: #373e4d;
+    --bookmark-border-active-hover: #1a48a5;
+    --bookmark-border-inactive-hover: #484f63;
+}

@@ -7,17 +7,20 @@
 #model-edit-panel {
     display: flex;
     flex-direction: column;
-    background-color: var(--color-dark-light);
+    background-color: var(--background-level-2);
+    border-left: 0.1rem solid var(--background-level-2-border);
     min-width: 40rem;
     width: 100%;
-    height: calc(100vh - 2.6rem);
-    border-left: 4px solid var(--color-darker);
+    height: 100%;
+    overflow-y: scroll;
 }
 #model-box-container {
     display: flex;
     flex-direction: column;
-    min-width: 42rem;
-    max-width: 42rem;
+    flex-shrink: 0;
+    flex-grow: 0;
+    overflow-y: scroll;
+    padding: 1.5rem;
 }
 .model-box {
     position: relative;
@@ -26,33 +29,37 @@
     margin-left: auto;
     margin-right: auto;
     border-radius: 1rem;
-    border: 2px solid var(--color-dark-light);
-    background-color: var(--color-dark-light);
+    border: 2px solid var(--model-container-border);
+    background-color: var(--model-container);
     width: 40rem;
     height: 16.5rem;
+    transition: all 150 ease;
+}
+.model-box ::-webkit-scrollbar-track {
+    background: #00000000;
 }
 .model-box-active {
-    filter: brightness(110%);
-    border-color: var(--color-theme);
+    border-color: var(--model-container-border-active);
+    background-color: var(--model-container-active);
 }
 .model-title {
     font-weight: 300;
     margin: 0.5rem;
     padding: 0.5rem;
-    border-bottom: 2px solid var(--color-dark-lighter);
+    border-bottom: 0.1rem solid var(--model-container-title-underline);
 }
 .model-name {
     font-weight: 300;
     font-size: 1.05em;
-    color: var(--color-lighter);
+    color: var(--model-container-text-light);
 }
 .model-title-small {
     font-size: 0.8em;
-    color: var(--color-light-dark);
+    color: var(--model-container-text-dimmed);
 }
 .model-class {
     font-size: 0.95em;
-    color: var(--color-light-dark);
+    color: var(--model-container-text-dimmed);
 }
 .model-data {
     display: flex;
@@ -65,9 +72,6 @@
     display: flex;
     flex-direction: column;
 }
-.model-meta::-webkit-scrollbar-track {
-    background-color: rgba(0, 0, 0, 0.0);
-}
 .model-image {
     cursor: pointer;
     position: relative;
@@ -76,12 +80,12 @@
     max-height: 200px;
     max-width: 200px;
     border-radius: 0.5rem;
-    border: 2px solid var(--color-dark-lighter);
+    border: 0.1rem solid var(--model-image-border);
 }
 .model-icon {
     position: absolute;
-    height: 196px;
-    width: 196px;
+    height: 100%;
+    width: 100%;
     border-radius: 0.5rem;
 }
 .model-icon-disable {
@@ -92,7 +96,7 @@
     flex-direction: row;
 }
 .model-meta-label {
-    color: var(--color-light-dark);
+    color: var(--model-container-text-dimmed);
     text-align: right;
     min-width: 6rem;
     max-width: 6rem;
@@ -115,29 +119,15 @@
 .model-modification-mark {
     height: 1rem;
     width: 1rem;
-    background-color: var(--color-dark);
-    border: 2px solid var(--color-dark-lighter);
+    background-color: var(--model-mark-inner);
+    border: 0.2rem solid var(--model-mark-border);
     border-radius: 0.5rem;
     margin-top: 1rem;
     margin-right: 0.5rem;
 }
 .model-modification-mark-active {
-    background-color: var(--color-theme-light);
-}
-.div-button {
-    cursor: pointer;
-    align-self: flex-end;
-    padding: 0.5rem 1rem 0.5rem 1rem;
-    width: fit-content;
-    background-color: var(--color-dark-light);
-    border: 2px solid var(--color-dark-lighter);
-    border-radius: 0.5rem;
-    font-size: 1.1rem;
-    font-weight: 300;
-}
-.div-button:hover {
-    background-color: var(--color-theme-light);
-    border: 2px solid var(--bookmark-bg-a);
+    background-color: var(--model-mark-inner-active);
+    border: 0.2rem solid var(--model-mark-border-active);
 }
 .model-edit-title {
     font-weight: 300;
@@ -145,7 +135,7 @@
     padding: 0.5rem;
     font-size: 1.1rem;
     height: 3rem;
-    border-bottom: 2px solid var(--color-dark-lighter);
+    border-bottom: 2px solid var(--model-edit-image-border);
 }
 .model-edit-pinroot {
     display: flex;
@@ -156,7 +146,7 @@
     position: relative;
     width: 304px;
     height: 304px;
-    border: 2px solid var(--color-dark-lighter);
+    border: 2px solid var(--model-edit-image-border);
     border-radius: 0.5rem;
 }
 .pin-ptr {
@@ -167,7 +157,7 @@
     left: 150px;
     height: 1.5rem;
     width: 1.5rem;
-    border: 2px solid white;
+    border: 2px solid var(--pin-pointer-outer);
     border-radius: 0 0 1.5rem 0;
 }
 .pin-ptr span:nth-child(1) {
@@ -179,8 +169,8 @@
     top: -0.3rem;
     left: -0.3rem;
     border-radius: 0.4rem;
-    border: 2px solid white;
-    background-color: blue;
+    border: 2px solid var(--pin-pointer-outer);
+    background-color: var(--pin-pointer-inner);
 }
 .model-edit-pinroot-img {
     width: 300px;
@@ -197,10 +187,6 @@
     text-align: right;
     width: 1rem;
     margin-left: 1rem;
-}
-.model-edit-param-container {
-    height: 100%;
-    overflow-y: scroll;
 }
 .model-edit-param-label {
     display: inline-block;
@@ -233,16 +219,16 @@
     display: flex;
     flex-direction: column;
     width: max-content;
-    background-color: rgba(161, 210, 255, 0.03);
+    background-color: #ffffff06;
 }
 .model-edit-vector-value-block .model-edit-param-label {
     width: 6rem;
 }
 .text-input-changed {
-    border-color: rgb(46, 155, 46) !important;
-    background-color: rgb(39, 122, 46) !important;
+    border-color: var(--text-input-changed-background) !important;
+    background-color: var(--text-input-changed-border) !important;
 }
 .text-input-mistake {
-    border-color: rgb(199, 39, 61) !important;
-    background-color: rgb(158, 28, 45) !important;
+    border-color: var(--text-input-mistake-background) !important;
+    background-color: var(--text-input-mistake-border) !important;
 }

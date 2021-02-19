@@ -6,12 +6,12 @@ import os
 import sys
 import time
 from abc import ABC, abstractmethod
-from sys import platform
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Iterable, List, Tuple, Union
 
 import bmesh
 import bpy
 import numpy
+from mathutils import Vector
 
 sys.path.append(os.path.dirname(__file__))
 from src.py.ttype import *
@@ -295,7 +295,7 @@ class Global(Namespace):
     ):
         bpy.context.scene.render.engine = 'BLENDER_EEVEE'
         eevee = bpy.context.scene.eevee
-        eevee.taa_render_samplex = render_samples
+        eevee.taa_render_samples = render_samples
         bpy.context.scene.render.use_high_quality_normals = use_high_quality_normals
 
     @staticmethod
@@ -324,6 +324,7 @@ class Global(Namespace):
         tile_x: float = 64,
         tile_y: float = 64,
         threads_count: int = 0,
+        film_transparent: bool = True
     ):
         render = bpy.context.scene.render
         render.filepath = outpath
@@ -331,6 +332,8 @@ class Global(Namespace):
         render.resolution_y = resolution_y
         render.tile_x = tile_x
         render.tile_y = tile_y
+        render.film_transparent = film_transparent
+
         if threads_count > 0:
             render.threads_mode = 'FIXED'
             render.threads = threads_count
@@ -398,7 +401,7 @@ class Transform(Namespace):
             orient_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
             orient_matrix_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
         """
-        return bpy.ops.transform.translate(
+        rv = bpy.ops.transform.translate(
             value=(
                 TType.UnitOfLength.parse(x),
                 TType.UnitOfLength.parse(y),
@@ -417,6 +420,9 @@ class Transform(Namespace):
             release_confirm=release_confirm,
             **kwargs,
         )
+        if not Edit.isEditMode():
+            Transform.apply(True, False, False)
+        return rv
 
     @staticmethod
     def rotate(
@@ -447,7 +453,7 @@ class Transform(Namespace):
         """
         if center_override is not None:
             kwargs["center_override"] = center_override
-        return bpy.ops.transform.rotate(
+        rv = bpy.ops.transform.rotate(
             value=TType.Angle.parse(value),
             orient_axis=orient_axis,
             orient_type=orient_type,
@@ -463,6 +469,9 @@ class Transform(Namespace):
             release_confirm=release_confirm,
             **kwargs,
         )
+        if not Edit.isEditMode():
+            Transform.apply(False, True, False)
+        return rv
 
     @staticmethod
     def rotateX(
@@ -478,13 +487,16 @@ class Transform(Namespace):
         Returns:
             set: set containing operation result.
         """
-        return Transform.rotate(
+        rv = Transform.rotate(
             value,
             orient_axis="X",
             constraint_axis=(True, False, False),
             center_override=center_override,
             **kwargs,
         )
+        if not Edit.isEditMode():
+            Transform.apply(False, True, False)
+        return rv
 
     @staticmethod
     def rotateY(
@@ -500,13 +512,16 @@ class Transform(Namespace):
         Returns:
             set: set containing operation result.
         """
-        return Transform.rotate(
+        rv = Transform.rotate(
             value,
             orient_axis="Y",
             constraint_axis=(False, True, False),
             center_override=center_override,
             **kwargs,
         )
+        if not Edit.isEditMode():
+            Transform.apply(False, True, False)
+        return rv
 
     @staticmethod
     def rotateZ(
@@ -522,13 +537,16 @@ class Transform(Namespace):
         Returns:
             set: set containing operation result.
         """
-        return Transform.rotate(
+        rv = Transform.rotate(
             value,
             orient_axis="Z",
             constraint_axis=(False, False, True),
             center_override=center_override,
             **kwargs,
         )
+        if not Edit.isEditMode():
+            Transform.apply(False, True, False)
+        return rv
 
     @staticmethod
     def scale(
@@ -566,7 +584,7 @@ class Transform(Namespace):
             use_proportional_projected (bool, optional): . Defaults to False.
             release_confirm (bool, optional): . Defaults to True.
         """
-        return bpy.ops.transform.resize(
+        rv = bpy.ops.transform.resize(
             value=(x, y, z),
             orient_type=orient_type,
             orient_matrix=orient_matrix,
@@ -581,6 +599,9 @@ class Transform(Namespace):
             release_confirm=release_confirm,
             **kwargs,
         )
+        if not Edit.isEditMode():
+            Transform.apply(False, False, True)
+        return rv
 
 
 Global.deleteAll()
@@ -707,7 +728,7 @@ class Edit:
             xyz_test: (callable, optional) function returning bool selection value for (x, y, z) params
         """
         for v in self.verts:
-            if xyz_test(v.co.x, v.co.y, v.co.z):
+            if xyz_test(v.co):
                 v.select = True
 
     def selectFaces(self, facing_xyz: tuple) -> None:
@@ -1166,6 +1187,22 @@ class Object(Namespace):
             },
         )
         return Global._Bpy_getActive()
+
+    def bboxCenter(bpy_obj: BlenderObject) -> Vector:
+        o = bpy_obj
+        local_bbox_center = 0.125 * sum((Vector(b) for b in o.bound_box), Vector())
+        global_bbox_center = o.matrix_world @ local_bbox_center
+        return global_bbox_center
+
+    def bboxMaxDist(bpy_obj: BlenderObject) -> float:
+        o = bpy_obj
+        bbox = [o.matrix_world @ Vector(b) for b in o.bound_box]
+        max_dist = 0
+        for vec in bbox:
+            for val in vec:
+                if abs(val) > max_dist:
+                    max_dist = abs(val)
+        return max_dist
 
     def convert(bpy_obj, target: str = "MESH") -> BlenderObject:
         """Convert object from one type to another.
@@ -1919,8 +1956,8 @@ class Material:
 
     @staticmethod
     def Smooth(bpy_obj):
-        with Edit(bpy_obj) as Edit:
-            for face in Edit.faces:
+        with Edit(bpy_obj) as edit:
+            for face in edit.faces:
                 face.smooth = True
 
 
@@ -2365,7 +2402,7 @@ class Mesh(Namespace):
             scale=(1, 1, 1),
         )
         if material is not None:
-            Material(bpy_obj).update(**material)
+            Material(Global._Bpy_getActive()).update(**material)
         return Global._Bpy_getActive()
 
     def LShape(
@@ -2398,19 +2435,20 @@ class Mesh(Namespace):
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
-            for edge in edit.edges:
-                edge.select = (
-                    edge.calc_length() > 0
-                    and edge.verts[0].co.z > boostHeight
-                    and edge.verts[1].co.z > boostHeight
-                )
-            edit.ScaleBy(y=boostWidth / width)
+            if boostWidth and boostHeight:
+                for edge in edit.edges:
+                    edge.select = (
+                        edge.calc_length() > 0
+                        and edge.verts[0].co.z > boostHeight
+                        and edge.verts[1].co.z > boostHeight
+                    )
+                edit.ScaleBy(y=boostWidth / width)
             edit.selectAll()
             edit.MoveBy(x=-length / 2)
         Modifier.Solidify(bpy_obj, thickness, 1, True)
         if material is not None:
             Material(bpy_obj).update(**material)
-        return Global._Bpy_getActive()
+        return bpy_obj
 
     def SShape(
         height: TType.UnitOfLength = 1.0,

@@ -2,7 +2,7 @@
     "caseDepth": { "ttype": "UnitOfLength" },
     "caseWidth": { "ttype": "UnitOfLength" },
     "caseHeight": { "ttype": "UnitOfLength" },
-    "caseType": { "ttype": "Keyword", "options": ["S", "C"] },
+    "caseType": { "ttype": "Keyword", "options": ["Square", "Rounded"] },
     "caseHoleRadius": { "ttype": "UnitOfLength" },
     "caseMaterial": {
         "ttype": "MaterialParams",
@@ -30,6 +30,7 @@
     "fontDepth": { "ttype": "UnitOfLength" },
     "pinWidth": { "ttype": "UnitOfLength" },
     "pinThickness": { "ttype": "UnitOfLength" },
+    "pinHeight": { "ttype": "UnitOfLength" },
     "pinLength": { "ttype": "UnitOfLength" },
     "pinSpacing": { "ttype": "UnitOfLength" },
     "pinCount": { "ttype": "Int", "range": [0, 64], "inclusive": true },
@@ -42,7 +43,7 @@
             "roughness": 0.1
         }
     },
-    "pinStyle": { "ttype": "Keyword", "options": ["I", "T", "O"] },
+    "pinStyle": { "ttype": "Keyword", "options": ["T-shape", "Rectangle", "Round"] },
     "bend": { "ttype": "Bool" },
-    "bendRadius": { "ttype": "Float", "range": [0.0, 5.0], "inclusive": true }
+    "bendRadius": { "ttype": "UnitOfLength" }
 }

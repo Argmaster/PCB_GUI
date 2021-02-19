@@ -165,7 +165,13 @@ class TType(Namespace):
 
         magic_symbols = {}
 
-        def set(self, value) -> None:
+        @staticmethod
+        def resolve(path: str) -> str:
+            for symbol, repl in TType.PathExpression.magic_symbols.items():
+                path = path.replace(symbol, repl)
+            return path
+
+        def set(self, value: str) -> None:
             """Tests if value is path valid for current OS and if True,
             sets self._value to value.
 
@@ -175,8 +181,7 @@ class TType(Namespace):
             Raises:
                 ValueError: Raised if path do not pass validation
             """
-            for symbol, repl in self.magic_symbols.items():
-                value = value.replace(symbol, repl)
+            value = self.resolve(value)
 
             if self.is_pathname_valid(value):
                 self._value = value
