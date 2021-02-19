@@ -129,7 +129,8 @@ function loadEditModelMenu() {
             model.prm_dict,
             param_name,
             param_name,
-            userpref
+            userpref,
+            param_name
         );
     }
     panel.append(`

@@ -1,4 +1,11 @@
-function getParamAnyHTML(model, prm_dict, param_name, param_id, userpref) {
+function getParamAnyHTML(
+    model,
+    prm_dict,
+    param_name,
+    param_id,
+    userpref,
+    label
+) {
     let _default = prm_dict[param_name];
     let _user_pref = userpref.getModelProp(model._model, param_id);
     if (_user_pref == undefined) {
@@ -10,7 +17,7 @@ function getParamAnyHTML(model, prm_dict, param_name, param_id, userpref) {
     return `
         <div class="model-edit-param-box">
             <div class="model-edit-param-label">
-                ${param_name}
+                ${label}
             </div>
             <input
                 type="text"
@@ -24,7 +31,14 @@ function getParamAnyHTML(model, prm_dict, param_name, param_id, userpref) {
             />
         </div>`;
 }
-function getParamNumberHTML(model, prm_dict, param_name, param_id, userpref) {
+function getParamNumberHTML(
+    model,
+    prm_dict,
+    param_name,
+    param_id,
+    userpref,
+    label
+) {
     let param_template = model.template.tem_dict[param_name];
     let _default = prm_dict[param_name];
     let _user_pref = userpref.getModelProp(model._model, param_id);
@@ -38,7 +52,7 @@ function getParamNumberHTML(model, prm_dict, param_name, param_id, userpref) {
     return `
         <div class="model-edit-param-box">
             <div class="model-edit-param-label">
-                ${param_name}
+                ${label}
             </div>
             <input
                 type="number"
@@ -56,7 +70,14 @@ function getParamNumberHTML(model, prm_dict, param_name, param_id, userpref) {
             />
         </div>`;
 }
-function getParamBoolHTML(model, prm_dict, param_name, param_id, userpref) {
+function getParamBoolHTML(
+    model,
+    prm_dict,
+    param_name,
+    param_id,
+    userpref,
+    label
+) {
     let _default = prm_dict[param_name];
     let _user_pref = userpref.getModelProp(model._model, param_id);
     if (_user_pref == undefined) {
@@ -65,7 +86,7 @@ function getParamBoolHTML(model, prm_dict, param_name, param_id, userpref) {
     return `
         <div class="model-edit-param-box">
             <div class="model-edit-param-label">
-                ${param_name}
+                ${label}
             </div>
             <select
                 class="standard-text-input"
@@ -83,7 +104,14 @@ function getParamBoolHTML(model, prm_dict, param_name, param_id, userpref) {
             </select>
         </div>`;
 }
-function getParamKeywordHTML(model, prm_dict, param_name, param_id, userpref) {
+function getParamKeywordHTML(
+    model,
+    prm_dict,
+    param_name,
+    param_id,
+    userpref,
+    label
+) {
     let _default = prm_dict[param_name];
     let _user_pref = userpref.getModelProp(model._model, param_id);
     if (_user_pref == undefined) {
@@ -100,7 +128,7 @@ function getParamKeywordHTML(model, prm_dict, param_name, param_id, userpref) {
     return `
         <div class="model-edit-param-box">
             <div class="model-edit-param-label">
-                ${param_name}
+                ${label}
             </div>
             <select
                 class="standard-text-input"
@@ -114,10 +142,10 @@ function getParamKeywordHTML(model, prm_dict, param_name, param_id, userpref) {
         </div>`;
 }
 const MATERIAL_DEFAULT = {
-    color: [0.0, 0.0, 0.0, 1.0],
+    color: [0.0, 0.0, 0.0, 255],
     subsurface: 0.0,
     subsurfaceRadius: [0.0, 0.0, 0.0, 1.0],
-    subsurfaceColor: [0.0, 0.0, 0.0, 1.0],
+    subsurfaceColor: [0.0, 0.0, 0.0, 255],
     metallic: 0.0,
     specular: 0.5,
     specularTint: 0.0,
@@ -141,26 +169,26 @@ const MATERIAL_TEMPLATE = {
         values: [
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
         ],
-        default: [0.0, 0.0, 0.0, 1.0],
+        default: [0.0, 0.0, 0.0, 255],
     },
     subsurface: {
         ttype: "Float",
@@ -198,26 +226,26 @@ const MATERIAL_TEMPLATE = {
         values: [
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
             {
                 ttype: "Float",
-                range: [0.0, 1.0],
+                range: [0, 255],
                 inclusive: true,
             },
         ],
-        default: [0.0, 0.0, 0.0, 1.0],
+        default: [0.0, 0.0, 0.0, 255],
     },
     metallic: {
         ttype: "Float",
@@ -318,12 +346,13 @@ function getParamMaterialParamsHTML(
     prm_dict,
     param_name,
     param_id,
-    userpref
+    userpref,
+    label
 ) {
     let property_html = "";
     let params = {};
     Object.assign(params, MATERIAL_DEFAULT);
-    Object.assign(params, prm_dict);
+    Object.assign(params, prm_dict[param_name]);
     for (let prop_name in MATERIAL_TEMPLATE) {
         property_html += exports.getModelParamSwitchHTML(
             {
@@ -335,23 +364,32 @@ function getParamMaterialParamsHTML(
             params,
             prop_name,
             param_id + prop_name,
-            userpref
+            userpref,
+            prop_name
         );
     }
     return `
     <div class="model-edit-param-box">
         <div class="model-edit-input-indent-block">
             <div class="model-edit-indent-block-label">
-                ${param_name}
+                ${label}
             </div>
             ${property_html}
         </div>
     </div>`;
 }
-function getParamVectorHTML(model, prm_dict, param_name, param_id, userpref) {
+function getParamVectorHTML(
+    model,
+    prm_dict,
+    param_name,
+    param_id,
+    userpref,
+    label
+) {
     let property_html = "";
     let param_template = model.template.tem_dict[param_name];
     let _default = prm_dict[param_name];
+    labels = ["R", "G", "B", "A"];
     for (let index in param_template.values) {
         property_html += exports.getModelParamSwitchHTML(
             {
@@ -363,14 +401,15 @@ function getParamVectorHTML(model, prm_dict, param_name, param_id, userpref) {
             _default,
             index,
             param_id + index,
-            userpref
+            userpref,
+            index < 4 ? labels[index] : ""
         );
     }
     return `
     <div class="model-edit-param-box">
         <div class="model-edit-input-indent-block">
             <div class="model-edit-indent-block-label">
-                ${param_name}
+                ${label}
             </div>
             <div class="model-edit-vector-value-block">
                 ${property_html}
@@ -383,7 +422,8 @@ exports.getModelParamSwitchHTML = function (
     prm_dict,
     param_name,
     param_id,
-    userpref
+    userpref,
+    label
 ) {
     switch (model.template.tem_dict[param_name].ttype) {
         case "String":
@@ -397,7 +437,8 @@ exports.getModelParamSwitchHTML = function (
                 prm_dict,
                 param_name,
                 param_id,
-                userpref
+                userpref,
+                label
             );
 
         case "Int":
@@ -407,7 +448,8 @@ exports.getModelParamSwitchHTML = function (
                 prm_dict,
                 param_name,
                 param_id,
-                userpref
+                userpref,
+                label
             );
 
         case "Keyword":
@@ -416,7 +458,8 @@ exports.getModelParamSwitchHTML = function (
                 prm_dict,
                 param_name,
                 param_id,
-                userpref
+                userpref,
+                label
             );
 
         case "Bool":
@@ -425,7 +468,8 @@ exports.getModelParamSwitchHTML = function (
                 prm_dict,
                 param_name,
                 param_id,
-                userpref
+                userpref,
+                label
             );
 
         case "MaterialParams":
@@ -434,7 +478,8 @@ exports.getModelParamSwitchHTML = function (
                 prm_dict,
                 param_name,
                 param_id,
-                userpref
+                userpref,
+                label
             );
 
         case "Vector":
@@ -443,7 +488,8 @@ exports.getModelParamSwitchHTML = function (
                 prm_dict,
                 param_name,
                 param_id,
-                userpref
+                userpref,
+                label
             );
 
         case "NestedTemplate":
@@ -456,7 +502,8 @@ exports.getModelParamSwitchHTML = function (
                 prm_dict,
                 param_name,
                 param_id,
-                userpref
+                userpref,
+                label
             );
     }
 };
@@ -465,8 +512,8 @@ exports.getModelContainerHTML = function (model) {
     <div class="model-box">
         <div class="model-data">
             <div class="model-image">
-                <img class="model-icon" src="${model.package_path}/__top__.png"/>
-                <img class="model-icon model-icon-disable" src="${model.package_path}/__bot__.png"/>
+                <img class="model-icon" src="${model.package_path}/__top__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
+                <img class="model-icon model-icon-disable" src="${model.package_path}/__bot__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
             </div>
             <div class="model-meta">
                 <div class="model-title">
@@ -502,6 +549,10 @@ exports.genEditModelMenuHTML = function (model, userpref) {
     if (vy == undefined) {
         vy = 0;
     }
+    let angle = userpref.getModelProp(model._model, "$__Angle");
+    if (angle == undefined) {
+        angle = 0;
+    }
     return `
     <div class="model-edit-title">
         <span class="model-title-small">model</span>
@@ -511,29 +562,38 @@ exports.genEditModelMenuHTML = function (model, userpref) {
     </div>
     <div class="model-edit-pinroot">
         <div class="model-edit-pinroot-img-box">
-            <img class="model-edit-pinroot-img" src="${model.package_path}/__bot__.png"/>
+            <img class="model-edit-pinroot-img" src="${model.package_path}/__bot__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
             <div class="pin-ptr">
                 <span></span>
             </div>
         </div>
         <div class="model-edit-pinroot-data">
             <div>
-                <div class="model-edit-pinroot-data-label">X</div>
                 <input
                     type="number"
                     class="standard-text-input model-edit-pinroot-data-input"
                     value="${vx}"
                     id="Xaxis"
                 />
+                <div class="model-edit-pinroot-data-label">X</div>
             </div>
             <div>
-                <div class="model-edit-pinroot-data-label">Y</div>
                 <input
                     type="number"
                     class="standard-text-input model-edit-pinroot-data-input"
                     value="${vy}"
                     id="Yaxis"
                 />
+                <div class="model-edit-pinroot-data-label">Y</div>
+            </div>
+            <div>
+                <input
+                    type="number"
+                    class="standard-text-input model-edit-pinroot-data-input"
+                    value="${angle}"
+                    id="Angle"
+                />
+                <div class="model-edit-pinroot-data-label">Rotation</div>
             </div>
         </div>
     </div>

@@ -2,12 +2,14 @@
 
 * {
     font-weight: 200;
-    font-size: 14px;
     font-family: "JetBrains Mono", monospace;
     color: var(--main-text);
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+html {
+    font-size: 16px;
 }
 ::-webkit-scrollbar {
     width: 0.4rem;
@@ -142,6 +144,7 @@ textarea {
     background-color: var(--background-level-1);
     height: calc(100% - 3.1rem);
     width: 100%;
+    overflow-y: scroll;
 }
 .workspace-box {
     height: 100%;

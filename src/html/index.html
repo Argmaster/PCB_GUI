@@ -27,11 +27,6 @@
 
             const userpref = new UserPref();
             var blender_executable = `${process.cwd()}\\blender\\blender.exe`;
-            $(() => {
-                setInterval(() => {
-                    userpref.save();
-                }, 1000);
-            });
         </script>
         <script defer src="../js/index.js"></script>
         <script defer src="../js/models.js"></script>
@@ -80,6 +75,13 @@
             </nav>
             <main id="workspace-container">
                 <div class="workspace-box">
+                    <div class="global-logo-container">
+                        <img
+                            class="global-logo"
+                            src="../../data/assets/img/logo-big.png"
+                        />
+                        <div class="global-logo-title">PCB Assembler 3D</div>
+                    </div>
                     <div class="globals-flex-container">
                         <div class="global-content-box">
                             <div class="global-content-box-title">
@@ -101,8 +103,48 @@
                                         </div>
                                     </div>
                                     <div class="glob-sub-cont">
-                                        <select class="standard-text-input" id="theme-select">
-                                        </select>
+                                        <select
+                                            class="standard-text-input"
+                                            id="theme-select"
+                                        ></select>
+                                    </div>
+                                </div>
+                                <div class="global-content-section-row">
+                                    <div class="glob-sub-cont">
+                                        <div class="global-content-label">
+                                            Font size
+                                        </div>
+                                    </div>
+                                    <div class="glob-sub-cont">
+                                        <input
+                                            type="number"
+                                            max="36"
+                                            min="10"
+                                            value="14"
+                                            class="standard-text-input global-number-in"
+                                            id="font-size"
+                                            placeholder="14"
+                                        ></input>
+                                        px
+                                    </div>
+                                </div>
+                                <div class="global-content-section-row">
+                                    <div class="glob-sub-cont">
+                                        <div class="global-content-label">
+                                            Autosave delay
+                                        </div>
+                                    </div>
+                                    <div class="glob-sub-cont">
+                                        <input
+                                            type="number"
+                                            max="10000"
+                                            min="100"
+                                            value="1000"
+                                            class="standard-text-input global-number-in"
+                                            id="autosave-delay"
+                                            placeholder="1000"
+                                        ></input>
+                                        ms
                                     </div>
                                 </div>
                             </div>
@@ -116,30 +158,43 @@
                     </div>
                 </div>
                 <div class="workspace-box">
-                    <div class="gerber-layer-container">
-                        <h1 class="gerber-header">Geber top layers</h1>
-                        <div class="gereber-sublabel">Bottom most</div>
-                        <div
-                            class="gerber-layer-list"
-                            id="gerber-layers-top"
-                        ></div>
-                        <div class="gereber-sublabel">Top most</div>
-                        <div class="div-button centered gerber-add-layer">
-                            Add layer
+                    <div class="gerber-container">
+                        <div class="gerber-left-panel">
+                            <div class="gerber-preview"></div>
+                        </div>
+                        <div class="gerber-layer-container-box">
+                            <div class="gerber-layer-container">
+                                <h1 class="gerber-header">Geber top layers</h1>
+                                <div class="gereber-sublabel">Bottom most</div>
+                                <div
+                                    class="gerber-layer-list"
+                                    id="gerber-layers-top"
+                                ></div>
+                                <div class="gereber-sublabel">Top most</div>
+                                <div
+                                    class="div-button centered gerber-add-layer"
+                                >
+                                    Add layer
+                                </div>
+                            </div>
+                            <div class="gerber-layer-container">
+                                <h1 class="gerber-header">
+                                    Geber bottom layers
+                                </h1>
+                                <div class="gereber-sublabel">Bottom most</div>
+                                <div
+                                    class="gerber-layer-list"
+                                    id="gerber-layers-bot"
+                                ></div>
+                                <div class="gereber-sublabel">Top most</div>
+                                <div
+                                    class="div-button centered gerber-add-layer"
+                                >
+                                    Add layer
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="gerber-layer-container">
-                        <h1 class="gerber-header">Geber bottom layers</h1>
-                        <div class="gereber-sublabel">Bottom most</div>
-                        <div
-                            class="gerber-layer-list"
-                            id="gerber-layers-bot"
-                        ></div>
-                        <div class="gereber-sublabel">Top most</div>
-                        <div class="div-button centered gerber-add-layer">
-                            Add layer
-                        </div>
-                    </>
                 </div>
             </main>
         </div>
