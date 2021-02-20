@@ -1,5 +1,4 @@
 const child_process = require("child_process");
-const { exception } = require("console");
 
 class BlenderIO {
     constructor(script = "./src/py/loader.py") {
@@ -47,3 +46,4 @@ class BlenderIO {
     }
 }
 exports.BlenderIO = BlenderIO;
+exports.BlenderIO();

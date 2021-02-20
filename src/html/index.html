@@ -27,12 +27,7 @@
 
             const userpref = new UserPref();
             var blender_executable = `${process.cwd()}\\blender\\blender.exe`;
-        </script>
-        <script defer src="../js/index.js"></script>
-        <script defer src="../js/models.js"></script>
-        <script defer src="../js/gerber.js"></script>
-        <script defer src="../js/global.js"></script>
-        <script defer>
+
             function makeDataDirs() {
                 if (!fs.existsSync("./blender/blender.exe")) {
                     dialog.showErrorBox(
@@ -63,6 +58,9 @@
             }
             makeDataDirs();
         </script>
+        <script defer src="../js/global.js"></script>
+        <script defer src="../js/models.js"></script>
+        <script defer src="../js/gerber.js"></script>
     </head>
     <body>
         <div id="global-container">
@@ -124,7 +122,7 @@
                                             class="standard-text-input global-number-in"
                                             id="font-size"
                                             placeholder="14"
-                                        ></input>
+                                        />
                                         px
                                     </div>
                                 </div>
@@ -143,7 +141,7 @@
                                             class="standard-text-input global-number-in"
                                             id="autosave-delay"
                                             placeholder="1000"
-                                        ></input>
+                                        />
                                         ms
                                     </div>
                                 </div>
@@ -160,7 +158,37 @@
                 <div class="workspace-box">
                     <div class="gerber-container">
                         <div class="gerber-left-panel">
-                            <div class="gerber-preview"></div>
+                            <div class="gerber-preview">
+                                <img
+                                    src="../../data/assets/img/img-broken.svg"
+                                />
+                            </div>
+                            <div>
+                                <progress id="gerber-progress" value='0'></progress>
+                            </div>
+                            <div class="gerber-panel-buttons">
+                                    <div
+                                        class="div-button"
+                                        id="save-gerber-layers"
+                                    >
+                                        Save configuration
+                                    </div>
+                                    <div
+                                        class="div-button"
+                                        id="load-gerber-layers"
+                                    >
+                                        Load configuration
+                                    </div>
+                                    <div
+                                        class="div-button"
+                                        id="generate-gerber"
+                                    >
+                                        Generate 3D model
+                                    </div>
+                                    <div class="div-button">
+                                        Recognize files from directory
+                                    </div>
+                            </div>
                         </div>
                         <div class="gerber-layer-container-box">
                             <div class="gerber-layer-container">

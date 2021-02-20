@@ -173,6 +173,7 @@ class IO:
             except Exception as e:
                 stdin.stdout("ERROR", str(e.args), "")
 
+
     def makeBotIcon(self, IO_in: stdin):
         tp = TemplatePackage(IO_in.data["template_path"])
         tp.makeBotIcon(

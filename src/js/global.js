@@ -3,6 +3,7 @@ let AUTOSAVE_DELAY = 1000;
 let USE_AUTOSAVE = true;
 let CURRENT_DELAY = 0;
 
+
 function loadThemes() {
     for (const path of fs.readdirSync("./data/assets/themes").sort()) {
         $("#theme-select").append(
@@ -81,5 +82,31 @@ function initGUI() {
     $("#theme-select").on("change", selectTheme);
     initFontSize();
     initAutosave();
+    $(".bookmark-box").each(function (index) {
+        $(this).attr("id", `bk${index}`);
+        $(this).on("click", () => toggleBookmark(index));
+    });
+    $(".workspace-box").each(function (index) {
+        $(this).attr("id", `ws${index}`);
+    });
+    function toggleBookmark(index) {
+        const bookmark = $(`#bk${index}`);
+        if (!bookmark.hasClass("bookmark-active")) {
+            // togle bookmark highlight
+            $(".bookmark-active").each(function () {
+                $(this).addClass("bookmark-inactive");
+                $(this).removeClass("bookmark-active");
+            });
+            bookmark.addClass("bookmark-active");
+            bookmark.removeClass("bookmark-inactive");
+            // show workspace
+            $(".workspace-box").each(function () {
+                $(this).hide();
+            });
+            var workspace = $(`#ws${index}`);
+            workspace.show();
+        }
+    }
+    toggleBookmark(0);
 }
 $(initGUI);

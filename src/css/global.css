@@ -1,5 +1,7 @@
 .global-logo-container {
     position: relative;
+    user-select: none;
+    pointer-events: none;
 }
 .global-logo {
     width: 100%;
