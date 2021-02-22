@@ -1,11 +1,9 @@
-import sys
 import os
 import re
 import json
 import pickle
 import time
 
-sys.path.append(os.getcwd())
 from src.py.bpyx import *
 
 
@@ -23,27 +21,6 @@ TType.PathExpression.magic_symbols = {
     "$cwd": f"{os.getcwd()}",
     "$default": f"{os.getcwd()}/data/assets/fonts/JetBrainsMono/JetBrainsMono.ttf",
 }
-
-
-class ModelPackage:
-    def __init__(self, package_path: str) -> None:
-        self.package_path = package_path
-        self.dec_path = f"{package_path}/__dec__.json"
-        self.prm_path = f"{package_path}/__prm__.json"
-        self.bot_path = f"{package_path}/__bot__.png"
-        self.top_path = f"{package_path}/__top__.png"
-        with open(self.dec_path, "r", encoding="utf-8") as file:
-            self.dec_dict = json.load(file)
-        self._class = str(self.dec_dict.get("class"))
-        self._model = str(self.dec_dict.get("model"))
-        self._author = str(self.dec_dict.get("author"))
-        self._dscp = str(self.dec_dict.get("dscp"))
-        self._other = list(self.dec_dict.get("other"))
-        with open(self.prm_path, "r", encoding="utf-8") as file:
-            self.prm_dict = json.load(file)
-
-    def params(self):
-        return self.prm_dict
 
 
 class TemplatePackage:
@@ -133,71 +110,3 @@ class TemplatePackage:
         Global.eevee()
         Global.render(f"{path_to_save}/__bot__.png", 1920, 1920)
 
-
-class stdin:
-    code: str
-    data: Any
-
-    def __init__(self) -> None:
-        line = sys.stdin.readline().strip()
-        while not line:
-            line = sys.stdin.readline().strip()
-        block = json.loads(line)
-        self.code = block["code"]
-        self.data = block["data"]
-
-    @staticmethod
-    def stdout(status: str, trace: str="", data: Any=None) -> None:
-        sys.stdout.flush()
-        sys.stdout.write(
-            json.dumps({"status": status, "trace": trace, "data": data}) + "\n"
-        )
-        sys.stdout.flush()
-
-
-class IO:
-    IO_in: stdin
-
-    def mainloop(self) -> None:
-        stdin.stdout("READY")
-        callbacks = {
-            "GMF": self.genModelFile,
-            "MBI": self.makeBotIcon,
-            "GTP": self.getTemplateParams,
-            "EXC": self.exc,
-        }
-        while True:
-            try:
-                self.IO_in = stdin()
-                callbacks[self.IO_in.code](self.IO_in)
-            except Exception as e:
-                stdin.stdout("ERROR", str(e.args), "")
-
-
-    def makeBotIcon(self, IO_in: stdin):
-        tp = TemplatePackage(IO_in.data["template_path"])
-        tp.makeBotIcon(
-            IO_in.data["template_params"],
-            TType.PathExpression.resolve(IO_in.data["model_path"]),
-        )
-        IO_in.stdout("OK")
-
-    def getTemplateParams(self, IO_in: stdin):
-        IO_in.stdout("OK", "", TemplatePackage(IO_in.data['template_path']).params_json())
-
-    def genModelFile(self, IO_in: stdin):
-        TemplatePackage(IO_in.data['template_path']).execute(ModelPackage(stdin()).params())
-        Global.Export(IO_in.data['output_path'])
-        IO_in.stdout("OK")
-
-    def exc(self, IO_in: stdin):
-        IO_in.stdout("OK")
-        time.sleep(0.5)
-        exit()
-
-
-if __name__ == "__main__":
-    # pkg = TemplatePackage("./totht")
-    # pkg.execute({})
-    # Blender.Object.exportObject("./test.glb")
-    IO().mainloop()

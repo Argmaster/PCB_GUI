@@ -44,6 +44,11 @@
     --std-input-background-hover: #1e3a6e;
     --std-input-border-hover: #1e599c;
 
+    --std-slider-background: #25282e;
+    --std-slider-button: #373b42;
+    --std-slider-background-checked: #2158c7;
+    --std-slider-button-checked: #3b75eb;
+
     --std-button-background: #2e3138;
     --std-button-border: #343c44;
     --std-button-background-hover: #234791;
@@ -61,4 +66,6 @@
     --bookmark-background-inactive-hover: #373e4d;
     --bookmark-border-active-hover: #1a48a5;
     --bookmark-border-inactive-hover: #484f63;
+
+    --gerber-progress: #0069cc;
 }

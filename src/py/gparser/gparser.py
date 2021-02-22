@@ -1,6 +1,22 @@
+from __future__ import annotations
+
+from typing import Callable
 from src.py.gparser.absbackend import DrawingBackendAbstract
 from re import DOTALL, search, compile
 from src.py.gparser.gconst import Constant
+from queue import Empty, Queue
+
+
+class Token:
+    func: Callable  # function to call
+    chunk: str  # matched regex
+
+    def __init__(self, func: Callable, chunk: str) -> None:
+        self.func = func
+        self.chunk = chunk
+
+    def __call__(self) -> None:
+        return self.func(self.chunk)
 
 
 class GerberParser:
@@ -28,7 +44,7 @@ class GerberParser:
     def __init__(
         self,
         drawingBackend: DrawingBackendAbstract,
-        verbose: bool = True,
+        verbose: bool = False,
         deprecated: Constant = Constant.IGNORE,
         not_implemented: Constant = Constant.IGNORE,
     ) -> None:
@@ -50,110 +66,12 @@ class GerberParser:
         self.ON_NOT_IMPLEMENTED: Constant = not_implemented
         self.ON_DEPRECATED: Constant = deprecated
         self.VERBOSE: bool = verbose
-        self.BACKEND: DrawingBackendAbstract = None
-        self.reset(drawingBackend)
-        # list of all code blocks that can be caught and handled
-        self._SWITCH = [
-            # start region mode
-            (compile(r"^G36"), self.on_G36),
-            # end region mode
-            (compile(r"^G37"), self.on_G37),
-            # Select aperture; optionally precedes an aperture selection
-            (compile(r"^G54"), self.on_Deprecated),
-            # Prepare for flash
-            (compile(r"^G55"), self.on_Comment),
-            # quadrant mode to single
-            (compile(r"^G74"), self.on_G74),
-            # quadrant mode to multi
-            (compile(r"^G75"), self.on_G75),
-            # Set the ‘Unit’ to inch
-            (compile(r"^G70"), self.on_G70),
-            # Set the ‘Unit’ to mm
-            (compile(r"^G71"), self.on_G71),
-            # Set the ‘Coordinate format’ to ‘Absolute notation’
-            (compile(r"^G90"), self.on_G90),
-            # Set the ‘Coordinate format’ to ‘Incremental notation’
-            (compile(r"^G91"), self.on_G91),
-            # set linear interpolation
-            (compile(r"^G01|^G1"), self.on_G01),
-            # set circular interpolation
-            (compile(r"^G02|^G2"), self.on_G02),
-            # set CCW circular interpolation
-            (compile(r"^G03|^G3"), self.on_G03),
-            # comment
-            (compile(r"^G04.*?\*|^G4.*?\*", flags=DOTALL), self.on_Comment),
-            # coordinate X
-            (compile(r"^X\d*"), self.on_X),
-            # coordinate Y
-            (compile(r"^Y\d*"), self.on_Y),
-            # relative coordinate I
-            (compile(r"^I\d*"), self.on_I),
-            # relative coordinate J
-            (compile(r"^J\d*"), self.on_J),
-            # end of gerber file
-            (compile(r"^M02|^M01|^M00"), self.on_M02),
-            (compile(r"^MIA\dB\d\*%"), self.on_NotImplemented),
-            # draw line / arc
-            (compile(r"^D01\*|^D1\*"), self.on_D01),
-            # move to position
-            (compile(r"^D02\*|^D2\*"), self.on_D02),
-            # draw flash
-            (compile(r"^D03\*|^D3\*"), self.on_D03),
-            # load a tool
-            (compile(r"^D[1-9][0-9]\*"), self.on_DNN),
-            # whitespace handling
-            (compile(r"^\*|^\s+"), lambda *_: ""),
-            # set polarity to Constant.DARK or Constant.CLEAR
-            (compile(r"^%LP[CD]\*%"), self.on_LP),
-            # set object mirroring
-            (compile(r"^%LM[XYN]+\*%"), self.on_NotImplemented),
-            # set object rotation
-            (compile(r"^%LR-?\d*\.?\d+\*%"), self.on_NotImplemented),
-            # set object scaling
-            (compile(r"^%LS\d*\.?\d+\*%"), self.on_NotImplemented),
-            # Loads a name. Has no effect. It is a comment.
-            (compile(r"^%LN.*?\*%", flags=DOTALL), self.on_Deprecated),
-            # Sets the name of the file image. Has no effect. It is comment.
-            (compile(r"^%IN.*?\*%", flags=DOTALL), self.on_Deprecated),
-            # Add new tool
-            (compile(r"^%AD.*?\*%", flags=DOTALL), self.on_AD),
-            # Add new macro
-            (compile(r"^%AM.*?\*%", flags=DOTALL), self.on_AM),
-            # sets image polarity
-            (compile(r"^%IP.*?\*%", flags=DOTALL), self.on_Deprecated),
-            # AS Sets the ‘Axes correspondence’ graphics state parameter
-            # IR Sets ‘Image rotation’ graphics state parameter
-            # MI Sets ‘Image mirroring’ graphics state parameter
-            # OF Sets ‘Image offset’ graphics state parameter
-            # SF Sets ‘Scale factor’ graphics state parameter
-            (
-                compile(
-                    r"^%AS.*?\*%|^%IR.*?\*%|^%MI.*?\*%|^%OF.*?\*%|^%SF.*?\*%",
-                    flags=DOTALL,
-                ),
-                self.on_NotImplemented,
-            ),
-            # add block
-            (compile(r"^%AB.*?\*%.*?%AB\*%", flags=DOTALL), self.on_AM),
-            # Sets units to either Inches (IN) or milimeters (MM)
-            (compile(r"^%MO[IM][NM]\*%"), self.on_MO),
-            # sets format of coordinate data
-            (compile(r"^%FS.*?\*%", flags=DOTALL), self.on_FS),
-        ]
-
-    def reset(self, drawingBackend: DrawingBackendAbstract = None) -> None:
-        """Sets all parser state values to initial state, can be used to reset
-        parser after rendering, but I is highly recommended to use instance of
-        GerberParser only once.
-        """
-        if drawingBackend is not None:
-            self.BACKEND = drawingBackend
-            self.BACKEND.setParser(self)
+        self.BACKEND = drawingBackend
+        self.BACKEND.setParser(self)
         self.CURRENT_X: float = 0
         self.CURRENT_Y: float = 0
         self.STATE_DATA: dict = {}
-        self.TOOLS: set = set()
-        self.UNIT: str = None
+        self.UNIT: str = "IN"
         self.ACTIVE_TOOL: str = None
         self.DRAWING_MODE: Constant = None
         self.QUADRANT_MODE: Constant = None
@@ -163,12 +81,101 @@ class GerberParser:
         self.CF_INT: int = None
         self.CF_FLOAT: int = None
         self.CF_OMIT_ZEROS: bool = None
-        self.MACROS: set = {}
+        self.MACROS: dict = {}
         self._LEFT: float = None
         self._TOP: float = None
         self._RIGHT: float = None
         self._BOT: float = None
-        self.line_index: int = 0
+        self.TOKEN_STACK: Queue = None
+        self.TOKEN_INDEX = 0
+        # list of all code blocks that can be caught and handled
+        self.SWITCH = [
+            # start region mode
+            (compile(r"G36"), self.on_G36),
+            # end region mode
+            (compile(r"G37"), self.on_G37),
+            # Select aperture; optionally precedes an aperture selection
+            (compile(r"G54"), self.on_Deprecated),
+            # Prepare for flash
+            (compile(r"G55"), self.on_Comment),
+            # quadrant mode to single
+            (compile(r"G74"), self.on_G74),
+            # quadrant mode to multi
+            (compile(r"G75"), self.on_G75),
+            # Set the ‘Unit’ to inch
+            (compile(r"G70"), self.on_G70),
+            # Set the ‘Unit’ to mm
+            (compile(r"G71"), self.on_G71),
+            # Set the ‘Coordinate format’ to ‘Absolute notation’
+            (compile(r"G90"), self.on_G90),
+            # Set the ‘Coordinate format’ to ‘Incremental notation’
+            (compile(r"G91"), self.on_G91),
+            # set linear interpolation
+            (compile(r"G01|G1"), self.on_G01),
+            # set circular interpolation
+            (compile(r"G02|G2"), self.on_G02),
+            # set CCW circular interpolation
+            (compile(r"G03|G3"), self.on_G03),
+            # comment
+            (compile(r"G04.*?\*|G4.*?\*", flags=DOTALL), self.on_Comment),
+            # coordinate X
+            (compile(r"X\d*"), self.on_X),
+            # coordinate Y
+            (compile(r"Y\d*"), self.on_Y),
+            # relative coordinate I
+            (compile(r"I\d*"), self.on_I),
+            # relative coordinate J
+            (compile(r"J\d*"), self.on_J),
+            # end of gerber file
+            (compile(r"M02|M01|M00"), self.on_M02),
+            (compile(r"MIA\dB\d\*%"), self.on_NotImplemented),
+            # draw line / arc
+            (compile(r"D01\*|D1\*"), self.on_D01),
+            # move to position
+            (compile(r"D02\*|D2\*"), self.on_D02),
+            # draw flash
+            (compile(r"D03\*|D3\*"), self.on_D03),
+            # load a tool
+            (compile(r"D[1-9][0-9]\*"), self.on_DNN),
+            # whitespace handling
+            (compile(r"\*|\s+"), lambda chunk: None),
+            # set polarity to Constant.DARK or Constant.CLEAR
+            (compile(r"%LP[CD]\*%"), self.on_LP),
+            # set object mirroring
+            (compile(r"%LM[XYN]+\*%"), self.on_NotImplemented),
+            # set object rotation
+            (compile(r"%LR-?\d*\.?\d+\*%"), self.on_NotImplemented),
+            # set object scaling
+            (compile(r"%LS\d*\.?\d+\*%"), self.on_NotImplemented),
+            # Loads a name. Has no effect. It is a comment.
+            (compile(r"%LN.*?\*%", flags=DOTALL), self.on_Deprecated),
+            # Sets the name of the file image. Has no effect. It is comment.
+            (compile(r"%IN.*?\*%", flags=DOTALL), self.on_Deprecated),
+            # Add new tool
+            (compile(r"%AD.*?\*%", flags=DOTALL), self.on_AD),
+            # Add new macro
+            (compile(r"%AM.*?\*%", flags=DOTALL), self.on_AM),
+            # sets image polarity
+            (compile(r"%IP.*?\*%", flags=DOTALL), self.on_Deprecated),
+            # AS Sets the ‘Axes correspondence’ graphics state parameter
+            # IR Sets ‘Image rotation’ graphics state parameter
+            # MI Sets ‘Image mirroring’ graphics state parameter
+            # OF Sets ‘Image offset’ graphics state parameter
+            # SF Sets ‘Scale factor’ graphics state parameter
+            (
+                compile(
+                    r"%AS.*?\*%|%IR.*?\*%|%MI.*?\*%|%OF.*?\*%|%SF.*?\*%",
+                    flags=DOTALL,
+                ),
+                self.on_NotImplemented,
+            ),
+            # add block
+            (compile(r"%AB.*?\*%.*?%AB\*%", flags=DOTALL), self.on_AM),
+            # Sets units to either Inches (IN) or milimeters (MM)
+            (compile(r"%MO[IM][NM]\*%"), self.on_MO),
+            # sets format of coordinate data
+            (compile(r"%FS.*?\*%", flags=DOTALL), self.on_FS),
+        ]
 
     def _parse_co(self, co: str) -> float:
         """Used internally for parsing coordinate data in previously specified
@@ -192,37 +199,93 @@ class GerberParser:
             co = f"{co:0>{CF_LEN}}"
         return float(sing + co[: self.CF_INT] + "." + co[self.CF_INT :])
 
-    def _parse(self, source: str, _calc_size_mode: bool = False) -> None:
-        """This function handles actual parsing process in loop using regexes
-        form self._SWITCH dictionary. This function is internal, do not call it.
+    def tokenize(self, path: str):
+        self.TOKEN_STACK = Queue()
+        self.TOKEN_STACK_SIZE = 0
+        self._CALCULATE_SIZE_MODE = True
+        self.CURRENT_X = 0
+        self.CURRENT_Y = 0
 
-        Args:
-            source (str): gerber source code
-            _calc_size_mode (bool, optional): no-drawing mode. Defaults to False.
+        with open(path) as file:
+            source = file.read().strip()
 
-        raises:
-            GerberParser.GerberNoMatchSyntax: Constant.RAISEd when no matching gerber
-                                                syntax component has been found
-        """
-        self._CALCULATE_SIZE_MODE = _calc_size_mode
-        isV = self.VERBOSE
-        if _calc_size_mode:
-            self.VERBOSE = False
-        while source:
-            for pattern, function in self._SWITCH:
-                chunk = pattern.search(source)
+        cindex = 0
+        line_index = 0
+        char_index = 0
+        slen = len(source)
+        size_impact = (self.on_X, self.on_Y, self.on_FS)
+
+        while cindex < slen:
+            for regex, func in self.SWITCH:
+                chunk = regex.match(source, cindex)
                 if chunk is not None:
-                    chunk = chunk.group(0)
-                    source = source[len(chunk) :]
-                    function(chunk.strip())
+                    cindex = chunk.end()
+                    chunk = chunk.group()
+                    if "\n" in chunk:
+                        line_index += chunk.count("\n")
+                        char_index = len(chunk.split("\n")[1])
+                    else:
+                        char_index += len(chunk)
+                    tk = Token(func, chunk)
+                    if tk.func in size_impact:
+                        tk()
+                    self.TOKEN_STACK_SIZE += 1
+                    self.TOKEN_STACK.put(tk)
                     break
             else:
+                end_index = cindex + 30 if cindex + 30 < len(source) else len(source)
                 raise GerberParser.GerberNoMatchSyntax(
-                    f"line {self.line_index + 1}: {repr(source[:20]+'...')}"
+                    f"In line {line_index} no matching token at {char_index} char.\n {source[cindex: end_index]}..."
                 )
-        self.VERBOSE = isV
+        self._CALCULATE_SIZE_MODE = False
+        self.CURRENT_X = 0
+        self.CURRENT_Y = 0
 
-    def parse(self, path: str) -> DrawingBackendAbstract:
+    def feed(self, path: str) -> GerberParser:
+        """Feed parser with sorce code from file at given
+        path. Source code will be automatically tokenized
+        and PCB boundaries will be calculated and set.
+
+        Args:
+            path (str): path to gerber file
+
+        Returns:
+            GerberParser: self
+        """
+        try:
+            self.tokenize(path)
+        except GerberParser.ParserMetEOF:
+            pass
+        self.BACKEND.setSize(
+            self._RIGHT - self._LEFT,
+            self._BOT - self._TOP,
+            self._LEFT,
+            self._TOP,
+        )
+        return self
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self) -> int:
+        if self.TOKEN_STACK is None:
+            raise GerberParser.InvalidStateException("Parser was not fed with data.")
+        try:
+            token = self.TOKEN_STACK.get(block=False)
+            token()
+            self.TOKEN_INDEX += 1
+        except (Empty, GerberParser.ParserMetEOF):
+            raise StopIteration()
+        return self.TOKEN_INDEX
+
+    def resolve(self) -> None:
+        for progress in self:
+            pass
+
+    '''def parse(self, path: str) -> DrawingBackendAbstract:
         """This function is main parsing interface and is responsible
         for whole parsing process. "path" argument specifies path to file
         that will be parsed. File have to exist and be valid gerber file.
@@ -257,35 +320,37 @@ class GerberParser:
         except GerberParser.ParserMetEOF:
             pass
         self.BACKEND.end()
-        return self.BACKEND
+        return self.BACKEND'''
 
-    def _updateSize(self, NewX: float, NewY: float) -> None:
+    def _updateSize(self, *, x: float = None, y: float = None) -> None:
         """Updates coordinate boundaties of image,
         used while calculating image size before drawing.
         This function is internal, do not call it.
 
         Args:
-            NewX (float): X coordinate
-            NewY (float): Y coordinate
+            x (float): X coordinate
+            y (float): Y coordinate
         """
-        if self._RIGHT is None:
-            self._RIGHT = NewX
-        else:
-            self._RIGHT = NewX if NewX > self._RIGHT else self._RIGHT
-        if self._BOT is None:
-            self._BOT = NewY
-        else:
-            self._BOT = NewY if NewY > self._BOT else self._BOT
-        if self._LEFT is None:
-            self._LEFT = NewX
-        else:
-            self._LEFT = NewX if NewX < self._LEFT else self._LEFT
-        if self._TOP is None:
-            self._TOP = NewY
-        else:
-            self._TOP = NewY if NewY < self._TOP else self._TOP
+        if x is not None:
+            if self._RIGHT is None:
+                self._RIGHT = x
+            else:
+                self._RIGHT = x if x > self._RIGHT else self._RIGHT
+            if self._LEFT is None:
+                self._LEFT = x
+            else:
+                self._LEFT = x if x < self._LEFT else self._LEFT
+        if y is not None:
+            if self._BOT is None:
+                self._BOT = y
+            else:
+                self._BOT = y if y > self._BOT else self._BOT
+            if self._TOP is None:
+                self._TOP = y
+            else:
+                self._TOP = y if y < self._TOP else self._TOP
 
-    def convertToAbsolute(self, x: float, y: float) -> tuple:
+    def convertToAbsolute(self, x: float = None, y: float = None) -> tuple:
         """Converts passed values from relative to absolute coordinates
         This function have any efect only if self.CO_NOTATION is set to "I"
         (incremental coordinate mode). It returns (x, y) unchanged otherwise
@@ -298,9 +363,20 @@ class GerberParser:
             tuple: (x, y) tuple of converted coordinates
         """
         if self.CO_NOTATION == "I":
-            return self.CURRENT_X + x, self.CURRENT_Y + y
+            if x is None:
+                return self.CURRENT_Y + y
+            elif y is None:
+                return self.CURRENT_X + x
+            else:
+                return self.CURRENT_X + x, self.CURRENT_Y + y
+
         else:
-            return x, y
+            if x is None:
+                return y
+            elif y is None:
+                return x
+            else:
+                return x, y
 
     def on_Deprecated(self, chunk: str) -> None:
         """Called for deprecated functionality/syntax.
@@ -413,8 +489,7 @@ class GerberParser:
             chunk (str): chunk catched by regex coresponding to this function
         """
         self.IS_REGION_MODE = Constant.G37
-        if not self._CALCULATE_SIZE_MODE:
-            self.BACKEND.finishRegion()
+        self.BACKEND.finishRegion()
         if self.VERBOSE:
             print("Ended drawing region")
 
@@ -509,7 +584,7 @@ class GerberParser:
         """
         self.CF_OMIT_ZEROS = chunk[3]
         self.CO_NOTATION = chunk[4]
-        FORMAT = search(r"X\d\d", chunk).group(0)
+        FORMAT = search(r"X\d\d", chunk).group()
         self.CF_INT = int(FORMAT[1])
         self.CF_FLOAT = int(FORMAT[2])
         if self.VERBOSE:
@@ -529,7 +604,12 @@ class GerberParser:
         Args:
             chunk (str): chunk catched by regex coresponding to this function
         """
-        self.STATE_DATA["X"] = self._parse_co(chunk[1:])
+        if not self._CALCULATE_SIZE_MODE:
+            self.STATE_DATA["X"] = self._parse_co(chunk[1:])
+        else:
+            co = self.convertToAbsolute(x=self._parse_co(chunk[1:]))
+            self.CURRENT_X = co
+            self._updateSize(x=co)
 
     def on_Y(self, chunk: str) -> None:
         """This function corespods to Y.... statement which is responsible
@@ -539,7 +619,12 @@ class GerberParser:
         Args:
             chunk (str): chunk catched by regex coresponding to this function
         """
-        self.STATE_DATA["Y"] = self._parse_co(chunk[1:])
+        if not self._CALCULATE_SIZE_MODE:
+            self.STATE_DATA["Y"] = self._parse_co(chunk[1:])
+        else:
+            co = self.convertToAbsolute(y=self._parse_co(chunk[1:]))
+            self.CURRENT_Y = co
+            self._updateSize(y=co)
 
     def on_I(self, chunk: str) -> None:
         """This function corespods to I.... statement which is responsible
@@ -567,14 +652,7 @@ class GerberParser:
 
         Args:
             chunk (str): chunk catched by regex coresponding to this function
-
-        Raises:
-            GerberParser.GerberSyntaxError: raised if aperture wasnt specified before
         """
-        if chunk[:-1] not in self.TOOLS:
-            raise GerberParser.GerberSyntaxError(
-                f"Tool with identifier {chunk[:-1]} was not defined, line {self.line_index}"
-            )
         self.ACTIVE_TOOL = chunk[:-1]
         if self.VERBOSE:
             print("Set active tool to:", self.ACTIVE_TOOL)
@@ -596,13 +674,12 @@ class GerberParser:
             self.STATE_DATA.get("Y", self.CURRENT_Y),
         )
         if self.DRAWING_MODE == Constant.LINEAR_INTERPOLATION:
-            if not self._CALCULATE_SIZE_MODE:
-                self.BACKEND.drawLine(
-                    [self.CURRENT_X, self.CURRENT_Y],
-                    [NewX, NewY],
-                    self.ACTIVE_TOOL,
-                    self.IS_REGION_MODE,
-                )
+            self.BACKEND.drawLine(
+                [self.CURRENT_X, self.CURRENT_Y],
+                [NewX, NewY],
+                self.ACTIVE_TOOL,
+                self.IS_REGION_MODE,
+            )
             if self.VERBOSE:
                 print(
                     f"Draw line from: {self.CURRENT_X} {self.CURRENT_Y} to {NewX} {NewY} with {self.ACTIVE_TOOL}"
@@ -615,19 +692,18 @@ class GerberParser:
                 raise GerberParser.InvalidStateException(
                     "Quadrant mode is not set to valid value ({self.DRAWING_MODE})"
                 )
-            if not self._CALCULATE_SIZE_MODE:
-                self.BACKEND.drawArc(
-                    [self.CURRENT_X, self.CURRENT_Y],
-                    [NewX, NewY],
-                    [
-                        self.STATE_DATA.get("I"),
-                        self.STATE_DATA.get("J"),
-                    ],
-                    self.QUADRANT_MODE,
-                    self.DRAWING_MODE,
-                    self.ACTIVE_TOOL,
-                    self.IS_REGION_MODE,
-                )
+            self.BACKEND.drawArc(
+                [self.CURRENT_X, self.CURRENT_Y],
+                [NewX, NewY],
+                [
+                    self.STATE_DATA.get("I"),
+                    self.STATE_DATA.get("J"),
+                ],
+                self.QUADRANT_MODE,
+                self.DRAWING_MODE,
+                self.ACTIVE_TOOL,
+                self.IS_REGION_MODE,
+            )
             if self.VERBOSE:
                 print(
                     f"Draw arc from: {self.CURRENT_X} {self.CURRENT_Y} to {NewX} {NewY} with {self.ACTIVE_TOOL}"
@@ -638,8 +714,6 @@ class GerberParser:
             )
         self.CURRENT_X = NewX
         self.CURRENT_Y = NewY
-        if self._CALCULATE_SIZE_MODE:
-            self._updateSize(NewX, NewY)
         self.STATE_DATA.clear()
 
     def on_D02(self, chunk: str) -> None:
@@ -654,8 +728,6 @@ class GerberParser:
             self.STATE_DATA.get("X", self.CURRENT_X),
             self.STATE_DATA.get("Y", self.CURRENT_Y),
         )
-        if self._CALCULATE_SIZE_MODE:
-            self._updateSize(NewX, NewY)
         self.CURRENT_X = NewX
         self.CURRENT_Y = NewY
         self.STATE_DATA.clear()
@@ -675,10 +747,7 @@ class GerberParser:
             self.STATE_DATA.get("Y", self.CURRENT_Y),
         )
         self.STATE_DATA.clear()
-        if not self._CALCULATE_SIZE_MODE:
-            self.BACKEND.drawFlash((NewX, NewY), self.ACTIVE_TOOL)
-        else:
-            self._updateSize(NewX, NewY)
+        self.BACKEND.drawFlash((NewX, NewY), self.ACTIVE_TOOL)
         self.CURRENT_X = NewX
         self.CURRENT_Y = NewY
         if self.VERBOSE:
@@ -726,11 +795,6 @@ class GerberParser:
             raise GerberParser.GerberSyntaxError(
                 f"Invalid brush params in line: {self.line_index}: {params}"
             )
-        if identifier in self.TOOLS:
-            raise GerberParser.GerberSyntaxError(
-                f"Tool with identifier {identifier} already exists line: {self.line_index}"
-            )
-        self.TOOLS.add(identifier)
         self.BACKEND.addTool(identifier, brushType, params)
         if self.VERBOSE:
             print("Tool:", identifier, brushType, params)

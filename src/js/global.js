@@ -3,7 +3,20 @@ let AUTOSAVE_DELAY = 1000;
 let USE_AUTOSAVE = true;
 let CURRENT_DELAY = 0;
 
-
+function get_debug_prop(_id) {
+    return $(`#debug-${_id}`).prop("checked");
+}
+function get_debug() {
+    return {
+        blender_background: get_debug_prop("background-blender"),
+        keep_blender_open: get_debug_prop("keep-blender-open"),
+        js_log_in: get_debug_prop("js-log-in"),
+        js_log_out: get_debug_prop("js-log-out"),
+        python_log_in: get_debug_prop("python-log-in"),
+        python_log_out: get_debug_prop("python-log-out"),
+        log_user_pref: get_debug_prop("log-user-pref"),
+    };
+}
 function loadThemes() {
     for (const path of fs.readdirSync("./data/assets/themes").sort()) {
         $("#theme-select").append(
@@ -77,11 +90,61 @@ function initAutosave() {
     $("#autosave-delay").on("change", autosaveDelaySet);
     $("#autosave-delay").trigger("change");
 }
+function initDebugCheckboxes() {
+    function addDebugCheckbox(
+        label,
+        _id,
+        _default = true,
+        set_callback = undefined,
+        callback_event = "input"
+    ) {
+        $("#debug-settings").append(
+            `<div class="global-content-section-row">
+            <div class="glob-sub-cont">
+                <div class="global-content-label">
+                    ${label}
+                </div>
+            </div>
+            <div class="glob-sub-cont">
+                <label class="switch">
+                    <input
+                        type="checkbox"
+                        id="debug-${_id}"
+                    />
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>`
+        );
+        let $debug_check = $(`#debug-${_id}`);
+        $debug_check.prop(
+            "checked",
+            userpref.getUserPref("debug", _id, _default)
+        );
+        $debug_check.on("input", function () {
+            userpref.setUserPref("debug", _id, $(this).prop("checked"));
+        });
+        if (set_callback != undefined) {
+            $debug_check.on(callback_event, set_callback);
+        }
+        $debug_check.trigger("input");
+    }
+    addDebugCheckbox("Blender in background", "background-blender", false);
+    addDebugCheckbox("Keep Blender open", "keep-blender-open", true);
+    addDebugCheckbox("Log JavaScript BlenderIO IN", "js-log-in", true);
+    addDebugCheckbox("Log JavaScript BlenderIO OUT", "js-log-out", true);
+    addDebugCheckbox("Log Python BlenderIO IN", "python-log-in", true);
+    addDebugCheckbox("Log Python BlenderIO OUT", "python-log-out", true);
+    addDebugCheckbox("Log userpref change", "log-user-pref", true, function () {
+        userpref.log_change = get_debug_prop("log-user-pref");
+    });
+}
 function initGUI() {
     loadThemes();
     $("#theme-select").on("change", selectTheme);
     initFontSize();
     initAutosave();
+    initDebugCheckboxes();
     $(".bookmark-box").each(function (index) {
         $(this).attr("id", `bk${index}`);
         $(this).on("click", () => toggleBookmark(index));

@@ -133,9 +133,9 @@ class BlenderBackend(DrawingBackendAbstract):
 
     def __init__(
         self,
-        DARK_Z=0.10,
-        CLEAR_Z=0.05,
-        REGION_Z=0.10,
+        DARK_Z: TType.UnitOfLength=0.10,
+        CLEAR_Z: TType.UnitOfLength=0.05,
+        REGION_Z: TType.UnitOfLength=0.10,
         CLEAR_MATERIAL=None,
         DARK_MATERIAL=None,
         REGION_MATERIAL=None,
@@ -143,9 +143,9 @@ class BlenderBackend(DrawingBackendAbstract):
     ) -> None:
         self.TOOLS = {}
         self.REGION_VERTICES = []
-        self.DARK_Z = DARK_Z
-        self.CLEAR_Z = CLEAR_Z
-        self.REGION_Z = REGION_Z
+        self.DARK_Z = TType.UnitOfLength.parse(DARK_Z)
+        self.CLEAR_Z = TType.UnitOfLength.parse(CLEAR_Z)
+        self.REGION_Z = TType.UnitOfLength.parse(REGION_Z)
         self.DRAW_REGION = DRAW_REGION
         if DARK_MATERIAL is None:
             DARK_MATERIAL = {}

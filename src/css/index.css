@@ -9,7 +9,7 @@
     box-sizing: border-box;
 }
 html {
-    font-size: 16px;
+    font-size: 14px;
 }
 ::-webkit-scrollbar {
     width: 0.4rem;
@@ -68,8 +68,9 @@ textarea {
     border: 2px solid var(--std-input-border-hover);
 }
 .div-button {
+    text-align: center;
     cursor: pointer;
-    align-self: flex-end;
+    align-self: center;
     padding: 0.5rem 1rem 0.5rem 1rem;
     width: fit-content;
     background-color: var(--std-button-background);

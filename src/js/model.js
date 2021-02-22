@@ -1,5 +1,5 @@
 const fs = require("fs");
-const BlenderIO = require("./blenderio").BlenderIO;
+const { BlenderIO, IO_OUT, IO_IN } = require("../js/blenderio");
 
 class ModelPackage {
     constructor(package_path, templates) {
@@ -24,17 +24,19 @@ class ModelPackage {
         return this.prm_dict;
     }
     async makeIcons() {
-        let blender_io = new BlenderIO();
+        let blender_io = new BlenderIO(get_debug());
         await blender_io.begin();
-        await blender_io.call({
-            code: "MBI",
-            data: {
-                template_path: this.template.package_path,
-                template_params: this.params(),
-                model_path: this.package_path,
-            },
-        });
-        await blender_io.call({ code: "EXC", data: "" });
+        try {
+            await blender_io.call(
+                new IO_OUT("makeBotIcon", {
+                    template_path: this.template.package_path,
+                    template_params: this.params(),
+                    model_path: this.package_path,
+                })
+            );
+        } finally {
+            blender_io.kill();
+        }
     }
 }
 exports.ModelPackage = ModelPackage;

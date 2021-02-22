@@ -1,4 +1,4 @@
-const { type } = require("jquery");
+const { BlenderIO, IO_OUT, IO_IN } = require("../js/blenderio");
 
 function removeGerberLayer() {
     $(this).parents(".gerber-layer-box").remove();
@@ -121,29 +121,21 @@ function addLayerLine(event, layer_type) {
 function pushUserLayer(layer, $list) {
     $list.siblings(".gerber-add-layer").trigger("click", layer.mode);
     let $last = $list.find(".gerber-layer-box").last();
-    $last
-        .find(".gerber-layer-main input.standard-text-input")
-        .val(layer.path);
+    $last.find(".gerber-layer-main input.standard-text-input").val(layer.path);
     if (layer.mode == "CUSTOM") {
         let $custom = $last.find(".layer-custom-settings");
         $custom
             .find("#dark-material")
             .val(JSON.stringify(layer.data.dark_material));
-        $custom
-            .find("#dark-thickness")
-            .val(layer.data.dark_thickness);
+        $custom.find("#dark-thickness").val(layer.data.dark_thickness);
         $custom
             .find("#clear-material")
             .val(JSON.stringify(layer.data.clear_material));
-        $custom
-            .find("#clear-thickness")
-            .val(layer.data.clear_thickness);
+        $custom.find("#clear-thickness").val(layer.data.clear_thickness);
         $custom
             .find("#region-material")
             .val(JSON.stringify(layer.data.region_material));
-        $custom
-            .find("#region-thickness")
-            .val(layer.data.region_thickness);
+        $custom.find("#region-thickness").val(layer.data.region_thickness);
     }
 }
 function pullCustomMaterial($this, index, trace_name) {
@@ -247,22 +239,72 @@ function pullGerbereConfig() {
     }
     return out;
 }
-function generateGerberModel() {
+function setGerberProgress(value, max) {
+    let prct = (value / max) * 100;
+    $("#gerber-progress").css("width", `${prct}%`);
+    $("#gerber-progress-label").text(`${value}/${max}`);
+}
+let TOKEN_STACK_SIZE = 0;
+let TOKENS_DONE = 0;
+async function generateGerberLayer(layer, layer_type, layer_id) {
+    let blender_io = new BlenderIO(get_debug());
+    await blender_io.begin();
+    try {
+        let mess = await blender_io.call(
+            new IO_OUT("renderGerberLayer", {
+                layer_type: layer_type,
+                layer: layer,
+                layer_id: layer_id,
+            }),
+            "STREAM"
+        );
+        TOKEN_STACK_SIZE += mess.data.token_count;
+        while (true) {
+            mess = await blender_io.read();
+            if (mess.status == "END") {
+                break;
+            } else if (mess.status == "STREAM") {
+                TOKENS_DONE += mess.data.tokens_done;
+            } else if (mess.status == "ERROR") {
+                throw Error(mess.data.trace);
+            }
+        }
+    } finally {
+        blender_io.kill();
+    }
+}
+async function generateGerberModel() {
+    let progressID = setInterval(
+        () => setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE),
+        100
+    );
     try {
         let layers = pullGerbereConfig();
-        let intervalID = null;
-        let counter = 0;
-        let f = function () {
-            if (counter == 100) {
-                console.log(counter);
-            } else {
-                $("#gerber-progress").val($("#gerber-progress").val() + 0.01);
-                counter += 1;
-                setTimeout(f, 50);
-            }
-        };
-        setTimeout(f, 50);
+        //setGerberProgress(counter, 100);
+        let promises = [];
+        let _index = 0;
+        for (let layer of layers.top_layers) {
+            promises.push(generateGerberLayer(layer, "TOP", _index));
+            _index += 1;
+        }
+        for (let layer of layers.bot_layers) {
+            promises.push(generateGerberLayer(layer, "BOT", _index));
+            _index += 1;
+        }
+        for (let p of promises) {
+            await p;
+        }
+        TOKENS_DONE = TOKEN_STACK_SIZE;
+        clearInterval(progressID);
+        setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE);
+        dialog.showMessageBoxSync({
+            type: 'info',
+            buttons: ["Ok"],
+            title: "Finished generating gerber files.",
+            message: `Tokens resolved: ${TOKEN_STACK_SIZE}.`,
+        });
     } catch (e) {
+        clearInterval(progressID);
         dialog.showErrorBox("Unable to generate gerber model.", e.message);
         return;
     }

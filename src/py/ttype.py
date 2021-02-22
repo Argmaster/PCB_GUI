@@ -15,6 +15,7 @@ class Namespace:
             "This class is only a namespace, it is not ment to be instantiated."
         )
 
+
 class TType(Namespace):
     class TType(ABC):
         """Abstract class that implements interface of TType object."""
@@ -397,9 +398,7 @@ class TType(Namespace):
             ]
             if len(color) == 3:
                 color.append(255)
-            if float_range:
-                color = [round(c / 255, 4) for c in color]
-            return tuple(color)
+            return tuple(c for c in color)
 
         @staticmethod
         def parseRGBA(color: str):
@@ -413,11 +412,12 @@ class TType(Namespace):
                 color = re.sub(r"rgba\(", "", color)
                 color = re.sub(r"\)", "", color).strip()
                 color = re.split(r"\s*,\s*", color)
-                return tuple(float(x) / 255 for x in color)
+                return tuple(float(x) for x in color)
 
         @staticmethod
         def parse(value: tuple or list or str or bytes) -> tuple:
             if isinstance(value, (tuple, list)):
+                value = list(value)
                 if len(value) >= 4:
                     value = value[:4]
                 elif len(value) == 3:
@@ -426,14 +426,6 @@ class TType(Namespace):
                     raise ValueError(
                         f"Sequence {value} is to short to be threated as color."
                     )
-                value = [
-                    v
-                    if isinstance(v, float)
-                    else v / 255
-                    if isinstance(v, int)
-                    else 1 / 0
-                    for v in value
-                ]
             elif isinstance(value, (str, bytes)):
                 if isinstance(value, bytes):
                     value = value.encode("utf-8")
@@ -446,7 +438,7 @@ class TType(Namespace):
                     value = TType.Color.parseRGBA(value)
                 else:
                     raise ValueError("Invalid color literal")
-            return value
+            return tuple(round(v / 255, 4) for v in value)
 
         def set(self, value: tuple or list or str or bytes) -> None:
             self._value = self.parse(value)
@@ -505,7 +497,7 @@ class TType(Namespace):
                 if no suffix matches, literal is treated as usual float
 
             Units cannot be mixed.
-
+            
             Returns:
                 float: converted value
             """
@@ -547,6 +539,7 @@ class TType(Namespace):
         "Angle": Angle,
         "UnitOfLength": UnitOfLength,
     }
+
 
 # $ <>=======================================================<>
 # $                    Templating handler

@@ -16,21 +16,18 @@ async function loadTemplateSpec(dir) {
         pkg = new TemplatePackage(dir);
         templates[pkg._class] = pkg;
     } catch (e) {
-        alert(`Unable to load template <${dir}> due to error: ${e}`);
+        dialog.showErrorBox(
+            `Unable to load template <${dir}>\n due to following error:`,
+            e.message
+        );
     }
 }
 async function loadTemplates() {
     let promises = [];
     for (let dir of fs.readdirSync("./data/assets/templates")) {
-        try {
-            promises.push(
-                loadTemplateSpec(
-                    `${process.cwd()}/data/assets/templates/${dir}`
-                )
-            );
-        } catch (e) {
-            alert(`Unable to load template <${dir}> due to error: ${e}`);
-        }
+        promises.push(
+            loadTemplateSpec(`${process.cwd()}/data/assets/templates/${dir}`)
+        );
     }
     for (const _promise of promises) {
         await _promise;
@@ -39,11 +36,13 @@ async function loadTemplates() {
 async function loadModelSpec(dir) {
     try {
         let model = new ModelPackage(dir, templates);
-        if (!fs.existsSync(model.bot_path))
-            await model.makeIcons();
+        if (!fs.existsSync(model.bot_path)) await model.makeIcons();
         models[model._model] = model;
     } catch (e) {
-        alert(`Unable to load model <${dir}> due to error: ${e}`);
+        dialog.showErrorBox(
+            `Unable to load model ${dir}\n due to following error:`,
+            e.message
+        );
     }
 }
 async function loadModels() {
@@ -152,6 +151,5 @@ async function initializeAssets() {
     $(".model-edit-button").each(function () {
         $(this).on("click", loadEditModelMenu);
     });
-
 }
 $(initializeAssets);

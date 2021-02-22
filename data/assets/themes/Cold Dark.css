@@ -39,6 +39,11 @@
     --text-input-mistake-background: #c7273d;
     --text-input-mistake-border: #9e1c2d;
 
+    --std-slider-background: #25282e;
+    --std-slider-button: #373b42;
+    --std-slider-background-checked: #2158c7;
+    --std-slider-button-checked: #3b75eb;
+
     --std-input-background: #25282e;
     --std-input-border: #6064744f;
     --std-input-background-hover: #1e3a6e;
@@ -61,4 +66,6 @@
     --bookmark-background-inactive-hover: #373e4d;
     --bookmark-border-active-hover: #1a48a5;
     --bookmark-border-inactive-hover: #484f63;
+    
+    --gerber-progress: #0069cc;
 }

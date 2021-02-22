@@ -20,6 +20,9 @@
     min-width: min-content;
     height: 100%;
     min-height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
     background-color: var(--background-level-2);
     border-radius: 0 1rem 1rem 0;
     padding: 1rem;
@@ -36,12 +39,15 @@
     margin-right: auto;
 }
 .gerber-panel-buttons {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     padding: 1rem;
 }
 .gerber-panel-buttons div {
-    display: inline-block;
-    margin: 0.5rem;
+    display: block;
+    width: 100%;
+    align-self: center;
 }
 .gerber-layer-container-box {
     overflow-y: scroll;
@@ -124,31 +130,56 @@
 .layer-custom-settings input {
     width: 100%;
 }
-progress {
-    /* Reset the default appearance */
-    -webkit-appearance: none;
-    appearance: none;
+@keyframes animate-stripes {
+    0% {
+        background-position: 0 0;
+    }
 
+    100% {
+        background-position: 60px 0;
+    }
+}
+.progress-bar {
+    position: relative;
+    background-color: #1a1a1a;
+    height: 2rem;
     width: 100%;
-    height: 20px;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;
 }
-progress::-webkit-progress-bar {
-    background-color: var(--background-level-3);
-    border-radius: 2px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+.stripes-animated {
+    background-size: 30px 30px;
+    background-image: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    animation: animate-stripes 0.6s linear infinite;
+    animation-direction: normal;
+    animation-duration: 5s;
 }
-progress::-webkit-progress-value {
-    background-image: -webkit-linear-gradient(
-            -45deg,
-            transparent 33%,
-            rgba(0, 0, 0, 0.1) 33%,
-            rgba(0, 0, 0, 0.1) 66%,
-            transparent 66%
-        ),
-        -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
-        -webkit-linear-gradient(left, rgb(0, 105, 204), #3dad43);
-
-    border-radius: 2px;
-    background-size: 35px 20px, 100% 100%, 100% 100%;
+.progress-bar-inner {
+    display: block;
+    height: 2rem;
+    width: 0%;
+    background-color: var(--gerber-progress);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+    position: relative;
+    animation-direction: reverse;
 }
-
+#gerber-progress-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-shadow: black 0 0 0.5rem;
+    font-weight: 500;
+    font-size: 1.1rem;
+}

@@ -1,5 +1,4 @@
 const fs = require("fs");
-const BlenderIO = require("../js/blenderio").BlenderIO;
 
 class TemplatePackage {
     constructor(package_path) {
