@@ -273,22 +273,63 @@ async function generateGerberLayer(layer, layer_type, layer_id) {
         blender_io.kill();
     }
 }
+async function joinGerberLayers(top_layers, bot_layers) {
+    let render_file = new Date().getTime().toString();
+    let blender_io = new BlenderIO(get_debug());
+    await blender_io.begin();
+    try {
+        await blender_io.call(
+            new IO_OUT("joinLayers", {
+                top_layers: top_layers,
+                bot_layers: bot_layers,
+                render_file: render_file,
+            }),
+            "OK"
+        );
+    } finally {
+        blender_io.kill();
+    }
+    return render_file;
+}
+function clearGerberCache() {
+    TOKENS_DONE = 0;
+    TOKEN_STACK_SIZE = 0;
+    setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE);
+
+    if (fs.existsSync("./temp/gerber")) {
+        fs.rmdirSync("./temp/gerber", { recursive: true });
+    }
+    fs.mkdirSync("./temp/gerber");
+
+    $("#gerber-preview").prop(
+        "src",
+        `${process.cwd()}\\data\\assets\\img\\img-broken.svg`
+    );
+}
 async function generateGerberModel() {
+    clearGerberCache();
     let progressID = setInterval(
         () => setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE),
         100
     );
     try {
         let layers = pullGerbereConfig();
-        //setGerberProgress(counter, 100);
         let promises = [];
         let _index = 0;
+        let top_layers = [];
+        let bot_layers = [];
         for (let layer of layers.top_layers) {
             promises.push(generateGerberLayer(layer, "TOP", _index));
+            top_layers.push(
+                `${process.cwd()}/temp/gerber/gerber-${_index}.glb`
+            );
             _index += 1;
         }
         for (let layer of layers.bot_layers) {
             promises.push(generateGerberLayer(layer, "BOT", _index));
+            bot_layers.push(
+                `${process.cwd()}/temp/gerber/gerber-${_index}.glb`
+            );
             _index += 1;
         }
         for (let p of promises) {
@@ -297,8 +338,14 @@ async function generateGerberModel() {
         TOKENS_DONE = TOKEN_STACK_SIZE;
         clearInterval(progressID);
         setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE);
+        let render_file = await joinGerberLayers(top_layers, bot_layers);
+
+        $("#gerber-preview").prop(
+            "src",
+            `${process.cwd()}/temp/gerber/${render_file}.png`
+        );
         dialog.showMessageBoxSync({
-            type: 'info',
+            type: "info",
             buttons: ["Ok"],
             title: "Finished generating gerber files.",
             message: `Tokens resolved: ${TOKEN_STACK_SIZE}.`,
@@ -308,6 +355,101 @@ async function generateGerberModel() {
         dialog.showErrorBox("Unable to generate gerber model.", e.message);
         return;
     }
+}
+function recognizeFilesFromDir() {
+    let dir = dialog.showOpenDialogSync({
+        title: "Directory to recognize files from.",
+        properties: ["openDirectory"],
+    })[0];
+    let top_layers = {
+        ".*?top.*?copper.*?\\.g[rb][rb]": null,
+        ".*?top.*?paste.*?\\.g[rb][rb]": null,
+        ".*?top.*?solder.*?\\.g[rb][rb]": null,
+        ".*?top.*?silk.*?\\.g[rb][rb]": null,
+    };
+    let bot_layers = {
+        ".*?bot.*?copper.*?\\.g[rb][rb]": null,
+        ".*?bot.*?paste.*?\\.g[rb][rb]": null,
+        ".*?bot.*?solder.*?\\.g[rb][rb]": null,
+        ".*?bot.*?silk.*?\\.g[rb][rb]": null,
+    };
+    for (let file of fs.readdirSync(dir)) {
+        try {
+            for (let regex in top_layers) {
+                if (file.match(regex) != null) {
+                    top_layers[regex] = `${dir}\\${file}`;
+                    throw Error();
+                }
+            }
+            for (let regex in bot_layers) {
+                if (file.match(regex) != null) {
+                    bot_layers[regex] = `${dir}\\${file}`;
+                    throw Error();
+                }
+            }
+        } catch (e) {}
+    }
+    let layer_data = { top_layers: [], bot_layers: [] };
+    function appendLayer(__layers, _regex, _layer, _mode) {
+        if (__layers[_regex] != null) {
+            layer_data[_layer].push({
+                mode: _mode,
+                path: __layers[_regex],
+                data: {},
+            });
+        }
+    }
+    // top layers
+    appendLayer(
+        top_layers,
+        ".*?top.*?copper.*?\\.g[rb][rb]",
+        "top_layers",
+        "COPPER"
+    );
+    appendLayer(
+        top_layers,
+        ".*?top.*?solder.*?\\.g[rb][rb]",
+        "top_layers",
+        "SOLDER_MASK"
+    );
+    appendLayer(
+        top_layers,
+        ".*?top.*?paste.*?\\.g[rb][rb]",
+        "top_layers",
+        "PASTE_MASK"
+    );
+    appendLayer(
+        top_layers,
+        ".*?top.*?silk.*?\\.g[rb][rb]",
+        "top_layers",
+        "SILK"
+    );
+    // bottom layers
+    appendLayer(
+        bot_layers,
+        ".*?bot.*?copper.*?\\.g[rb][rb]",
+        "bot_layers",
+        "COPPER"
+    );
+    appendLayer(
+        bot_layers,
+        ".*?bot.*?solder.*?\\.g[rb][rb]",
+        "bot_layers",
+        "SOLDER_MASK"
+    );
+    appendLayer(
+        bot_layers,
+        ".*?bot.*?paste.*?\\.g[rb][rb]",
+        "bot_layers",
+        "PASTE_MASK"
+    );
+    appendLayer(
+        bot_layers,
+        ".*?bot.*?silk.*?\\.g[rb][rb]",
+        "bot_layers",
+        "SILK"
+    );
+    loadLayersToGUI(layer_data);
 }
 function saveGerberLayers() {
     try {
@@ -326,6 +468,18 @@ function saveGerberLayers() {
     } catch (e) {
         dialog.showErrorBox("Unable to save gerber layers.", e.message);
         return;
+    }
+}
+function loadLayersToGUI(layer_data) {
+    let $top = $("#gerber-layers-top");
+    $top.empty();
+    for (let layer of layer_data.top_layers) {
+        pushUserLayer(layer, $top);
+    }
+    let $bot = $("#gerber-layers-bot");
+    $bot.empty();
+    for (let layer of layer_data.bot_layers) {
+        pushUserLayer(layer, $bot);
     }
 }
 function loadGerberLayers() {
@@ -352,16 +506,7 @@ function loadGerberLayers() {
     if (layer_data.format != "LAYER_DATA") {
         throw Error(`Selected file is in incorrect format.`);
     } else {
-        let $top = $("#gerber-layers-top");
-        $top.empty();
-        for (let layer of layer_data.top_layers) {
-            pushUserLayer(layer, $top);
-        }
-        let $bot = $("#gerber-layers-bot");
-        $bot.empty();
-        for (let layer of layer_data.bot_layers) {
-            pushUserLayer(layer, $bot);
-        }
+        loadLayersToGUI(layer_data);
     }
 }
 function gerberUI() {
@@ -374,6 +519,7 @@ function gerberUI() {
         $this.trigger("click", "SILK");
     });
     $("#generate-gerber").on("click", generateGerberModel);
+    $("#recoginze-gerber-dir").on("click", recognizeFilesFromDir);
     $("#save-gerber-layers").on("click", saveGerberLayers);
     $("#load-gerber-layers").on("click", loadGerberLayers);
     let $sortableElement = $(".gerber-layer-list");

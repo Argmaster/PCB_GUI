@@ -133,9 +133,9 @@ class BlenderBackend(DrawingBackendAbstract):
 
     def __init__(
         self,
-        DARK_Z: TType.UnitOfLength=0.10,
-        CLEAR_Z: TType.UnitOfLength=0.05,
-        REGION_Z: TType.UnitOfLength=0.10,
+        DARK_Z: TType.UnitOfLength = 0.10,
+        CLEAR_Z: TType.UnitOfLength = 0.05,
+        REGION_Z: TType.UnitOfLength = 0.10,
         CLEAR_MATERIAL=None,
         DARK_MATERIAL=None,
         REGION_MATERIAL=None,
@@ -158,6 +158,16 @@ class BlenderBackend(DrawingBackendAbstract):
         self.REGION_MATERIAL = Material().update(**REGION_MATERIAL)
         self.setDark()
         self.ROOT = Mesh.Rectangle(0, 0)
+        self.op_count = 0
+
+    def merge_mesh(self) -> None:
+        if self.op_count > 100:
+            Object.join(self.ROOT, *Global.getAll())
+            with Edit(self.ROOT) as edit:
+                edit.removeDoubles()
+            self.op_count = 0
+        else:
+            self.op_count += 1
 
     def setDark(self) -> None:
         self.CURRENT_Z = self.DARK_Z
@@ -188,8 +198,11 @@ class BlenderBackend(DrawingBackendAbstract):
         brushID: str,
     ) -> None:
         self.TOOLS[brushID].flash(
-            *INtoMM(self.PARSER.UNIT, position), self.CURRENT_Z, self.REGION_Z
+            *INtoMM(self.PARSER.UNIT, position),
+            self.CURRENT_Z + self.REGION_Z * 0.9,
+            self.REGION_Z * 0.1,
         )
+        self.merge_mesh()
 
     def drawLine(
         self,
@@ -200,7 +213,13 @@ class BlenderBackend(DrawingBackendAbstract):
     ) -> None:
         begin, end = INtoMM(self.PARSER.UNIT, begin, end)
         if not isRegion:
-            self.TOOLS[brushID].line(begin, end, self.CURRENT_Z, self.REGION_Z)
+            self.TOOLS[brushID].line(
+                begin,
+                end,
+                self.CURRENT_Z + self.REGION_Z * 0.9,
+                self.REGION_Z * 0.1,
+            )
+            self.merge_mesh()
         else:
             self.REGION_VERTICES.append((end[0], end[1], 0))
 
@@ -215,6 +234,7 @@ class BlenderBackend(DrawingBackendAbstract):
         isRegion: bool,
     ) -> None:
         begin, end, origin = INtoMM(self.PARSER.UNIT, begin, end, origin)
+        self.merge_mesh()
 
     def addTool(
         self,
@@ -239,6 +259,7 @@ class BlenderBackend(DrawingBackendAbstract):
                 edit.makeEdgeFace()
                 edit.extrude(0, 0, self.REGION_Z)
             self.REGION_MATERIAL.assign(obj)
+        self.merge_mesh()
 
     def end(self) -> None:
         Global.selectAll()
