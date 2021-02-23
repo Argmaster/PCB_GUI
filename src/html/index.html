@@ -24,6 +24,7 @@
             const fs = require("fs");
             const dialog = require("electron").remote.dialog;
             const UserPref = require("../js/userpref").UserPref;
+            const currentWebContents = require('electron').remote.getCurrentWebContents()
 
             const userpref = new UserPref();
 
@@ -60,8 +61,10 @@
             }
             makeDataDirs();
         </script>
+        <script defer src="../js/global_gui.js"></script>
         <script defer src="../js/global.js"></script>
-        <script defer src="../js/models.js"></script>
+        <script defer src="../js/model_edit_gui.js"></script>
+        <script defer src="../js/model_edit.js"></script>
         <script defer src="../js/gerber.js"></script>
     </head>
     <body>
@@ -82,114 +85,10 @@
                         />
                         <div class="global-logo-title">PCB Assembler 3D</div>
                     </div>
-                    <div class="globals-flex-container">
-                        <div class="global-content-box">
-                            <div class="global-content-box-title">
-                                Template Assets
-                            </div>
-                        </div>
-                        <div class="global-content-box">
-                            <div class="global-content-box-title">
-                                Model Assets
-                            </div>
-                        </div>
-                        <div class="global-content-box">
-                            <div class="global-content-box-title">Settings</div>
-                            <div class="global-content-section">
-                                <div class="global-content-section-row">
-                                    <div class="glob-sub-cont">
-                                        <div class="global-content-label">
-                                            Available GUI themes
-                                        </div>
-                                    </div>
-                                    <div class="glob-sub-cont">
-                                        <select
-                                            class="standard-text-input"
-                                            id="theme-select"
-                                        ></select>
-                                    </div>
-                                </div>
-                                <div class="global-content-section-row">
-                                    <div class="glob-sub-cont">
-                                        <div class="global-content-label">
-                                            Font size
-                                        </div>
-                                    </div>
-                                    <div class="glob-sub-cont">
-                                        <input
-                                            type="number"
-                                            max="36"
-                                            min="10"
-                                            value="14"
-                                            class="standard-text-input global-number-in"
-                                            id="font-size"
-                                            placeholder="14"
-                                        />
-                                        px
-                                    </div>
-                                </div>
-                                <div class="global-content-section-row">
-                                    <div class="glob-sub-cont">
-                                        <div class="global-content-label">
-                                            Autosave delay
-                                        </div>
-                                    </div>
-                                    <div class="glob-sub-cont">
-                                        <input
-                                            type="number"
-                                            max="10000"
-                                            min="100"
-                                            value="1000"
-                                            class="standard-text-input global-number-in"
-                                            id="autosave-delay"
-                                            placeholder="1000"
-                                        />
-                                        ms
-                                    </div>
-                                </div>
-                                <div class="global-content-section-row">
-                                    <div class="glob-sub-cont">
-                                        <div class="global-content-label">
-                                            Rendering engine
-                                        </div>
-                                    </div>
-                                    <div class="glob-sub-cont">
-                                        <select
-                                            class="standard-text-input"
-                                            id="rendering-engine"
-                                            placeholder="EEVEE"
-                                        >
-                                            <option value="EEVEE">Eevee</option>
-                                            <option value="CYCLES">
-                                                Cycles
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="global-content-section-row">
-                                    <div class="glob-sub-cont">
-                                        <div class="global-content-label">
-                                            Rendering samples
-                                        </div>
-                                    </div>
-                                    <div class="glob-sub-cont">
-                                        <input
-                                            type="number"
-                                            max="256"
-                                            min="1"
-                                            value="32"
-                                            class="standard-text-input global-number-in"
-                                            id="rendering-samples"
-                                            placeholder="32"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="global-content-box-title">
-                                    Debug
-                                </div>
-                                <div id="debug-settings"></div>
-                            </div>
-                        </div>
+                    <div
+                        class="globals-flex-container"
+                        id="global-settings-box"
+                    >
                     </div>
                 </div>
                 <div class="workspace-box">

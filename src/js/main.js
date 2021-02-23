@@ -16,8 +16,8 @@ const createWindow = async () => {
     window = await mainWindow.loadFile(
         path.join(__dirname, "../html/index.html")
     );
-    mainWindow.webContents.openDevTools();
-    //mainWindow.setMenu(null);
+    //mainWindow.webContents.openDevTools();
+    mainWindow.setMenu(null);
 };
 app.on("ready", function () {
     createWindow();

@@ -6,7 +6,17 @@ class UserPref {
         this.pref_path = pref_path;
         this.modified = true;
         this.load();
-        this.log_change = this.getUserPref("debug", "log-user-pref", true);
+        this.log_change = this.get("debug.log.userpref", true);
+    }
+    set(rna, value) {
+        if (this.pref[rna] != value) {
+            this.pref[rna] = value;
+            this.modified = true;
+            console.log(`UserPref ${rna} = ${value}`);
+        }
+    }
+    get(rna, _default) {
+        return this.pref[rna] == undefined ? _default : this.pref[rna];
     }
     setModelProp(model, prop, value) {
         if (this.pref.models == undefined) {
@@ -50,32 +60,6 @@ class UserPref {
             return undefined;
         }
         return this.pref.models[model][prop];
-    }
-    setUserPref(prefdict, prop, value) {
-        if (this.pref[prefdict] == undefined) {
-            this.pref[prefdict] = {};
-        }
-        if (this.pref[prefdict][prop] != value) {
-            this.pref[prefdict][prop] = value;
-            if (this.log_change)
-                console.log(`UserPref: ${prefdict}{} -> ${prop} = ${value}`);
-            this.modified = true;
-        }
-    }
-    getUserPref(prefdict, prop, _default) {
-        if (this.pref[prefdict] == undefined) {
-            this.pref[prefdict] = {};
-        }
-        if (this.pref[prefdict][prop] == undefined) return _default;
-        else return this.pref[prefdict][prop];
-    }
-    delUserPref(prefdict, prop) {
-        if (this.pref[prefdict] == undefined) {
-            this.pref[prefdict] = {};
-        } else if (this.pref[prefdict][prop] != undefined) {
-            delete this.pref[prefdict][prop];
-            this.modified = true;
-        }
     }
     load() {
         try {

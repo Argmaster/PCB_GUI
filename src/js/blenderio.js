@@ -22,18 +22,18 @@ exports.IO_OUT = IO_OUT;
 
 class BlenderIO {
     constructor(
-        _debug = {},
+        userpref,
         script = `./src/py/blenderio.py`,
         blender_executable = `${process.cwd()}\\blender\\blender.exe`,
     ) {
-        this.js_log_in = _debug.js_log_in;
-        this.js_log_out = _debug.js_log_out;
-        this.python_log_in = _debug.python_log_in;
-        this.python_log_out = _debug.python_log_out;
-        this.blender_background = _debug.blender_background;
-        this.keep_blender_open = _debug.keep_blender_open;
-        this.render_engine = _debug.render_engine;
-        this.render_samples = _debug.render_samples;
+        this.js_log_in = userpref.get("debug.log.javascript.in");
+        this.js_log_out = userpref.get("debug.log.javascript.out");
+        this.python_log_in = userpref.get("debug.log.python.in");
+        this.python_log_out = userpref.get("debug.log.python.out");
+        this.blender_background = userpref.get("debug.blender.background");
+        this.keep_blender_open = userpref.get("debug.blender.keep_open");
+        this.render_engine = userpref.get("debug.blender.engine");
+        this.render_samples = userpref.get("debug.blender.samples");
         this.STREAM_FIFO = [];
         this.SOCKET_FIFO = [];
         this.SOCKET_BUFF = "";

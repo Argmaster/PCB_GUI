@@ -224,11 +224,3 @@
 .model-edit-vector-value-block .model-edit-param-label {
     width: 6rem;
 }
-.text-input-changed {
-    border-color: var(--text-input-changed-background) !important;
-    background-color: var(--text-input-changed-border) !important;
-}
-.text-input-mistake {
-    border-color: var(--text-input-mistake-background) !important;
-    background-color: var(--text-input-mistake-border) !important;
-}

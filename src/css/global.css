@@ -47,7 +47,7 @@
         min-width: 40rem;
     }
 }
-.global-content-box-title {
+.global-row-title {
     font-size: 1.2rem;
     padding-bottom: 0.5rem;
     color: var(--background-level-2-text);
@@ -55,13 +55,13 @@
     width: 100%;
     text-align: center;
 }
-.global-content-section {
+.global-row-box {
     background-color: var(--background-level-3);
     margin: 1rem;
     padding: 1rem;
     border-radius: 0.5rem;
 }
-.global-content-section .global-content-box-title {
+.global-row-box .global-row-title {
     padding-top: 1rem;
     margin-bottom: 1rem;
 }
@@ -72,16 +72,16 @@
     width: 100%;
     text-align: right;
 }
-.global-content-section-row {
+.global-row {
     width: 100%;
     display: flex;
     align-items: center;
     flex-direction: row;
 }
-.global-content-section-row select {
+.global-row select {
     width: 100%;
 }
-.glob-sub-cont {
+.global-half-row {
     padding-left: 0.5rem;
     width: 50%;
 }
