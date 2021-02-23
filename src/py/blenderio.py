@@ -15,6 +15,10 @@ from src.py.gparser.gblender import BlenderBackend
 from src.py.gparser.gparser import GerberParser
 
 
+RENDER_SAMPLES: int=0
+RENDER_ENGINE: str="EEVEE"
+
+
 class IO_OBJECT:
 
     status: str
@@ -108,6 +112,10 @@ class BlenderIO:
             raise Exception()
         self.python_log_in = mess.data["python_log_in"]
         self.python_log_out = mess.data["python_log_out"]
+        global RENDER_ENGINE
+        global RENDER_SAMPLES
+        RENDER_ENGINE = mess.data["render_engine"]
+        RENDER_SAMPLES = mess.data["render_samples"]
         self.write(IO_OUT("WAITING SOCKET"))
 
     def _write_stream(self, message: IO_OUT) -> None:
@@ -315,8 +323,11 @@ def joinLayers(io_in: IO_IN, io: BlenderIO):
     camera.ortho_scale = max(width, height)
     camera.type = "ORTHO"
     camera.setMain()
-    # set eevee as rendering engine
-    Global.eevee(32)
+    if RENDER_ENGINE == "EEVEE":
+        # set eevee as rendering engine
+        Global.eevee(RENDER_SAMPLES)
+    elif RENDER_ENGINE == "CYCLES":
+        Global.cycles(RENDER_SAMPLES)
     # render image
     Global.render(f"{os.getcwd()}/temp/gerber/{io_in.data['render_file']}.png", 1920, 1920 * (height / width))
     return IO_OUT("OK")

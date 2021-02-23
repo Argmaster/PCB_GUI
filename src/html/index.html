@@ -147,6 +147,43 @@
                                         ms
                                     </div>
                                 </div>
+                                <div class="global-content-section-row">
+                                    <div class="glob-sub-cont">
+                                        <div class="global-content-label">
+                                            Rendering engine
+                                        </div>
+                                    </div>
+                                    <div class="glob-sub-cont">
+                                        <select
+                                            class="standard-text-input"
+                                            id="rendering-engine"
+                                            placeholder="EEVEE"
+                                        >
+                                            <option value="EEVEE">Eevee</option>
+                                            <option value="CYCLES">
+                                                Cycles
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="global-content-section-row">
+                                    <div class="glob-sub-cont">
+                                        <div class="global-content-label">
+                                            Rendering samples
+                                        </div>
+                                    </div>
+                                    <div class="glob-sub-cont">
+                                        <input
+                                            type="number"
+                                            max="256"
+                                            min="1"
+                                            value="32"
+                                            class="standard-text-input global-number-in"
+                                            id="rendering-samples"
+                                            placeholder="32"
+                                        />
+                                    </div>
+                                </div>
                                 <div class="global-content-box-title">
                                     Debug
                                 </div>
@@ -189,7 +226,10 @@
                                 <div class="div-button" id="generate-gerber">
                                     Generate 3D model
                                 </div>
-                                <div class="div-button" id="recoginze-gerber-dir">
+                                <div
+                                    class="div-button"
+                                    id="recoginze-gerber-dir"
+                                >
                                     Recognize files from directory
                                 </div>
                                 <div class="div-button" id="save-gerber-layers">
@@ -200,7 +240,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="gerber-layer-container-box">
+                        <div class="gerber-right-panel">
                             <div class="gerber-layer-container">
                                 <h1 class="gerber-header">Geber top layers</h1>
                                 <div class="gereber-sublabel">Bottom most</div>

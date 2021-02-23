@@ -1,3 +1,10 @@
+.gerber-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    overflow-y: scroll;
+}
 .gereber-sublabel {
     font-size: 0.9rem;
     color: var(--gerber-sublabel-text);
@@ -7,13 +14,6 @@
     margin-left: 2rem;
     margin-top: 1rem;
     border-radius: 1rem;
-}
-.gerber-container {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    overflow-y: scroll;
 }
 .gerber-left-panel {
     width: 100%;
@@ -26,17 +26,23 @@
     background-color: var(--background-level-2);
     border-radius: 0 1rem 1rem 0;
     padding: 1rem;
+    overflow-y: scroll;
 }
 .gerber-preview {
     width: 100%;
     height: 35rem;
     border: 0.1rem solid var(--background-level-2-border);
 }
-.gerber-preview img {
+#gerber-preview {
     display: block;
-    height: 100%;
     margin-left: auto;
     margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
 }
 .gerber-panel-buttons {
     display: flex;
@@ -49,11 +55,13 @@
     width: 100%;
     align-self: center;
 }
-.gerber-layer-container-box {
+.gerber-right-panel {
     overflow-y: scroll;
     min-width: fit-content;
-    max-width: fit-content;
+    width: 100%;
+    max-width: 100%;
     height: 100%;
+    padding: 1rem;
 }
 .gerber-header {
     font-weight: 300;
@@ -61,13 +69,14 @@
 }
 .gerber-layer-container {
     padding: 1rem;
-    margin: 1rem;
     background-color: var(--background-level-2);
-    width: fit-content;
+    width: 100%;
+    min-width: fit-content;
     border-radius: 1rem;
 }
 .gerber-layer-list {
-    width: 60rem;
+    min-width: 60rem;
+    width: 100%;
     padding: 1rem;
     padding-bottom: 0;
 }

@@ -32,6 +32,8 @@ class BlenderIO {
         this.python_log_out = _debug.python_log_out;
         this.blender_background = _debug.blender_background;
         this.keep_blender_open = _debug.keep_blender_open;
+        this.render_engine = _debug.render_engine;
+        this.render_samples = _debug.render_samples;
         this.STREAM_FIFO = [];
         this.SOCKET_FIFO = [];
         this.SOCKET_BUFF = "";
@@ -88,6 +90,8 @@ class BlenderIO {
             new IO_OUT("READY SOCKET", {
                 python_log_in: this.python_log_in,
                 python_log_out: this.python_log_out,
+                render_engine: this.render_engine,
+                render_samples: this.render_samples,
             })
         );
         mess = await this.read_status("WAITING SOCKET");

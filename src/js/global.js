@@ -6,6 +6,16 @@ let CURRENT_DELAY = 0;
 function get_debug_prop(_id) {
     return $(`#debug-${_id}`).prop("checked");
 }
+function get_select_prop(_id) {
+    return $(`#${_id}`).val();
+}
+function get_int_prop(_id, _default = 0) {
+    let val = parseInt($(`#${_id}`).val());
+    if (isNaN(val)) {
+        val = _default
+    }
+    return
+}
 function get_debug() {
     return {
         blender_background: get_debug_prop("background-blender"),
@@ -15,6 +25,8 @@ function get_debug() {
         python_log_in: get_debug_prop("python-log-in"),
         python_log_out: get_debug_prop("python-log-out"),
         log_user_pref: get_debug_prop("log-user-pref"),
+        render_engine: get_select_prop("rendering-engine"),
+        render_samples: get_int_prop("rendering-samples", 32),
     };
 }
 function loadThemes() {
