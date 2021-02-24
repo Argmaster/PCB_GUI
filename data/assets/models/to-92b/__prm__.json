@@ -5,7 +5,7 @@
     "caseType": "Square",
     "caseHoleRadius": "0mm",
     "caseMaterial": {
-        "color": [0, 0, 0, 255],
+        "color": "#000000FF",
         "metallic": 0.5,
         "roughness": 1
     },
@@ -16,7 +16,7 @@
     "label": "TO92",
     "fontPath": "$default",
     "fontMaterial": {
-        "color": [255, 255, 255, 255],
+        "color": "#FFFFFFFF",
         "metallic": 0,
         "roughness": 1
     },
@@ -30,7 +30,7 @@
     "pinCount": 3,
     "pinOffset": "0mm",
     "pinMaterial": {
-        "color": [200, 200, 200, 255],
+        "color": "#AAAAAAFF",
         "metallic": 0.8,
         "roughness": 0.1
     },

@@ -247,7 +247,7 @@ function setGerberProgress(value, max) {
 let TOKEN_STACK_SIZE = 0;
 let TOKENS_DONE = 0;
 async function generateGerberLayer(layer, layer_type, layer_id) {
-    let blender_io = new BlenderIO(get_debug());
+    let blender_io = new BlenderIO(userpref);
     await blender_io.begin();
     try {
         let mess = await blender_io.call(
@@ -275,7 +275,7 @@ async function generateGerberLayer(layer, layer_type, layer_id) {
 }
 async function joinGerberLayers(top_layers, bot_layers) {
     let render_file = new Date().getTime().toString();
-    let blender_io = new BlenderIO(get_debug());
+    let blender_io = new BlenderIO(userpref);
     await blender_io.begin();
     try {
         await blender_io.call(
@@ -295,7 +295,9 @@ function clearGerberCache() {
     TOKENS_DONE = 0;
     TOKEN_STACK_SIZE = 0;
     setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE);
-
+    if (!fs.existsSync("./temp")) {
+        fs.mkdirSync("./temp");
+    }
     if (fs.existsSync("./temp/gerber")) {
         fs.rmdirSync("./temp/gerber", { recursive: true });
     }
@@ -357,99 +359,106 @@ async function generateGerberModel() {
     }
 }
 function recognizeFilesFromDir() {
-    let dir = dialog.showOpenDialogSync({
-        title: "Directory to recognize files from.",
-        properties: ["openDirectory"],
-    })[0];
-    let top_layers = {
-        ".*?top.*?copper.*?\\.g[rb][rb]": null,
-        ".*?top.*?paste.*?\\.g[rb][rb]": null,
-        ".*?top.*?solder.*?\\.g[rb][rb]": null,
-        ".*?top.*?silk.*?\\.g[rb][rb]": null,
-    };
-    let bot_layers = {
-        ".*?bot.*?copper.*?\\.g[rb][rb]": null,
-        ".*?bot.*?paste.*?\\.g[rb][rb]": null,
-        ".*?bot.*?solder.*?\\.g[rb][rb]": null,
-        ".*?bot.*?silk.*?\\.g[rb][rb]": null,
-    };
-    for (let file of fs.readdirSync(dir)) {
-        try {
-            for (let regex in top_layers) {
-                if (file.match(regex) != null) {
-                    top_layers[regex] = `${dir}\\${file}`;
-                    throw Error();
-                }
-            }
-            for (let regex in bot_layers) {
-                if (file.match(regex) != null) {
-                    bot_layers[regex] = `${dir}\\${file}`;
-                    throw Error();
-                }
-            }
-        } catch (e) {}
+    let dir;
+    try {
+        dir = dialog.showOpenDialogSync({
+            title: "Directory to recognize files from.",
+            properties: ["openDirectory"],
+        })[0];
+    } catch (e) {
+        dir = undefined;
     }
-    let layer_data = { top_layers: [], bot_layers: [] };
-    function appendLayer(__layers, _regex, _layer, _mode) {
-        if (__layers[_regex] != null) {
-            layer_data[_layer].push({
-                mode: _mode,
-                path: __layers[_regex],
-                data: {},
-            });
+    if (dir != undefined) {
+        let top_layers = {
+            ".*?top.*?copper.*?\\.g[rb][rb]": null,
+            ".*?top.*?paste.*?\\.g[rb][rb]": null,
+            ".*?top.*?solder.*?\\.g[rb][rb]": null,
+            ".*?top.*?silk.*?\\.g[rb][rb]": null,
+        };
+        let bot_layers = {
+            ".*?bot.*?copper.*?\\.g[rb][rb]": null,
+            ".*?bot.*?paste.*?\\.g[rb][rb]": null,
+            ".*?bot.*?solder.*?\\.g[rb][rb]": null,
+            ".*?bot.*?silk.*?\\.g[rb][rb]": null,
+        };
+        for (let file of fs.readdirSync(dir)) {
+            try {
+                for (let regex in top_layers) {
+                    if (file.match(regex) != null) {
+                        top_layers[regex] = `${dir}\\${file}`;
+                        throw Error();
+                    }
+                }
+                for (let regex in bot_layers) {
+                    if (file.match(regex) != null) {
+                        bot_layers[regex] = `${dir}\\${file}`;
+                        throw Error();
+                    }
+                }
+            } catch (e) {}
         }
+        let layer_data = { top_layers: [], bot_layers: [] };
+        let appendLayer = function (__layers, _regex, _layer, _mode) {
+            if (__layers[_regex] != null) {
+                layer_data[_layer].push({
+                    mode: _mode,
+                    path: __layers[_regex],
+                    data: {},
+                });
+            }
+        };
+        // top layers
+        appendLayer(
+            top_layers,
+            ".*?top.*?copper.*?\\.g[rb][rb]",
+            "top_layers",
+            "COPPER"
+        );
+        appendLayer(
+            top_layers,
+            ".*?top.*?solder.*?\\.g[rb][rb]",
+            "top_layers",
+            "SOLDER_MASK"
+        );
+        appendLayer(
+            top_layers,
+            ".*?top.*?paste.*?\\.g[rb][rb]",
+            "top_layers",
+            "PASTE_MASK"
+        );
+        appendLayer(
+            top_layers,
+            ".*?top.*?silk.*?\\.g[rb][rb]",
+            "top_layers",
+            "SILK"
+        );
+        // bottom layers
+        appendLayer(
+            bot_layers,
+            ".*?bot.*?copper.*?\\.g[rb][rb]",
+            "bot_layers",
+            "COPPER"
+        );
+        appendLayer(
+            bot_layers,
+            ".*?bot.*?solder.*?\\.g[rb][rb]",
+            "bot_layers",
+            "SOLDER_MASK"
+        );
+        appendLayer(
+            bot_layers,
+            ".*?bot.*?paste.*?\\.g[rb][rb]",
+            "bot_layers",
+            "PASTE_MASK"
+        );
+        appendLayer(
+            bot_layers,
+            ".*?bot.*?silk.*?\\.g[rb][rb]",
+            "bot_layers",
+            "SILK"
+        );
+        loadLayersToGUI(layer_data);
     }
-    // top layers
-    appendLayer(
-        top_layers,
-        ".*?top.*?copper.*?\\.g[rb][rb]",
-        "top_layers",
-        "COPPER"
-    );
-    appendLayer(
-        top_layers,
-        ".*?top.*?solder.*?\\.g[rb][rb]",
-        "top_layers",
-        "SOLDER_MASK"
-    );
-    appendLayer(
-        top_layers,
-        ".*?top.*?paste.*?\\.g[rb][rb]",
-        "top_layers",
-        "PASTE_MASK"
-    );
-    appendLayer(
-        top_layers,
-        ".*?top.*?silk.*?\\.g[rb][rb]",
-        "top_layers",
-        "SILK"
-    );
-    // bottom layers
-    appendLayer(
-        bot_layers,
-        ".*?bot.*?copper.*?\\.g[rb][rb]",
-        "bot_layers",
-        "COPPER"
-    );
-    appendLayer(
-        bot_layers,
-        ".*?bot.*?solder.*?\\.g[rb][rb]",
-        "bot_layers",
-        "SOLDER_MASK"
-    );
-    appendLayer(
-        bot_layers,
-        ".*?bot.*?paste.*?\\.g[rb][rb]",
-        "bot_layers",
-        "PASTE_MASK"
-    );
-    appendLayer(
-        bot_layers,
-        ".*?bot.*?silk.*?\\.g[rb][rb]",
-        "bot_layers",
-        "SILK"
-    );
-    loadLayersToGUI(layer_data);
 }
 function saveGerberLayers() {
     try {

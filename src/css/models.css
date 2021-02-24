@@ -188,29 +188,29 @@
     width: 1rem;
     margin-left: 1rem;
 }
-.model-edit-param-label {
+.edit-entry-row-label {
     display: inline-block;
     width: 15rem;
     text-align: right;
 }
-.model-edit-param-input {
+.edit-param-entry {
     display: inline-block;
     width: 20rem;
     margin-left: 0;
     margin-right: 1rem;
 }
-.model-edit-param-box {
+.edit-entry-row {
     width: 100%;
 }
-.model-edit-indent-block-label {
+.edit-indent-label {
     display: block;
     text-align: left;
     font-weight: 500;
     margin-left: 0.5rem;
 }
-.model-edit-input-indent-block {
+.edit-indent-block {
     border-radius: 1rem;
-    margin-left: 7rem;
+    margin-left: 2rem;
     margin-right: 0.5rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
@@ -221,6 +221,6 @@
     width: max-content;
     background-color: #ffffff06;
 }
-.model-edit-vector-value-block .model-edit-param-label {
+.model-edit-vector-value-block .edit-entry-row-label {
     width: 6rem;
 }

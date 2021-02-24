@@ -1,4 +1,3 @@
-const fs = require("fs");
 
 class TemplatePackage {
     constructor(package_path) {
@@ -13,4 +12,4 @@ class TemplatePackage {
         this._dscp = this.pkg_dict.dscp;
     }
 }
-exports.TemplatePackage = TemplatePackage;
+

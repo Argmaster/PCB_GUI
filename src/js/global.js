@@ -31,7 +31,6 @@ function initSettingsGui() {
         themes,
         "default.css",
         "gui.theme",
-        userpref,
         $this =>
             $("#theme-style").attr(
                 "href",
@@ -46,7 +45,6 @@ function initSettingsGui() {
         14,
         "px",
         "gui.font.size",
-        userpref,
         $this => $("html").css("font-size", `${$this.val()}px`)
     );
     globalWorkspaceAdd.entryNumber(
@@ -57,7 +55,6 @@ function initSettingsGui() {
         1000,
         "ms",
         "gui.save_delay",
-        userpref,
         $this => (AUTOSAVE_DELAY = $this.val())
     );
     globalWorkspaceAdd.entrySelect(
@@ -67,8 +64,7 @@ function initSettingsGui() {
             ["CYCLES", "Cycles"],
         ],
         "EEVEE",
-        "debug.blender.engine",
-        userpref
+        "debug.blender.engine"
     );
     globalWorkspaceAdd.entryNumber(
         "Render samples",
@@ -78,56 +74,47 @@ function initSettingsGui() {
         32,
         "",
         "debug.blender.samples",
-        userpref
     );
     globalWorkspaceAdd.entryToggle(
         "Blender in background",
         true,
         "debug.blender.background",
-        userpref
     );
     globalWorkspaceAdd.entryToggle(
         "Keep Blender open",
         false,
         "debug.blender.keep_open",
-        userpref
     );
     globalWorkspaceAdd.entryToggle(
         "Log JavaScript BlenderIO IN",
         false,
         "debug.log.javascript.in",
-        userpref
     );
     globalWorkspaceAdd.entryToggle(
         "Log JavaScript BlenderIO OUT",
         false,
         "debug.log.javascript.out",
-        userpref
     );
     globalWorkspaceAdd.entryToggle(
         "Log Python BlenderIO IN",
         true,
         "debug.log.python.in",
-        userpref
     );
     globalWorkspaceAdd.entryToggle(
         "Log Python BlenderIO OUT",
         true,
         "debug.log.python.out",
-        userpref
     );
     globalWorkspaceAdd.entryToggle(
         "Log userpref change",
         true,
         "debug.log.userpref",
-        userpref,
         $this => (userpref.log_change = $this.prop("checked"))
     );
     globalWorkspaceAdd.entryToggle(
         "Open dev tools",
         true,
         "debug.dev_tools",
-        userpref,
         $this => {
             if ($this.prop("checked")) {
                 currentWebContents.openDevTools();

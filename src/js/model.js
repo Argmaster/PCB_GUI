@@ -1,5 +1,3 @@
-const fs = require("fs");
-const { BlenderIO, IO_OUT, IO_IN } = require("../js/blenderio");
 
 class ModelPackage {
     constructor(package_path, templates) {
@@ -24,7 +22,7 @@ class ModelPackage {
         return this.prm_dict;
     }
     async makeIcons() {
-        let blender_io = new BlenderIO(get_debug());
+        let blender_io = new BlenderIO(userpref);
         await blender_io.begin();
         try {
             await blender_io.call(
@@ -39,4 +37,3 @@ class ModelPackage {
         }
     }
 }
-exports.ModelPackage = ModelPackage;

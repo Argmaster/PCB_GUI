@@ -12,13 +12,13 @@ class UserPref {
         if (this.pref[rna] != value) {
             this.pref[rna] = value;
             this.modified = true;
-            console.log(`UserPref ${rna} = ${value}`);
+            if (this.log_change) console.log(`UserPref ${rna} = ${value}`);
         }
     }
     get(rna, _default) {
         return this.pref[rna] == undefined ? _default : this.pref[rna];
     }
-    setModelProp(model, prop, value) {
+    setModelRNA(model, prop, value) {
         if (this.pref.models == undefined) {
             this.pref.models = {};
         }
@@ -30,7 +30,7 @@ class UserPref {
             console.log(`UserPref Model: ${model}{} -> ${prop} = ${value}`);
         this.modified = true;
     }
-    delModelProp(model, prop) {
+    delModelRNA(model, prop) {
         if (this.pref.models == undefined) {
             this.modified = true;
             this.pref.models = {};
@@ -51,15 +51,19 @@ class UserPref {
                 console.log(`UserPref Model: delete ${model}{}`);
         }
     }
-    getModelProp(model, prop) {
+    getModelRNA(model, prop, _default) {
         if (this.pref.models == undefined) {
             this.pref.models = {};
             this.modified = true;
         }
         if (this.pref.models[model] == undefined) {
-            return undefined;
+            return _default;
         }
-        return this.pref.models[model][prop];
+        if (this.pref.models[model][prop] == undefined) {
+            return _default;
+        } else {
+            return this.pref.models[model][prop];
+        }
     }
     load() {
         try {
@@ -85,10 +89,10 @@ exports.saveSimpleProp = function (userpref, model, self) {
     let value = $this.val().trim();
     let _default = $this.attr("default");
     if (value.length && value != _default) {
-        if (value != userpref.getModelProp(model._model, key))
-            userpref.setModelProp(model._model, key, value);
+        if (value != userpref.getModelRNA(model._model, key))
+            userpref.setModelRNA(model._model, key, value);
     } else {
-        userpref.delModelProp(model._model, key);
+        userpref.delModelRNA(model._model, key);
     }
 };
 exports.savePinrootPtr = function (userpref, model, self) {
@@ -96,9 +100,9 @@ exports.savePinrootPtr = function (userpref, model, self) {
     let key = "$__" + $this.attr("id");
     let value = $this.val().trim();
     if (value.length && value != 0) {
-        if (value != userpref.getModelProp(model._model, key))
-            userpref.setModelProp(model._model, key, value);
+        if (value != userpref.getModelRNA(model._model, key))
+            userpref.setModelRNA(model._model, key, value);
     } else {
-        userpref.delModelProp(model._model, key);
+        userpref.delModelRNA(model._model, key);
     }
 };

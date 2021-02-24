@@ -1,49 +1,93 @@
 {
-    "caseDepth": { "ttype": "UnitOfLength" },
-    "caseWidth": { "ttype": "UnitOfLength" },
-    "caseHeight": { "ttype": "UnitOfLength" },
-    "caseType": { "ttype": "Keyword", "options": ["Square", "Rounded"] },
-    "caseHoleRadius": { "ttype": "UnitOfLength" },
-    "caseMaterial": {
-        "ttype": "MaterialParams",
-        "params": {
-            "color": [0.03, 0.03, 0.03, 1.0],
-            "metallic": 0.5,
-            "roughness": 1.0
-        }
-    },
-    "backplateThickness": { "ttype": "UnitOfLength" },
-    "backplateHeight": { "ttype": "UnitOfLength" },
-    "backplateHoleRadius": { "ttype": "UnitOfLength" },
-    "backplateCutCorners": { "ttype": "UnitOfLength" },
-    "label": { "ttype": "String" },
-    "fontPath": { "ttype": "PathExpression" },
-    "fontMaterial": {
-        "ttype": "MaterialParams",
-        "params": {
-            "color": [1.0, 1.0, 1.0, 1.0],
-            "metallic": 0.0,
-            "roughness": 1.0
-        }
-    },
-    "fontSize": { "ttype": "UnitOfLength" },
-    "fontDepth": { "ttype": "UnitOfLength" },
-    "pinWidth": { "ttype": "UnitOfLength" },
-    "pinThickness": { "ttype": "UnitOfLength" },
-    "pinHeight": { "ttype": "UnitOfLength" },
-    "pinLength": { "ttype": "UnitOfLength" },
-    "pinSpacing": { "ttype": "UnitOfLength" },
-    "pinCount": { "ttype": "Int", "range": [0, 64], "inclusive": true },
-    "pinOffset": { "ttype": "UnitOfLength" },
-    "pinMaterial": {
-        "ttype": "MaterialParams",
-        "params": {
-            "color": [0.7, 0.77, 0.785, 1.0],
-            "metallic": 0.8,
-            "roughness": 0.1
-        }
-    },
-    "pinStyle": { "ttype": "Keyword", "options": ["T-shape", "Rectangle", "Round"] },
-    "bend": { "ttype": "Bool" },
-    "bendRadius": { "ttype": "UnitOfLength" }
+  "caseDepth": {
+    "ttype": "UnitOfLength"
+  },
+  "caseWidth": {
+    "ttype": "UnitOfLength"
+  },
+  "caseHeight": {
+    "ttype": "UnitOfLength"
+  },
+  "caseType": {
+    "ttype": "Keyword",
+    "options": [
+      "Square",
+      "Rounded"
+    ]
+  },
+  "caseHoleRadius": {
+    "ttype": "UnitOfLength"
+  },
+  "caseMaterial": {
+    "ttype": "MaterialParams"
+  },
+  "backplateThickness": {
+    "ttype": "UnitOfLength"
+  },
+  "backplateHeight": {
+    "ttype": "UnitOfLength"
+  },
+  "backplateHoleRadius": {
+    "ttype": "UnitOfLength"
+  },
+  "backplateCutCorners": {
+    "ttype": "UnitOfLength"
+  },
+  "label": {
+    "ttype": "String"
+  },
+  "fontPath": {
+    "ttype": "PathExpression"
+  },
+  "fontMaterial": {
+    "ttype": "MaterialParams"
+  },
+  "fontSize": {
+    "ttype": "UnitOfLength"
+  },
+  "fontDepth": {
+    "ttype": "UnitOfLength"
+  },
+  "pinWidth": {
+    "ttype": "UnitOfLength"
+  },
+  "pinThickness": {
+    "ttype": "UnitOfLength"
+  },
+  "pinHeight": {
+    "ttype": "UnitOfLength"
+  },
+  "pinLength": {
+    "ttype": "UnitOfLength"
+  },
+  "pinSpacing": {
+    "ttype": "UnitOfLength"
+  },
+  "pinCount": {
+    "ttype": "Int",
+    "range": [
+      0,
+      64
+    ]
+  },
+  "pinOffset": {
+    "ttype": "UnitOfLength"
+  },
+  "pinMaterial": {
+    "ttype": "MaterialParams"
+  },
+  "pinStyle": {
+    "ttype": "Keyword",
+    "options": [
+      "T-shape",
+      "Rectangle",
+      "Round"
+    ]
+  },
+  "bend": {
+    "ttype": "Bool"
+  },
+  "bendRadius": {
+    "ttype": "UnitOfLength"
+  }
 }

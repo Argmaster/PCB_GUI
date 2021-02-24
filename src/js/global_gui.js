@@ -14,7 +14,7 @@ globalWorkspaceAdd = {
             .last()
             .append(`<div class="global-content-label">${title}</div>`);
     },
-    entrySelect: function (label, options, _default, RNA, userpref, _callback) {
+    entrySelect: function (label, options, _default, RNA, _callback) {
         let options_html = "";
         for (let opt of options) {
             options_html += `<option value="${opt[0]}">${opt[1]}</option>`;
@@ -50,7 +50,6 @@ globalWorkspaceAdd = {
         _default,
         suffix,
         RNA,
-        userpref,
         _callback
     ) {
         $(".global-content-box").last().append(
@@ -75,7 +74,7 @@ globalWorkspaceAdd = {
             userpref.pref[RNA] == undefined ? _default : userpref.pref[RNA]
         );
         let f;
-        if (step != 1) {
+        if (step == 1) {
             f = parseInt;
         } else {
             f = parseFloat;
@@ -86,7 +85,7 @@ globalWorkspaceAdd = {
             if (!isNaN(value) && value >= min && value <= max) {
                 $this.removeClass("text-input-mistake");
                 $this.val(value);
-                userpref.set(RNA, $this.val());
+                userpref.set(RNA, value);
                 if (_callback != undefined) {
                     _callback($this);
                 }
@@ -96,7 +95,7 @@ globalWorkspaceAdd = {
         });
         $this.trigger("input");
     },
-    entryToggle: function (label, _default, RNA, userpref, _callback) {
+    entryToggle: function (label, _default, RNA, _callback) {
         $(".global-content-box").last().append(
             `<div class="global-row">
             <div class="global-half-row">
@@ -121,7 +120,6 @@ globalWorkspaceAdd = {
             userpref.pref[RNA] == undefined ? _default : userpref.pref[RNA]
         );
         $this.on("input", function () {
-            let $this = $(`input[RNA="${RNA}"]`);
             userpref.set(RNA, $this.prop("checked"));
             if (_callback != undefined) {
                 _callback($this);

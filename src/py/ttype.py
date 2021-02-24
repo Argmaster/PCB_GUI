@@ -6,7 +6,9 @@ import os
 import re
 from abc import ABC, abstractmethod
 from sys import platform
-from typing import Any, Iterable
+from typing import Any, Iterable, List
+
+import numpy
 
 
 class Namespace:
@@ -17,6 +19,27 @@ class Namespace:
 
 
 class TType(Namespace):
+    _float_regex = "[\\-+]?[0-9]*\\.?[0-9]+"
+    _angle_regex = [
+        [re.compile(f"{_float_regex}rad"), "rad", 1],
+        [re.compile(f"{_float_regex}deg"), "deg", math.pi / 180],
+        [re.compile(f"{_float_regex}°"), "°", math.pi / 180],
+        [re.compile(f"{_float_regex}'"), "'", math.pi / 10800],
+        [re.compile(f'{_float_regex}"'), '"', math.pi / 648000],
+        [re.compile(f"{_float_regex}turn"), "turn", math.pi],
+        [re.compile(f"{_float_regex}"), "", 1],
+    ]
+    _unitoflength_regex = [
+        [re.compile(f"{_float_regex}mil"), "mil", 2.54 * 1e-5],
+        [re.compile(f"{_float_regex}in"), "in", 0.0254],
+        [re.compile(f"{_float_regex}ft"), "ft", 0.3048],
+        [re.compile(f"{_float_regex}mm"), "mm", 0.001],
+        [re.compile(f"{_float_regex}cm"), "cm", 0.01],
+        [re.compile(f"{_float_regex}dm"), "dm", 0.1],
+        [re.compile(f"{_float_regex}m"), "m", 1],
+        [re.compile(f"{_float_regex}"), "", 1],
+    ]
+
     class TType(ABC):
         """Abstract class that implements interface of TType object."""
 
@@ -47,6 +70,39 @@ class TType(Namespace):
                 )
             else:
                 return self._value
+
+        @staticmethod
+        def _destruct_literal(
+            literal: str, literal_regex: List[List[str]]
+        ) -> float:
+            """Parse given literal by looping over given
+            regex list untill length of literal is 0 or no
+            match was found.
+
+            Args:
+                literal (str): literal to covert
+                literal_regex (list): list of regexes
+
+            Returns:
+                float: value
+            """
+            value = 0
+            literal = literal.strip()
+            while literal:
+                literal = literal.strip()
+                for regex, repl, multiplier in literal_regex:
+                    regex_match = regex.match(literal)
+                    if regex_match is not None:
+                        literal_match = regex_match.group()
+                        literal = literal[regex_match.end() :]
+                        literal_match = float(literal_match.replace(repl, ""))
+                        value += literal_match * multiplier
+                        break
+                else:
+                    raise SyntaxError(
+                        f"Invalid literal '{literal}' no matching syntax."
+                    )
+            return value
 
         @abstractmethod
         def set(self, value) -> None:
@@ -246,48 +302,40 @@ class TType(Namespace):
             self._value = bool(value)
 
     class Int(TType):
-        def __init__(self, range, inclusive, **_) -> None:
-            self.inclusive = inclusive
+        def __init__(self, range, **_) -> None:
             self.range = range
             super().__init__()
 
         def set(self, value) -> None:
             value = int(value)
-            if self.inclusive:
-                if self.range[0] < value < self.range[1]:
-                    self._value = value
+            if self.range[0] <= value <= self.range[1]:
+                self._value = value
             else:
-                if self.range[0] <= value <= self.range[1]:
-                    self._value = value
+                raise ValueError(
+                    f"Value {value} out of range [{self.range[0]}, {self.range[1]}]"
+                )
 
         def repr(self):
-            return {
-                "ttype": self.__class__.__name__,
-                "range": self.range,
-                "inclusive": self.inclusive,
-            }
+            return {"ttype": self.__class__.__name__, "range": self.range}
 
     class Float(TType):
-        def __init__(self, range, inclusive, **_) -> None:
-            self.inclusive = inclusive
-            self.range = list(range)
+        def __init__(self, range, **_) -> None:
+            self.range = range
             super().__init__()
 
         def set(self, value) -> None:
             value = float(value)
-            if isinstance(self.range, tuple):
-                if self.range[0] < value < self.range[1]:
-                    self._value = value
+            if self.range[0] <= value <= self.range[1]:
+                self._value = value
             else:
-                if self.range[0] <= value <= self.range[1]:
-                    self._value = value
+                raise ValueError(
+                    f"Value {value} out of range [{self.range[0]}, {self.range[1]}]"
+                )
 
         def repr(self):
             return {
                 "ttype": self.__class__.__name__,
                 "range": self.range,
-                "inclusive": self.inclusive,
-                "default": self.default,
             }
 
     class Vector(TType):
@@ -301,17 +349,17 @@ class TType(Namespace):
         def repr(self):
             return {
                 "ttype": self.__class__.__name__,
-                "ttypes": [t.repr() for t in self._value],
+                "template": [t.repr() for t in self._value],
             }
 
     class MaterialParams(TType):
         """
         TType for providing Principled BSDF node configuration.
         material:               object  : None,
-        color:                  tuple   : (0.0, 0.0, 0.0, 1.0),
+        color:                  tuple   : TType.Color,
         subsurface:             float   : 0.0,
-        subsurfaceRadius:       tuple   : (0.0, 0.0, 0.0, 1.0),
-        subsurfaceColor:        tuple   : (0.0, 0.0, 0.0, 1.0),
+        subsurfaceRadius:       tuple   : TType.Color,
+        subsurfaceColor:        tuple   : TType.Color,
         metallic:               float   : 0.0,
         specular:               float   : 0.5,
         specularTint:           float   : 0.0,
@@ -325,7 +373,7 @@ class TType(Namespace):
         IOR:                    float   : 1.450,
         transmission:           float   : 0.0,
         transmissionRoughness:  float   : 0.0,
-        emission:               tuple   : (0.0, 0.0, 0.0, 1.0),
+        emission:               tuple   : TType.Color,
         emissionStrength:       float   : 1.0,
         alpha:                  float   : 1.0,
         """
@@ -375,70 +423,115 @@ class TType(Namespace):
 
     class Color(TType):
         @staticmethod
-        def parseHex(color: str, float_range: bool = True) -> tuple:
-            """This function is ment to convert hexadecimal color string into
-            tuple of four 0.0-1.0 values (RGBA)
-
-            Args:
-                color (str): #nnnnnnnn string where n's are hex values from 0 to F
-
-            Returns:
-                list: list of four floats in range 0.0 to 1.0
+        def _color_rgb(literal: str) -> list:
             """
-            color = color.strip()
-            if re.match(r"#[0-9A-Fa-f]{8}|#[0-9A-Fa-f]{6}", color) is None:
-                raise ValueError("Inalid color format")
-            color = color[1:]  # truncate # sign
-            color = [
-                int(
-                    color[index : index + 2],
-                    base=16,  # evaluate as hexadecimal value
-                )
-                for index in range(0, len(color), 2)
-            ]
-            if len(color) == 3:
-                color.append(255)
-            return tuple(c for c in color)
+            Convert rgba(R, G, B) color literal to number[4] array, alpha 255
+            @param {string} literal to parse
+            @returns {number[4]} array of 4 numbers in range 0 - 255
+            @type {number[4]}
+            """
+            literal = re.sub(r"\)", "", re.sub(r"rgb\(", "", literal)).split(",")
+            literal = [numpy.clip([int(e)], 0, 255)[0] for e in literal]
+            literal.append(255)
+            return literal
 
         @staticmethod
-        def parseRGBA(color: str):
-            color = color.strip()
-            if not re.match(
-                r"rgba\(\s*[0-9]{1, 3}\s*,\s*[0-9]{1, 3}\s*,\s*[0-9]{1, 3}\s*,\s*[0-9]{1, 3}\s*\)",
-                color,
-            ):
-                raise ValueError("Invalid rgba(x,x,x) literal.")
-            else:
-                color = re.sub(r"rgba\(", "", color)
-                color = re.sub(r"\)", "", color).strip()
-                color = re.split(r"\s*,\s*", color)
-                return tuple(float(x) for x in color)
+        def _color_rgba(literal: str) -> list:
+            """
+            Convert rgba(R, G, B, A) color literal to number[4] array
+            @param {string} literal to parse
+            @returns {number[4]} array of 4 numbers in range 0 - 255
+            @type {number[4]}
+            """
+            literal = re.sub(r"\)", "", re.sub(r"rgba\(", "", literal)).split(",")
+            literal = [numpy.clip([int(e)], 0, 255)[0] for e in literal]
+            return literal
 
         @staticmethod
-        def parse(value: tuple or list or str or bytes) -> tuple:
-            if isinstance(value, (tuple, list)):
-                value = list(value)
-                if len(value) >= 4:
-                    value = value[:4]
-                elif len(value) == 3:
-                    value.append(255)
-                else:
-                    raise ValueError(
-                        f"Sequence {value} is to short to be threated as color."
-                    )
-            elif isinstance(value, (str, bytes)):
-                if isinstance(value, bytes):
-                    value = value.encode("utf-8")
-                if re.match(r"\s*#[0-9A-Fa-f]{8}\s*|\s*#[0-9A-Fa-f]{6}\s*", value):
-                    value = TType.Color.parseHex(value)
-                elif re.match(
-                    r"\s*rgba\(\s*[0-9]{1, 3}\s*,\s*[0-9]{1, 3}\s*,\s*[0-9]{1, 3}\s*,\s*[0-9]{1, 3}\s*\)\s*",
-                    value,
+        def _number_rgba(_number: int) -> list:
+            """
+            Convert number 0x0 - 0xFFFFFFFF to array RGBA {number[4]}
+            @param {number} _number to parse
+            @returns {number[4]} array of 4 numbers in range 0 - 255
+            @type {number[4]}
+            """
+            value = [0, 0, 0, 255]
+            i = 0
+            while i < 4:
+                value[3 - i] = _number % 256
+                _number = math.floor(_number / 256)
+                i += 1
+            return value
+
+        @staticmethod
+        def _parse(literal: str) -> list:
+            """
+            Parse a color literal in one of following forms:
+            number:
+                0x0 - 0xFFFFFFFF as RRGGBBAA
+            string:
+                "0xFFFFFFFF" - "0x00000000" RRGGBBAA
+                "#FFFFFFFF" - "#00000000"   RRGGBBAA
+                "0xFFFFFF" - "0x000000"     RRGGBB alpha 255
+                "#FFFFFF" - "#000000"       RRGGBB alpha 255
+                "0xFFFF" - "0x0000"         RGBA, -> #ABCD = #AABBCCDD
+                "#FFFF" - "#0000"           RGBA, as above
+                "0xFFF" - "0x000"           RGB alpha 255 -> #ABC = #AABBCC
+                "#FFF" - "#000"             RGB alpha 255, as above
+                "rgba(255, 255, 255, 255)" - "rgb(0, 0, 0, 0)"  RGBA
+                "rgb(255, 255, 255)" - "rgb(0, 0, 0)"           RGB alpha 255
+
+            @param {string|number} literal literal to resolve
+            @returns {number[4]} color array [R, G, B, A]
+            @type {number[4]}
+            @type {None} if value cannot be parsed
+            """
+            # parse string literals
+            if type(literal) == str:
+                # rgb(R, G, B) literal
+                if re.match(
+                    r"rgb\(\s*[0-9]{1,3}\s*,\s*[0-9]{1,3}\s*,\s*[0-9]{1,3}\s*\)",
+                    literal,
                 ):
-                    value = TType.Color.parseRGBA(value)
-                else:
-                    raise ValueError("Invalid color literal")
-            return tuple(round(v / 255, 4) for v in value)
+                    return TType.Color._color_rgb(literal)
+                # rgba(R, G, B, A) literal
+                elif re.match(
+                    r"rgba\(\s*[0-9]{1,3}\s*,\s*[0-9]{1,3}\s*,\s*[0-9]{1,3}\s*,\s*[0-9]{1,3}\s*\)",
+                    literal,
+                ):
+                    return TType.Color._color_rgba(literal)
+                # 0xFFFFFFFF or #FFFFFFFF literal
+                elif re.match(r"[#(0x)][0-9A-Fa-f]{8}", literal):
+                    return TType.Color._number_rgba(
+                        int(literal.replace("#", "0x"), base=16)
+                    )
+                # 0xFFFFFF or #FFFFFF literal
+                elif re.match(r"[#(0x)][0-9A-Fa-f]{6}", literal):
+                    return TType.Color._number_rgba(
+                        int((literal + "FF").replace("#", "0x"), base=16)
+                    )
+                elif re.match(r"[#(0x)][0-9A-Fa-f]{4}", literal):
+                    # 0xFFFF or #FFFF literal
+                    literal = re.sub(r"#|0x", "", literal)
+                    return [
+                        int(f"0x{literal[i]}{literal[i]}", base=16) for i in range(4)
+                    ]
+                elif re.match(r"[#(0x)][0-9A-Fa-f]{3}", literal):
+                    # 0xFFF or #FFF literal
+                    literal = re.sub(r"#|0x", "", literal)
+                    return [
+                        int(f"0x{literal[i]}{literal[i]}", base=16) for i in range(3)
+                    ] + [255]
+            elif type(literal) in (int, float):
+                # number literal, values 0 - 4294967295 0x0 - 0xFFFFFFFF
+                return TType.Color._number_rgba(int(literal))
+            raise SyntaxError(
+                f"Invalid literal for Color '{literal}' no matching syntax."
+            )
+
+        @staticmethod
+        def parse(literal: str) -> tuple:
+            return tuple([val / 255 for val in TType.Color._parse(literal)])
 
         def set(self, value: tuple or list or str or bytes) -> None:
             self._value = self.parse(value)
@@ -448,47 +541,35 @@ class TType(Namespace):
 
     class Angle(TType):
         @staticmethod
-        def parse(value) -> float:
-            """Converts angle string literal (float+unit) into float
-            angle value in radians. Following units are uported:
-            deg - degrees
-            ' - minutes of arc
-            " - seconds of arc
-            rad - radians
+        def parse(literal: str) -> float:
+            """Converts angle literal(s) into single value as radians
+            Supported units are listed in TType._angle_regex.
 
-            Units cannot be mixed.
+            Units can be mixed, separated by whitespace or not at all.
 
             Args:
                 value (str): string literal to convert
 
             Returns:
-                float: angle in radians
+                float: sum of converted values in radians
             """
-            float_re = r"[\-+]?\d*\.?\d+"
-            value = str(value).lower()
-            if re.match(f"{float_re}deg$", value):
-                return math.radians(float(re.sub(r"deg", "", value)))
-            if re.match(f"{float_re}'$", value):
-                return math.radians(float(re.sub(r"'", "", value)) * 60)
-            if re.match(f'{float_re}"$', value):
-                return math.radians(float(re.sub(r'"', "", value)) * 3600)
-            elif re.match(f"{float_re}rad$", value):
-                return float(re.sub(r"rad", "", value))
+            if type(literal) == str:
+                return TType.TType._destruct_literal(literal, TType._angle_regex)
             else:
-                return float(value)
+                return float(literal)
 
         def set(self, value: str) -> None:
             self._value = self.parse(value)
 
     class UnitOfLength(TType):
         @staticmethod
-        def parse(value: str) -> float:
-            """Function for converting number+unit literals into meters as float
+        def parse(literal: str) -> float:
+            """Function for converting number+unit literals into meters as float.
 
             Args:
                 value (str): number+unit literal, accepted unit suffixes are:
-                mils, mil   for mils
-                in, inch    for inches
+                mil         for mils
+                in          for inches
                 ft          for feets
                 mm          for milimeters
                 cm          for centimeters
@@ -496,29 +577,15 @@ class TType(Namespace):
                 m           for meters
                 if no suffix matches, literal is treated as usual float
 
-            Units cannot be mixed.
-            
+            Units can be mixed, separated by whitespace or not at all.
+
             Returns:
-                float: converted value
+                float: sum of converted values in meters
             """
-            float_re = r"[\-+]?\d*\.?\d+"
-            value = str(value).lower()
-            if re.match(f"{float_re}mils$|{float_re}mil$", value):
-                return float(re.sub(r"mils|mil", "", value)) * 2.54 * 1e-5
-            elif re.match(f"{float_re}inch$|{float_re}in$", value):
-                return float(re.sub(r"inch|in", "", value)) * 0.0254
-            elif re.match(f"{float_re}ft$", value):
-                return float(re.sub(r"ft", "", value)) * 0.3048
-            elif re.match(f"{float_re}mm$", value):
-                return float(re.sub(r"mm", "", value)) * 0.001
-            elif re.match(f"{float_re}cm$", value):
-                return float(re.sub(r"cm", "", value)) * 0.01
-            elif re.match(f"{float_re}dm$", value):
-                return float(re.sub(r"dm", "", value)) * 0.1
-            elif re.match(f"{float_re}m$", value):
-                return float(re.sub(r"m", "", value))
+            if type(literal) == str:
+                return TType.TType._destruct_literal(literal, TType._unitoflength_regex)
             else:
-                return float(value)
+                return float(literal)
 
         def set(self, value: str) -> None:
             self._value = self.parse(value)
