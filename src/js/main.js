@@ -24,7 +24,7 @@ const createWindow = async () => {
     );
     await globalShortcut.register("Escape", () => mainWindow.close());
     await globalShortcut.register("Ctrl+R", () => mainWindow.reload());
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     mainWindow.setMenu(null);
 };
 app.on("ready", function () {
