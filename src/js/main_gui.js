@@ -1,4 +1,5 @@
 const fs = require("fs");
+const tar = require("tar");
 const {
     dialog,
     getCurrentWebContents,
@@ -7,6 +8,7 @@ const {
 } = require("electron").remote;
 const currentWebContents = getCurrentWebContents();
 const mainWindow = BrowserWindow.getFocusedWindow();
+
 
 const UserPref = require("../js/userpref").UserPref;
 const userpref = new UserPref();

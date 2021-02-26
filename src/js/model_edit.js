@@ -17,7 +17,7 @@ function init3DModelEditMenu($this, model) {
     } catch (e) {
         dialog.showErrorBox(
             "Unable to load model edit menu due to error",
-            e.message
+            e.stack
         );
     }
 }

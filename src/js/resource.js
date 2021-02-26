@@ -11,7 +11,7 @@ async function loadTemplateSpec(dir) {
         templates[pkg._class] = pkg;
     } catch (e) {
         dialog.showErrorBox(
-            `Unable to load template <${dir}>\n due to following error:`,
+            `Unable to load template <${dir}>\n due to error`,
             e.message
         );
     }
@@ -34,7 +34,7 @@ async function loadModelSpec(dir) {
         models[model._model] = model;
     } catch (e) {
         dialog.showErrorBox(
-            `Unable to load model ${dir}\n due to following error:`,
+            `Unable to load model ${dir}\n due to error`,
             e.message
         );
     }
@@ -60,8 +60,67 @@ function autoSave() {
         CURRENT_DELAY += 100;
     }
 }
-function expotModel(model) {
-    model.
+function exportModel(model, file) {
+    // https://www.npmjs.com/package/tar
+    let dirs = ["./__top__.png", "./__bot__.png", "./__dec__.json"];
+    for (let other_path of model._other) {
+        dirs.push(other_path);
+    }
+    tar.create(
+        {
+            gzip: true,
+            sync: true,
+            file: file,
+            cwd: model.package_path,
+        },
+        dirs
+    );
+}
+function importModel(filepath) {
+    // https://www.npmjs.com/package/tar
+    let timestamp = +new Date();
+    let temp_path = `./temp/${timestamp}_model`;
+    fs.mkdirSync(temp_path, { recursive: true });
+    try {
+        tar.x({ sync: true, gzip: true, file: filepath, cwd: temp_path });
+        let temp_model = new ModelPackage(temp_path, templates);
+        let save_path = `./data/assets/models/${temp_model._model}`;
+        console.log(save_path);
+        if (
+            !fs.existsSync(save_path) ||
+            dialog.showMessageBoxSync({
+                type: "info",
+                buttons: ["Replace one in my library", "Cancel import"],
+                title: "Naming collision.",
+                message: `Package  "${filepath}"  you are trying to import has model name '${temp_model._model}' which is already occupierd in your model library. To solve this issue we can either reprace exisitng package with imported one, or cancel import operation. After cancelling import, no changes to your library will be done.`,
+            }) == 0
+        ) {
+            if (!fs.existsSync(save_path))
+                fs.mkdirSync(save_path, { recursive: true });
+            for (let fname of fs.readdirSync(temp_path)) {
+                fs.copyFileSync(
+                    `${temp_path}/${fname}`,
+                    `${save_path}/${fname}`
+                );
+            }
+        }
+    } catch (e) {
+        dialog.showErrorBox("Unable to import model.", e.stack);
+    }
+    if (fs.existsSync(temp_path)) fs.rmdirSync(temp_path, { recursive: true });
+}
+function importModelWrapper() {
+    let file = dialog.showOpenDialogSync({
+        title: "Select Boundle to import",
+        properties: ["openFile"],
+        filters: [
+            { name: "Bundle", extensions: ["bundle"] },
+            { name: "Archive", extensions: ["tar.gz"] },
+        ],
+    });
+    if (file != undefined) {
+        importModel(file[0]);
+    }
 }
 function initSettingsGui() {
     /*let box = globalWorkspaceAdd.box();

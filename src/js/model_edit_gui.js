@@ -604,7 +604,24 @@ modelWorkspaceAdd = {
                 $(".pin-ptr").css({ top: value * -1 + 150 });
             });
         }
-        $("#export-model").on("click", () => exportModel(ACTIVE_MODEL));
+        $("#export-model").on("click", () => {
+            try {
+                let file = dialog.showSaveDialogSync({
+                    title: "Save gerber layer configuration to file",
+                    properties: [],
+                    filters: [
+                        { name: "Bundle", extensions: ["bundle"] },
+                        { name: "Archive", extensions: ["tar.gz"] },
+                    ],
+                });
+                if (file != undefined) {
+                    exportModel(ACTIVE_MODEL, path);
+                }
+            } catch (e) {
+                dialog.showErrorBox("Unable to export model.", e.stack);
+                return;
+            }
+        });
     },
 };
 let appendModelBox = function ($target, model) {

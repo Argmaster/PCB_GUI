@@ -343,7 +343,7 @@ async function generateGerberModel() {
             layers = undefined;
             dialog.showErrorBox(
                 "Unable to pull gerber layer confguration.",
-                e.message
+                e.stack
             );
         }
         if (layers != undefined) {
@@ -374,7 +374,7 @@ async function generateGerberModel() {
                     if (e.message != "GENINT")
                         dialog.showErrorBox(
                             "Unable to continue generation due to fatal error.",
-                            e.message
+                            e.stack
                         );
                 }
             }
@@ -393,7 +393,7 @@ async function generateGerberModel() {
                 } catch (e) {
                     dialog.showErrorBox(
                         "Unable to finish model processing due to fatal error.",
-                        e.message
+                        e.stack
                     );
                 }
             }
@@ -435,7 +435,7 @@ async function renderPreview() {
             );
             preview.css({ top: 0, left: 0 });
         } catch (e) {
-            dialog.showErrorBox("Unable to finish rendering.", e.message);
+            dialog.showErrorBox("Unable to finish rendering.", e.stack);
         }
         $("#render-gerber").removeClass("breath-div-button");
         GENERATION_LOCK = false;
@@ -569,7 +569,7 @@ function saveGerberLayers() {
             fs.writeFileSync(file, JSON.stringify(layers));
         }
     } catch (e) {
-        dialog.showErrorBox("Unable to save gerber layers.", e.message);
+        dialog.showErrorBox("Unable to save gerber layers.", e.stack);
         return;
     }
 }
@@ -587,7 +587,7 @@ function loadLayersToGUI(layer_data) {
 }
 function loadGerberLayers() {
     let file = dialog.showOpenDialogSync({
-        title: "Select JSOn file to load",
+        title: "Select JSON file to load",
         properties: ["openFile"],
         filters: [
             { name: "JSON", extensions: ["json"] },
