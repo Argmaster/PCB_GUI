@@ -28,16 +28,15 @@ class TemplatePackage:
         self.package_path = package_path
         self.pkg_path = f"{package_path}/__pkg__"
         self.gen_path = f"{package_path}/__gen__"
-        self.tem_path = f"{package_path}/__tem__"
         with open(self.pkg_path, "r", encoding="utf-8") as file:
             self.pkg_dict = json.load(file)
         self._class = str(self.pkg_dict.get("class"))
+        self._gtype = str(self.pkg_dict.get("gtype"))
         self._author = str(self.pkg_dict.get("author"))
         self._dscp = str(self.pkg_dict.get("dscp"))
+        self.tem_dict = self.pkg_dict.get("tem_dict")
         with open(self.gen_path, "r", encoding="utf-8") as file:
             self.gen_source = file.read()
-        with open(self.tem_path, "r", encoding="utf-8") as file:
-            self.tem_dict = json.load(file)
 
     @staticmethod
     def make_safe(source: str) -> str:

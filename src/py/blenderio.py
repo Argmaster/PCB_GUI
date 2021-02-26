@@ -15,8 +15,8 @@ from src.py.gparser.gblender import BlenderBackend
 from src.py.gparser.gparser import GerberParser
 
 
-RENDER_SAMPLES: int=0
-RENDER_ENGINE: str="EEVEE"
+RENDER_SAMPLES: int = 0
+RENDER_ENGINE: str = "EEVEE"
 
 
 class IO_OBJECT:
@@ -175,11 +175,11 @@ def getTemplateParams(io_in: IO_IN, io: BlenderIO):
     return IO_OUT("OK")
 
 
-def genModelFile(io_in: IO_IN, io: BlenderIO):
-    TemplatePackage(io_in.data["template_path"]).execute(
-        ModelPackage(io_in.data["model_path"]).params()
+def make3DModel(io_in: IO_IN, io: BlenderIO):
+    TemplatePackage(io_in.data["template_pkg_path"]).execute(
+        io_in.data["template_params"]
     )
-    Global.Export(io_in.data["output_path"])
+    Global.Export(io_in.data["save_as"])
     return IO_OUT("OK")
 
 
@@ -202,9 +202,21 @@ LAYER_TYPES = {
         "dark_thickness": "0.1m",
         "clear_thickness": "0.05m",
         "region_thickness": "0.1m",
-        "dark_material": {"color": "rgba(0, 23, 0, 255)", "roughness": 1.0, "specular": 0},
-        "clear_material": {"color": "rgba(0, 76, 0, 255)", "roughness": 1.0, "specular": 0},
-        "region_material": {"color": "rgba(0, 76, 0, 255)", "roughness": 1.0, "specular": 0},
+        "dark_material": {
+            "color": "rgba(0, 23, 0, 255)",
+            "roughness": 1.0,
+            "specular": 0,
+        },
+        "clear_material": {
+            "color": "rgba(0, 76, 0, 255)",
+            "roughness": 1.0,
+            "specular": 0,
+        },
+        "region_material": {
+            "color": "rgba(0, 76, 0, 255)",
+            "roughness": 1.0,
+            "specular": 0,
+        },
     },
     "SILK": {
         "dark_thickness": "0.05m",
@@ -220,7 +232,11 @@ LAYER_TYPES = {
             "roughness": 0.5,
             "specular": 0,
         },
-        "region_material": {"color": "rgba(0, 0, 0, 255)", "roughness": 1.0, "specular": 0},
+        "region_material": {
+            "color": "rgba(0, 0, 0, 255)",
+            "roughness": 1.0,
+            "specular": 0,
+        },
     },
     "SOLDER_MASK": {
         "dark_thickness": "0.05m",
@@ -285,10 +301,14 @@ def renderGerberLayer(io_in: IO_IN, io: BlenderIO):
     for progress in parser:
         if progress % 17 == 0:
             io.write(IO_OUT("STREAM", {"tokens_done": 17}))
-    Object.join(backend.ROOT, *Global.getAll())
-    if io_in.data["layer_type"] == "BOT":
-        Object.ScaleBy(backend.ROOT, z=-1)
-    Global.Export(f"./temp/gerber/gerber-{io_in.data['layer_id']}.glb")
+            state_in = io.read()
+            if state_in.status != "CONTINUE":
+                break
+    else:
+        Object.join(backend.ROOT, *Global.getAll())
+        if io_in.data["layer_type"] == "BOT":
+            Object.ScaleBy(backend.ROOT, z=-1)
+        Global.Export(f"./temp/gerber/gerber-{io_in.data['layer_id']}.glb")
     return IO_OUT("END")
 
 
@@ -308,6 +328,12 @@ def joinLayers(io_in: IO_IN, io: BlenderIO):
     root = Mesh.Rectangle(0, 0, 0)
     Object.join(root, *Global.getAll())
     Global.Export(f"{os.getcwd()}/temp/gerber/merged.glb")
+    return IO_OUT("OK")
+
+
+def renderPreview(io_in: IO_IN, io: BlenderIO):
+    Global.Import(f"{os.getcwd()}/temp/gerber/merged.glb")
+    root = Global.getActive()
     # prepare to make a render
     width = root.dimensions.x
     height = root.dimensions.y
@@ -329,7 +355,11 @@ def joinLayers(io_in: IO_IN, io: BlenderIO):
     elif RENDER_ENGINE == "CYCLES":
         Global.cycles(RENDER_SAMPLES)
     # render image
-    Global.render(f"{os.getcwd()}/temp/gerber/{io_in.data['render_file']}.png", 1920, 1920 * (height / width))
+    Global.render(
+        f"{os.getcwd()}/temp/gerber/{io_in.data['render_file']}.png",
+        1920,
+        1920 * (height / width),
+    )
     return IO_OUT("OK")
 
 
@@ -339,11 +369,12 @@ def mainloop():
     commands = {
         "makeBotIcon": makeBotIcon,
         "getTemplateParams": getTemplateParams,
-        "genModelFile": genModelFile,
+        "make3DModel": make3DModel,
         "exitNow": exitNow,
         "Detach": Detach,
         "renderGerberLayer": renderGerberLayer,
         "joinLayers": joinLayers,
+        "renderPreview": renderPreview,
     }
     while True:
         try:

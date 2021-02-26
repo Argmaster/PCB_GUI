@@ -1,7 +1,7 @@
 const { BlenderIO, IO_OUT, IO_IN } = require("../js/blenderio");
 
 function removeGerberLayer() {
-    $(this).parents(".gerber-layer-box").remove();
+    $(this).parents(".gerber-layer-row").remove();
 }
 function gerberFileSelect() {
     let file = dialog.showOpenDialogSync({
@@ -19,20 +19,20 @@ function gerberFileSelect() {
 function showCustom() {
     if ($(this).val() == "CUSTOM") {
         $(this)
-            .parents(".gerber-layer-box")
-            .find(".layer-custom-settings")
+            .parents(".gerber-layer-row")
+            .find(".gerber-layer-row-custom")
             .show();
     } else {
         $(this)
-            .parents(".gerber-layer-box")
-            .find(".layer-custom-settings")
+            .parents(".gerber-layer-row")
+            .find(".gerber-layer-row-custom")
             .hide();
     }
 }
 function addLayerLine(event, layer_type) {
     $(this).siblings(".gerber-layer-list").append(`
-    <div class="gerber-layer-box">
-        <div class="gerber-layer-main">
+    <div class="gerber-layer-row">
+        <div class="gerber-layer-row-main">
             <input type='text' class="standard-text-input" placeholder="path to *.grb file"/>
             <div class="div-button" id="file-select">Select</div>
             <select class="standard-text-input">
@@ -48,7 +48,7 @@ function addLayerLine(event, layer_type) {
             </select>
             <span class="gerber-layer-remove-icon">&#10006</span>
         </div>
-        <div class="layer-custom-settings">
+        <div class="gerber-layer-row-custom">
             <div>
                 <label>Dark material</label>
                 <input
@@ -102,16 +102,16 @@ function addLayerLine(event, layer_type) {
     `);
     let $thisLayer = $(this)
         .siblings(".gerber-layer-list")
-        .children(".gerber-layer-box")
+        .children(".gerber-layer-row")
         .last();
 
     $thisLayer
-        .find(".gerber-layer-main .gerber-layer-remove-icon")
+        .find(".gerber-layer-row-main .gerber-layer-remove-icon")
         .on("click", removeGerberLayer);
     $thisLayer
-        .find(".gerber-layer-main #file-select")
+        .find(".gerber-layer-row-main #file-select")
         .on("click", gerberFileSelect);
-    let $selectInput = $thisLayer.find(".gerber-layer-main select");
+    let $selectInput = $thisLayer.find(".gerber-layer-row-main select");
     $selectInput.on("input", showCustom);
     if (typeof layer_type == "string") {
         $selectInput.val(layer_type);
@@ -120,10 +120,12 @@ function addLayerLine(event, layer_type) {
 }
 function pushUserLayer(layer, $list) {
     $list.siblings(".gerber-add-layer").trigger("click", layer.mode);
-    let $last = $list.find(".gerber-layer-box").last();
-    $last.find(".gerber-layer-main input.standard-text-input").val(layer.path);
+    let $last = $list.find(".gerber-layer-row").last();
+    $last
+        .find(".gerber-layer-row-main input.standard-text-input")
+        .val(layer.path);
     if (layer.mode == "CUSTOM") {
-        let $custom = $last.find(".layer-custom-settings");
+        let $custom = $last.find(".gerber-layer-row-custom");
         $custom
             .find("#dark-material")
             .val(JSON.stringify(layer.data.dark_material));
@@ -225,12 +227,12 @@ function pullGerbereConfig() {
         bot_layers: [],
     };
     $("#gerber-layers-top")
-        .find(".gerber-layer-box")
+        .find(".gerber-layer-row")
         .each(function (index) {
             out.top_layers.push(pullLayerConfig($(this), index));
         });
     $("#gerber-layers-bot")
-        .find(".gerber-layer-box")
+        .find(".gerber-layer-row")
         .each(function (index) {
             out.bot_layers.push(pullLayerConfig($(this), index));
         });
@@ -240,13 +242,25 @@ function pullGerbereConfig() {
     return out;
 }
 function setGerberProgress(value, max) {
-    let prct = (value / max) * 100;
-    $("#gerber-progress").css("width", `${prct}%`);
-    $("#gerber-progress-label").text(`${value}/${max}`);
+    if (max != 0 && value != 0) {
+        let prct = (value / max) * 100;
+        $("#gerber-progress").css("width", `${prct}%`);
+        $("#gerber-progress-label").text(`${value}/${max}`);
+    } else if (max == 0 && value != 0) {
+        $("#gerber-progress").css("width", `0%`);
+        $("#gerber-progress-label").text(`Interrupted`);
+    } else {
+        $("#gerber-progress").css("width", `0%`);
+        $("#gerber-progress-label").text(`0/0`);
+    }
 }
 let TOKEN_STACK_SIZE = 0;
 let TOKENS_DONE = 0;
+let STOP_GERBER_GENERATION = false;
+let GENERATION_LOCK = false;
+let RENDERING_LOCK = false;
 async function generateGerberLayer(layer, layer_type, layer_id) {
+    STOP_GERBER_GENERATION = false;
     let blender_io = new BlenderIO(userpref);
     await blender_io.begin();
     try {
@@ -265,6 +279,15 @@ async function generateGerberLayer(layer, layer_type, layer_id) {
                 break;
             } else if (mess.status == "STREAM") {
                 TOKENS_DONE += mess.data.tokens_done;
+                if (STOP_GERBER_GENERATION) {
+                    blender_io.write(new IO_OUT("STOP"));
+                    TOKENS_DONE = 1;
+                    TOKEN_STACK_SIZE = 0;
+                    setGerberProgress(1, 0);
+                    throw Error("GENINT");
+                } else {
+                    blender_io.write(new IO_OUT("CONTINUE"));
+                }
             } else if (mess.status == "ERROR") {
                 throw Error(mess.data.trace);
             }
@@ -274,7 +297,6 @@ async function generateGerberLayer(layer, layer_type, layer_id) {
     }
 }
 async function joinGerberLayers(top_layers, bot_layers) {
-    let render_file = new Date().getTime().toString();
     let blender_io = new BlenderIO(userpref);
     await blender_io.begin();
     try {
@@ -282,14 +304,12 @@ async function joinGerberLayers(top_layers, bot_layers) {
             new IO_OUT("joinLayers", {
                 top_layers: top_layers,
                 bot_layers: bot_layers,
-                render_file: render_file,
             }),
             "OK"
         );
     } finally {
         blender_io.kill();
     }
-    return render_file;
 }
 function clearGerberCache() {
     TOKENS_DONE = 0;
@@ -309,53 +329,127 @@ function clearGerberCache() {
     );
 }
 async function generateGerberModel() {
-    clearGerberCache();
-    let progressID = setInterval(
-        () => setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE),
-        100
-    );
-    try {
-        let layers = pullGerbereConfig();
-        let promises = [];
-        let _index = 0;
-        let top_layers = [];
-        let bot_layers = [];
-        for (let layer of layers.top_layers) {
-            promises.push(generateGerberLayer(layer, "TOP", _index));
-            top_layers.push(
-                `${process.cwd()}/temp/gerber/gerber-${_index}.glb`
-            );
-            _index += 1;
-        }
-        for (let layer of layers.bot_layers) {
-            promises.push(generateGerberLayer(layer, "BOT", _index));
-            bot_layers.push(
-                `${process.cwd()}/temp/gerber/gerber-${_index}.glb`
-            );
-            _index += 1;
-        }
-        for (let p of promises) {
-            await p;
-        }
-        TOKENS_DONE = TOKEN_STACK_SIZE;
-        clearInterval(progressID);
-        setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE);
-        let render_file = await joinGerberLayers(top_layers, bot_layers);
-
-        $("#gerber-preview").prop(
-            "src",
-            `${process.cwd()}/temp/gerber/${render_file}.png`
+    if (!GENERATION_LOCK) {
+        GENERATION_LOCK = true;
+        clearGerberCache();
+        let progressID = setInterval(
+            () => setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE),
+            100
         );
-        dialog.showMessageBoxSync({
-            type: "info",
-            buttons: ["Ok"],
-            title: "Finished generating gerber files.",
-            message: `Tokens resolved: ${TOKEN_STACK_SIZE}.`,
-        });
-    } catch (e) {
-        clearInterval(progressID);
-        dialog.showErrorBox("Unable to generate gerber model.", e.message);
-        return;
+        let layers;
+        try {
+            layers = pullGerbereConfig();
+        } catch (e) {
+            layers = undefined;
+            dialog.showErrorBox(
+                "Unable to pull gerber layer confguration.",
+                e.message
+            );
+        }
+        if (layers != undefined) {
+            let promises = [];
+            let _index = 0;
+            let top_layers = [];
+            let bot_layers = [];
+            for (let layer of layers.top_layers) {
+                promises.push(generateGerberLayer(layer, "TOP", _index));
+                top_layers.push(
+                    `${process.cwd()}/temp/gerber/gerber-${_index}.glb`
+                );
+                _index += 1;
+            }
+            for (let layer of layers.bot_layers) {
+                promises.push(generateGerberLayer(layer, "BOT", _index));
+                bot_layers.push(
+                    `${process.cwd()}/temp/gerber/gerber-${_index}.glb`
+                );
+                _index += 1;
+            }
+            let interrupt = false;
+            for (let p of promises) {
+                try {
+                    await p;
+                } catch (e) {
+                    interrupt = true;
+                    if (e.message != "GENINT")
+                        dialog.showErrorBox(
+                            "Unable to continue generation due to fatal error.",
+                            e.message
+                        );
+                }
+            }
+            clearInterval(progressID);
+            if (!interrupt) {
+                try {
+                    TOKENS_DONE = TOKEN_STACK_SIZE;
+                    setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE);
+                    await joinGerberLayers(top_layers, bot_layers);
+                    dialog.showMessageBoxSync({
+                        type: "info",
+                        buttons: ["Ok"],
+                        title: "Finished generating 3D model files.",
+                        message: `Tokens resolved: ${TOKEN_STACK_SIZE}. Now you can render preview.`,
+                    });
+                } catch (e) {
+                    dialog.showErrorBox(
+                        "Unable to finish model processing due to fatal error.",
+                        e.message
+                    );
+                }
+            }
+        }
+        GENERATION_LOCK = false;
+    }
+}
+function interruptModelGeneration() {
+    if (GENERATION_LOCK && !RENDERING_LOCK) {
+        STOP_GERBER_GENERATION = true;
+    } else {
+        dialog.showErrorBox(
+            "Nothing to interrupt.",
+            "No generation process is currently running."
+        );
+    }
+}
+async function renderPreview() {
+    if (!GENERATION_LOCK && TOKENS_DONE != 0) {
+        GENERATION_LOCK = true;
+        RENDERING_LOCK = true;
+        $("#render-gerber").addClass("breath-div-button");
+        try {
+            let render_file = new Date().getTime().toString();
+            let blender_io = new BlenderIO(userpref);
+            await blender_io.begin();
+            try {
+                await blender_io.call(
+                    new IO_OUT("renderPreview", { render_file: render_file }),
+                    "OK"
+                );
+            } finally {
+                blender_io.kill();
+            }
+            let preview = $("#gerber-preview");
+            preview.prop(
+                "src",
+                `${process.cwd()}/temp/gerber/${render_file}.png`
+            );
+            preview.css({ top: 0, left: 0 });
+        } catch (e) {
+            dialog.showErrorBox("Unable to finish rendering.", e.message);
+        }
+        $("#render-gerber").removeClass("breath-div-button");
+        GENERATION_LOCK = false;
+        RENDERING_LOCK = false;
+    } else if (!GENERATION_LOCK) {
+        dialog.showErrorBox(
+            "Unable to start rendering process",
+            "You can only generate/render one file at once."
+        );
+    } else {
+        dialog.showErrorBox(
+            "Unable to start rendering process",
+            "You have to generate 3D model before you can render it."
+        );
     }
 }
 function recognizeFilesFromDir() {
@@ -518,7 +612,36 @@ function loadGerberLayers() {
         loadLayersToGUI(layer_data);
     }
 }
+let GERBER_PREVIEW_SCALE = 1;
+function zoomGerberPreview(event) {
+    if (event.code == "Equal" && event.ctrlKey) {
+        GERBER_PREVIEW_SCALE += 0.05;
+        $("#gerber-preview").css({
+            transform: `scale(${GERBER_PREVIEW_SCALE})`,
+        });
+    } else if (event.code == "Minus" && event.ctrlKey) {
+        GERBER_PREVIEW_SCALE -= 0.05;
+        $("#gerber-preview").css({
+            transform: `scale(${GERBER_PREVIEW_SCALE})`,
+        });
+    }
+}
 function gerberUI() {
+    $("#gerber-preview")
+        .parent(".gerber-preview")
+        .on("keydown", zoomGerberPreview);
+    $("#gerber-preview")
+        .parent(".gerber-preview")
+        .on("mousewheel", event => {
+            if (event.ctrlKey) {
+                if (event.originalEvent.wheelDelta > 0) {
+                    zoomGerberPreview({ code: "Equal", ctrlKey: true });
+                } else {
+                    zoomGerberPreview({ code: "Minus", ctrlKey: true });
+                }
+            }
+        });
+    $("#gerber-preview").draggable();
     $(".gerber-add-layer").each(function () {
         $this = $(this);
         $this.on("click", addLayerLine);
@@ -528,6 +651,8 @@ function gerberUI() {
         $this.trigger("click", "SILK");
     });
     $("#generate-gerber").on("click", generateGerberModel);
+    $("#render-gerber").on("click", renderPreview);
+    $("#stop-generate-gerber").on("click", interruptModelGeneration);
     $("#recoginze-gerber-dir").on("click", recognizeFilesFromDir);
     $("#save-gerber-layers").on("click", saveGerberLayers);
     $("#load-gerber-layers").on("click", loadGerberLayers);

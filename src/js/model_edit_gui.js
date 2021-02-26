@@ -121,7 +121,7 @@ function RNAtoTType(model, rna) {
 const MATERIAL_DEFAULT = {
     color: "#FFFFFFFF",
     subsurface: 0.0,
-    subsurfaceRadius: [0.0, 0.0, 0.0, 1.0],
+    subsurfaceRadius: [0.0, 0.0, 0.0],
     subsurfaceColor: "#FFFFFFFF",
     metallic: 0.0,
     specular: 0.5,
@@ -137,7 +137,7 @@ const MATERIAL_DEFAULT = {
     transmission: 0.0,
     transmissionRoughness: 0.0,
     emission: "#FFFFFFFF",
-    emissionStrength: 1.0,
+    emissionStrength: 0.0,
     alpha: 1.0,
 };
 function RNAtoParam(model, rna) {
@@ -509,9 +509,10 @@ modelWorkspaceAdd = {
             </div>
             <div class="model-edit-pinroot-data">
                 <div>
+                    <span>offset X</span>
                     <input
                         type="number"
-                        class="standard-text-input model-edit-pinroot-data-input"
+                        class="standard-text-input"
                         value="${userpref.getModelRNA(
                             ACTIVE_MODEL._model,
                             "$Xaxis",
@@ -519,12 +520,12 @@ modelWorkspaceAdd = {
                         )}"
                         RNA="$Xaxis"
                     />
-                    <div class="model-edit-pinroot-data-label">X</div>
                 </div>
                 <div>
+                    <span>offset Y</span>
                     <input
                         type="number"
-                        class="standard-text-input model-edit-pinroot-data-input"
+                        class="standard-text-input"
                         value="${userpref.getModelRNA(
                             ACTIVE_MODEL._model,
                             "$Yaxis",
@@ -532,12 +533,12 @@ modelWorkspaceAdd = {
                         )}"
                         RNA="$Yaxis"
                     />
-                    <div class="model-edit-pinroot-data-label">Y</div>
                 </div>
                 <div>
+                    <span>Rotation</span>
                     <input
                         type="number"
-                        class="standard-text-input model-edit-pinroot-data-input"
+                        class="standard-text-input"
                         value="${userpref.getModelRNA(
                             ACTIVE_MODEL._model,
                             "$Angle",
@@ -545,16 +546,23 @@ modelWorkspaceAdd = {
                         )}"
                         RNA="$Angle"
                     />
-                    <div class="model-edit-pinroot-data-label">Rotation</div>
+                </div>
+                <div>
+                    <div class="div-button" id="export-model">
+                        Export Model
+                    </div>
+                    <div class="div-button" id="delete-model">
+                        Delete Model
+                    </div>
                 </div>
             </div>
         </div>
         <div class="model-edit-param-container"></div>
         `);
         {
-            let Xaxis = $(`input[RNA="$Xaxis"]`);
-            let Yaxis = $(`input[RNA="$Yaxis"]`);
-            let Angle = $(`input[RNA="$Angle"]`);
+            let Xaxis = $target.find(`input[RNA="$Xaxis"]`);
+            let Yaxis = $target.find(`input[RNA="$Yaxis"]`);
+            let Angle = $target.find(`input[RNA="$Angle"]`);
             $(".pin-ptr").draggable({ containment: "parent" });
             $(".pin-ptr").on("drag", function (event, ui) {
                 Xaxis.val(ui.position.left - 150);
@@ -570,6 +578,7 @@ modelWorkspaceAdd = {
                     value = -150;
                 }
                 Xaxis.val(value);
+                userpref.setModelRNA(ACTIVE_MODEL._model, "$Xaxis", value);
                 $(".pin-ptr").css({ left: value + 150 });
             });
             Yaxis.on("input", function () {
@@ -579,6 +588,7 @@ modelWorkspaceAdd = {
                 } else if (value < -150) {
                     value = -150;
                 }
+                userpref.setModelRNA(ACTIVE_MODEL._model, "$Yaxis", value);
                 Yaxis.val(value);
                 $(".pin-ptr").css({ top: value * -1 + 150 });
             });
@@ -590,41 +600,62 @@ modelWorkspaceAdd = {
                     value = 0;
                 }
                 Angle.val(value);
+                userpref.setModelRNA(ACTIVE_MODEL._model, "$Angle", value);
                 $(".pin-ptr").css({ top: value * -1 + 150 });
             });
         }
+        $("#export-model").on("click", () => exportModel(ACTIVE_MODEL));
     },
 };
-let getModelContainerHTML = function (model) {
-    return `
-    <div class="model-box">
-        <div class="model-data">
-            <div class="model-image">
-                <img class="model-icon" src="${model.package_path}/__top__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
-                <img class="model-icon model-icon-disable" src="${model.package_path}/__bot__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
+let appendModelBox = function ($target, model) {
+    $target.append(
+        `<div class="resource-model-container">
+            <div class="resource-model-data">
+                <div class="model-image">
+                    <img src="${model.package_path}/__top__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
+                    <img class="model-icon-disable" src="${model.package_path}/__bot__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
+                </div>
+                <div class="model-meta">
+                    <div class="model-title">
+                        <span class="model-title-small">model</span>
+                        <span class="model-name">${model._model}</span>
+                        <span class="model-title-small">class</span>
+                        <span class="model-class">${model._class}</span>
+                    </div>
+                    <div class="model-meta-row">
+                        <div class="model-meta-label">Author:</div>
+                        <div class="model-meta-value">${model._author}</div>
+                    </div>
+                    <div class="model-meta-row">
+                        <div class="model-meta-label">About:</div>
+                        <div class="model-meta-value">${model._dscp}</div>
+                    </div>
+                </div>
             </div>
-            <div class="model-meta">
-                <div class="model-title">
-                    <span class="model-title-small">model</span>
-                    <span class="model-name">${model._model}</span>
-                    <span class="model-title-small">class</span>
-                    <span class="model-class">${model._class}</span>
-                </div>
-                <div class="model-meta-row">
-                    <div class="model-meta-label">Author:</div>
-                    <div class="model-meta-value">${model._author}</div>
-                </div>
-                <div class="model-meta-row">
-                    <div class="model-meta-label">About:</div>
-                    <div class="model-meta-value">${model._dscp}</div>
-                </div>
+            <div class="model-corner-box">
+                <div class="model-modification-mark model-modification-mark-active"></div>
+                <div class="model-modification-mark model-modification-mark-active"></div>
+                <div class="model-modification-mark model-modification-mark-active"></div>
+                <div class="div-button model-edit-button">More</div>
+                <div class="div-button model-edit-button"">Make</div>
             </div>
-        </div>
-        <div class="model-corner-box">
-            <div class="model-modification-mark"></div>
-            <div class="model-modification-mark model-modification-mark-active"></div>
-            <div class="model-modification-mark model-modification-mark-active"></div>
-            <div class="div-button model-edit-button" name="${model._model}">Edit</div>
-        </div>
-    </div>`;
+        </div>`
+    );
+    let $this = $target.find(".resource-model-container").last();
+    $this.find(".model-image").on("click", function () {
+        $(this).find("img").toggle();
+    });
+    $this
+        .find(":nth-child(4).model-edit-button")
+        .on("click", () => init3DModelEditMenu($this, model));
+    $this
+        .find(":nth-child(5).model-edit-button")
+        .on("click", async function () {
+            $(this).addClass("breath-div-button");
+            try {
+                await model.make();
+            } finally {
+                $(this).removeClass("breath-div-button");
+            }
+        });
 };

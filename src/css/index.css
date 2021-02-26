@@ -27,12 +27,9 @@ html {
 ::-webkit-scrollbar-corner {
     background-color: var(--scroll-corner);
 }
-input:focus,
-input:hover,
-input:active,
-select:focus,
-select:hover,
-select:active,
+*:focus,
+*:hover,
+*:active,
 input,
 textarea {
     border: none;
@@ -84,26 +81,44 @@ textarea {
     background-color: var(--std-button-background-hover);
     border: 2px solid var(--std-button-border-hover);
 }
+@keyframes div-button-breath-anim {
+    0% {
+        background-color: var(--std-button-background);
+        border-color: var(--std-button-border);
+    }
+    100% {
+        background-color: var(--std-button-background-hover);
+        border-color: var(--std-button-border-hover);
+    }
+}
+.breath-div-button {
+    animation: div-button-breath-anim 1s alternate infinite;
+}
 #global-container {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100vh;
 }
-#bookmarks-container {
+nav {
     flex-shrink: 0;
-    user-select: none;
-    width: 100%;
-    height: 3.1rem;
-    overflow-x: scroll;
-}
-#bookmarks-container-overflow {
     display: flex;
     flex-direction: row;
-    min-height: max-content;
+    user-select: none;
+    width: 100%;
     height: max-content;
-    min-width: fit-content;
+    overflow: hidden;
     background-color: var(--bookmark-container-background);
+}
+#bookmarks-container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: fit-content;
+    min-width: 36rem;
+    max-width: 100%;
+    overflow-y: hidden;
+    overflow-x: scroll;
 }
 .bookmark-box {
     flex-shrink: 0;
@@ -111,7 +126,7 @@ textarea {
     text-align: center;
     width: 12rem;
     height: fit-content;
-    padding: 0.5rem;
+    padding: 0.2rem;
     padding-left: 0.8rem;
     cursor: pointer;
     transition: all ease 150ms;
@@ -135,15 +150,47 @@ textarea {
     background-color: var(--bookmark-background-inactive-hover);
     border-color: var(--bookmark-border-inactive-hover);
 }
-#bookmarks-container-overflow :nth-child(1).bookmark-box {
+#bookmarks-container :nth-child(1).bookmark-box {
     border-width: 0.2rem 0.1rem 0.2rem 0.2rem;
 }
-#bookmarks-container-overflow :nth-last-child(1).bookmark-box {
+#bookmarks-container :nth-last-child(1).bookmark-box {
     border-width: 0.2rem 0.2rem 0.2rem 0.1rem;
+}
+#window-window-nav {
+    -webkit-app-region: drag;
+    width: 100%;
+    min-width: 10rem;
+}
+#window-window-nav div {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-left: 0.2rem;
+    background-color: var(--bookmark-container-background);
+    font-size: 1.2rem;
+    filter: brightness(80%);
+    width: fit-content;
+}
+#window-window-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    width: fit-content;
+    min-width: fit-content;
+    max-width: fit-content;
+}
+#window-window-buttons div {
+    cursor: pointer;
+    padding: 0.6rem 0.8rem 0.6rem 0.8rem;
+    font-size: 1.2rem;
+    line-height: 1.2rem;
+    background-color: var(--bookmark-container-background);
+}
+#window-window-buttons div:hover {
+    filter: brightness(120%);
 }
 #workspace-container {
     background-color: var(--background-level-1);
-    height: calc(100% - 3.1rem);
+    height: 100%;
     width: 100%;
     overflow-y: scroll;
 }

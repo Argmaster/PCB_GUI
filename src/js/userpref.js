@@ -76,7 +76,10 @@ class UserPref {
     save() {
         if (this.modified) {
             this.modified = false;
-            fs.writeFileSync(this.pref_path, JSON.stringify(this.pref));
+            fs.writeFileSync(
+                this.pref_path,
+                JSON.stringify(this.pref, undefined, 2)
+            );
         }
     }
 }

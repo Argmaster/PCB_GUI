@@ -339,8 +339,8 @@ class TType(Namespace):
             }
 
     class Vector(TType):
-        def __init__(self, values, **_) -> None:
-            self._value = [TType.TTYPES[val["ttype"]](val) for val in values]
+        def __init__(self, template, **_) -> None:
+            self._value = [TType.TTYPES[val["ttype"]](val) for val in template]
 
         def set(self, value: Iterable) -> None:
             for i, e in enumerate(value):
@@ -378,9 +378,8 @@ class TType(Namespace):
         alpha:                  float   : 1.0,
         """
 
-        def __init__(self, params, **_) -> None:
+        def __init__(self, **_) -> None:
             self._value = {}
-            self.set(params)
 
         def set(self, value: dict) -> None:
             self._value.update(value)

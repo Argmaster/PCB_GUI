@@ -16,22 +16,24 @@
     border-radius: 1rem;
 }
 .gerber-left-panel {
-    width: 100%;
-    min-width: 30rem;
-    height: 100%;
+    width: 60rem;
+    min-width: 60rem;
     min-height: fit-content;
     display: flex;
     flex-direction: column;
     align-content: center;
     background-color: var(--background-level-2);
-    border-radius: 0 1rem 1rem 0;
     padding: 1rem;
     overflow-y: scroll;
 }
 .gerber-preview {
     width: 100%;
-    height: 35rem;
+    height: 45rem;
+    overflow: hidden;
     border: 0.1rem solid var(--background-level-2-border);
+}
+.gerber-preview:focus {
+    border-color: var(--background-level-2-hover);
 }
 #gerber-preview {
     display: block;
@@ -43,6 +45,7 @@
     max-height: 100%;
     width: auto;
     height: auto;
+    cursor: move;
 }
 .gerber-panel-buttons {
     display: flex;
@@ -50,29 +53,40 @@
     width: 100%;
     padding: 1rem;
 }
-.gerber-panel-buttons div {
+.width-prct-50 {
+    width: 50% !important;
+}
+.gerber-panel-buttons .div-button {
     display: block;
     width: 100%;
     align-self: center;
+    margin: 0.2rem;
+}
+.div-button-group {
+    display: flex;
 }
 .gerber-right-panel {
     overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     min-width: fit-content;
     width: 100%;
-    max-width: 100%;
     height: 100%;
     padding: 1rem;
 }
-.gerber-header {
-    font-weight: 300;
-    font-size: 1.1rem;
-}
-.gerber-layer-container {
+.gerber-layer-list-box {
     padding: 1rem;
     background-color: var(--background-level-2);
     width: 100%;
     min-width: fit-content;
+    max-width: 70rem;
     border-radius: 1rem;
+    margin-top: 1rem;
+}
+.gerber-layer-list-title {
+    font-weight: 300;
+    font-size: 1.1rem;
 }
 .gerber-layer-list {
     min-width: 60rem;
@@ -80,7 +94,7 @@
     padding: 1rem;
     padding-bottom: 0;
 }
-.gerber-layer-box {
+.gerber-layer-row {
     user-select: none;
     cursor: move;
     padding: 0.2rem;
@@ -90,21 +104,21 @@
     border-radius: 2rem;
     transition: all 150ms ease;
 }
-.gerber-layer-box:hover {
+.gerber-layer-row:hover {
     background-color: var(--background-level-3-hover);
 }
-.gerber-layer-main {
+.gerber-layer-row-main {
     display: flex;
     flex-direction: row;
 }
-.gerber-layer-main .standard-text-input {
+.gerber-layer-row-main .standard-text-input {
     width: 100%;
 }
-.gerber-layer-main select {
+.gerber-layer-row-main select {
     max-width: 14rem;
     min-width: 14rem;
 }
-.gerber-layer-main .div-button {
+.gerber-layer-row-main .div-button {
     margin-top: 0rem;
     margin-bottom: 0.4rem;
     margin-right: 0.5rem;
@@ -120,30 +134,29 @@
     padding: 1rem;
     cursor: pointer;
 }
-.layer-custom-settings {
+.gerber-layer-row-custom {
     display: none;
     padding-bottom: 1rem;
     padding-right: 1rem;
 }
-.layer-custom-settings div {
+.gerber-layer-row-custom div {
     align-items: center;
     display: flex;
     flex-direction: row;
 }
-.layer-custom-settings label {
+.gerber-layer-row-custom label {
     display: inline-block;
     min-width: 10rem;
     max-width: 10rem;
     text-align: right;
 }
-.layer-custom-settings input {
+.gerber-layer-row-custom input {
     width: 100%;
 }
 @keyframes animate-stripes {
     0% {
         background-position: 0 0;
     }
-
     100% {
         background-position: 60px 0;
     }

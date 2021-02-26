@@ -213,30 +213,32 @@ class GerberParser:
         line_index = 0
         char_index = 0
         slen = len(source)
-        size_impact = (self.on_X, self.on_Y, self.on_FS)
-
-        while cindex < slen:
-            for regex, func in self.SWITCH:
-                chunk = regex.match(source, cindex)
-                if chunk is not None:
-                    cindex = chunk.end()
-                    chunk = chunk.group()
-                    if "\n" in chunk:
-                        line_index += chunk.count("\n")
-                        char_index = len(chunk.split("\n")[1])
-                    else:
-                        char_index += len(chunk)
-                    tk = Token(func, chunk)
-                    if tk.func in size_impact:
-                        tk()
-                    self.TOKEN_STACK_SIZE += 1
-                    self.TOKEN_STACK.put(tk)
-                    break
-            else:
-                end_index = cindex + 30 if cindex + 30 < len(source) else len(source)
-                raise GerberParser.GerberNoMatchSyntax(
-                    f"In line {line_index} no matching token at {char_index} char.\n {source[cindex: end_index]}..."
-                )
+        size_impact = (self.on_X, self.on_Y, self.on_FS, self.on_M02)
+        try:
+            while cindex < slen:
+                for regex, func in self.SWITCH:
+                    chunk = regex.match(source, cindex)
+                    if chunk is not None:
+                        cindex = chunk.end()
+                        chunk = chunk.group()
+                        if "\n" in chunk:
+                            line_index += chunk.count("\n")
+                            char_index = len(chunk.split("\n")[1])
+                        else:
+                            char_index += len(chunk)
+                        tk = Token(func, chunk)
+                        if tk.func in size_impact:
+                            tk()
+                        self.TOKEN_STACK_SIZE += 1
+                        self.TOKEN_STACK.put(tk)
+                        break
+                else:
+                    end_index = cindex + 30 if cindex + 30 < len(source) else len(source)
+                    raise GerberParser.GerberNoMatchSyntax(
+                        f"In line {line_index} no matching token at {char_index} char.\n {source[cindex: end_index]}..."
+                    )
+        except GerberParser.ParserMetEOF:
+            pass
         self._CALCULATE_SIZE_MODE = False
         self.CURRENT_X = 0
         self.CURRENT_Y = 0
@@ -252,10 +254,7 @@ class GerberParser:
         Returns:
             GerberParser: self
         """
-        try:
-            self.tokenize(path)
-        except GerberParser.ParserMetEOF:
-            pass
+        self.tokenize(path)
         self.BACKEND.setSize(
             self._RIGHT - self._LEFT,
             self._BOT - self._TOP,
@@ -278,6 +277,7 @@ class GerberParser:
             token()
             self.TOKEN_INDEX += 1
         except (Empty, GerberParser.ParserMetEOF):
+            self.BACKEND.end()
             raise StopIteration()
         return self.TOKEN_INDEX
 

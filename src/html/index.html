@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="../../data/assets/themes/default.css" />
         <link rel="stylesheet" id="theme-style" href="" />
         <link rel="stylesheet" href="../css/index.css" />
-        <link rel="stylesheet" href="../css/models.css" />
+        <link rel="stylesheet" href="../css/model_edit.css" />
         <link rel="stylesheet" href="../css/gerber.css" />
         <link rel="stylesheet" href="../css/global.css" />
         <link
@@ -18,66 +18,32 @@
         <script>
             const $ = (jQuery = require("jquery"));
         </script>
-        <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
         <script src="../../node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-        <script defer>
-            const fs = require("fs");
-            const dialog = require("electron").remote.dialog;
-            const UserPref = require("../js/userpref").UserPref;
-            const currentWebContents = require('electron').remote.getCurrentWebContents()
-
-            const userpref = new UserPref();
-
-            function makeDataDirs() {
-                if (!fs.existsSync("./blender/blender.exe")) {
-                    dialog.showErrorBox(
-                        "blender.exe not found.",
-                        "Unable to find blender executable, exiting."
-                    );
-                    let w = remote.getCurrentWindow();
-                    w.close();
-                }
-                try {
-                    if (fs.existsSync("./temp")) {
-                        fs.rmdirSync("./temp", { recursive: true });
-                    }
-                    fs.mkdirSync("./temp");
-                    fs.mkdirSync("./temp/gerber");
-                } catch (e) {}
-                try {
-                    fs.mkdirSync("./data");
-                } catch (e) {}
-                try {
-                    fs.mkdirSync("./data/user");
-                } catch (e) {}
-                try {
-                    fs.mkdirSync("./data/assets");
-                } catch (e) {}
-                try {
-                    fs.mkdirSync("./data/assets/models");
-                } catch (e) {}
-                try {
-                    fs.mkdirSync("./data/assets/templates");
-                } catch (e) {}
-            }
-            makeDataDirs();
-        </script>
+        <script defer src="../js/main_gui.js"></script>
         <script defer src="../js/ttype.js"></script>
         <script defer src="../js/model.js"></script>
         <script defer src="../js/template.js"></script>
-        <script defer src="../js/global_gui.js"></script>
-        <script defer src="../js/global.js"></script>
+        <script defer src="../js/resource_gui.js"></script>
+        <script defer src="../js/resource.js"></script>
         <script defer src="../js/model_edit_gui.js"></script>
         <script defer src="../js/model_edit.js"></script>
         <script defer src="../js/gerber.js"></script>
     </head>
     <body>
         <div id="global-container">
-            <nav id="bookmarks-container">
-                <div id="bookmarks-container-overflow">
+            <nav>
+                <div id="bookmarks-container">
                     <div class="bookmark-box bookmark-inactive">Global</div>
                     <div class="bookmark-box bookmark-inactive">Models</div>
                     <div class="bookmark-box bookmark-inactive">Gerber</div>
+                </div>
+                <div id="window-window-nav">
+                    <div>&#x2771;</div>
+                </div>
+                <div id="window-window-buttons">
+                    <div>_</div>
+                    <div>&#x2752;</div>
+                    <div>&#x2715;</div>
                 </div>
             </nav>
             <main id="workspace-container">
@@ -92,20 +58,29 @@
                     <div
                         class="globals-flex-container"
                         id="global-settings-box"
-                    >
-                    </div>
+                    ></div>
                 </div>
                 <div class="workspace-box">
                     <div id="model-workspace-box">
-                        <div id="model-box-container"></div>
+                        <div id="resource-model-container-container">
+                            <div class="import-buttons-box">
+                                <div
+                                    class="div-button"
+                                    onclick="importModel();"
+                                >
+                                    Import Model
+                                </div>
+                            </div>
+                        </div>
                         <div id="model-edit-panel"></div>
                     </div>
                 </div>
                 <div class="workspace-box">
                     <div class="gerber-container">
                         <div class="gerber-left-panel">
-                            <div class="gerber-preview">
+                            <div class="gerber-preview" tabindex="0">
                                 <img
+                                    tabindex="0"
                                     id="gerber-preview"
                                     src="../../data/assets/img/img-broken.svg"
                                 />
@@ -126,8 +101,22 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="div-button" id="generate-gerber">
-                                    Generate 3D model
+                                <div class="div-button-group">
+                                    <div
+                                        class="div-button"
+                                        id="generate-gerber"
+                                    >
+                                        Generate 3D model
+                                    </div>
+                                    <div
+                                        class="div-button width-prct-50"
+                                        id="stop-generate-gerber"
+                                    >
+                                        Interrupt
+                                    </div>
+                                </div>
+                                <div class="div-button" id="render-gerber">
+                                    Render preview
                                 </div>
                                 <div
                                     class="div-button"
@@ -135,17 +124,27 @@
                                 >
                                     Recognize files from directory
                                 </div>
-                                <div class="div-button" id="save-gerber-layers">
-                                    Save configuration
-                                </div>
-                                <div class="div-button" id="load-gerber-layers">
-                                    Load configuration
+                                <div class="div-button-group">
+                                    <div
+                                        class="div-button"
+                                        id="save-gerber-layers"
+                                    >
+                                        Save configuration
+                                    </div>
+                                    <div
+                                        class="div-button"
+                                        id="load-gerber-layers"
+                                    >
+                                        Load configuration
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="gerber-right-panel">
-                            <div class="gerber-layer-container">
-                                <h1 class="gerber-header">Geber top layers</h1>
+                            <div class="gerber-layer-list-box">
+                                <h1 class="gerber-layer-list-title">
+                                    Geber top layers
+                                </h1>
                                 <div class="gereber-sublabel">Bottom most</div>
                                 <div
                                     class="gerber-layer-list"
@@ -158,8 +157,8 @@
                                     Add layer
                                 </div>
                             </div>
-                            <div class="gerber-layer-container">
-                                <h1 class="gerber-header">
+                            <div class="gerber-layer-list-box">
+                                <h1 class="gerber-layer-list-title">
                                     Geber bottom layers
                                 </h1>
                                 <div class="gereber-sublabel">Bottom most</div>

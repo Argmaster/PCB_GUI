@@ -3,5 +3,47 @@
     "other": [],
     "class": "TOTHT",
     "author": "KW",
-    "dscp": "Bend version of TO-92 transistor case."
+    "dscp": "Bend version of TO-92 transistor case.",
+    "version": "v1.0",
+    "prm_dict": {
+        "caseDepth": "3.25mm",
+        "caseWidth": "8mm",
+        "caseHeight": "6mm",
+        "caseType": "Square",
+        "caseHoleRadius": "0mm",
+        "caseMaterial": {
+            "color": "#282829FF",
+            "metallic": 0.0,
+            "specular": 0.0,
+            "roughness": 1.0
+        },
+        "backplateThickness": ".8mm",
+        "backplateHeight": "11mm",
+        "backplateHoleRadius": "1.4mm",
+        "backplateCutCorners": "2mm",
+        "label": "TO92",
+        "fontPath": "$default",
+        "fontMaterial": {
+            "color": "#FFFFFFFF",
+            "metallic": 0,
+            "roughness": 1
+        },
+        "fontSize": "1.2mm",
+        "fontDepth": "0.01mm",
+        "pinWidth": "0.50mm",
+        "pinThickness": "0.38mm",
+        "pinLength": "4mm",
+        "pinHeight": "4mm",
+        "pinSpacing": "1.27mm",
+        "pinCount": 3,
+        "pinOffset": "0mm",
+        "pinMaterial": {
+            "color": "#FFFFFFFF",
+            "metallic": 0.9,
+            "roughness": 0.0
+        },
+        "pinStyle": "Rectangle",
+        "bend": true,
+        "bendRadius": "0.5mm"
+    }
 }

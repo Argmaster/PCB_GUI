@@ -22,6 +22,10 @@
 }
 .global-content-box {
     flex: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
     max-width: 100%;
     min-width: 30rem;
     padding: 1rem;
@@ -76,10 +80,15 @@
     width: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     flex-direction: row;
 }
-.global-row select {
+.global-button-row {
+    padding: 0.2rem;
+}
+.global-row .div-button {
     width: 100%;
+    margin: 0.2rem;
 }
 .global-half-row {
     padding-left: 0.5rem;

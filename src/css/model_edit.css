@@ -1,0 +1,243 @@
+#model-workspace-box {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+#model-edit-panel {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-level-2);
+    border-left: 0.1rem solid var(--background-level-2-border);
+    min-width: 40rem;
+    min-width: fit-content;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+#resource-model-container-container {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    flex-grow: 0;
+    overflow-y: scroll;
+    padding-top: 0;
+    padding: 1rem;
+    width: fit-content;
+}
+.import-buttons-box {
+    width: 40rem;
+}
+.import-buttons-box .div-button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+.resource-model-container {
+    position: relative;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 1rem;
+    border: 2px solid var(--model-container-border);
+    background-color: var(--model-container);
+    width: 40rem;
+    height: 16.5rem;
+    transition: all 150 ease;
+}
+.resource-model-container ::-webkit-scrollbar-track {
+    background: #00000000;
+}
+.resource-model-container-active {
+    border-color: var(--model-container-border-active);
+    background-color: var(--model-container-active);
+}
+.model-title {
+    font-weight: 300;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border-bottom: 0.1rem solid var(--model-container-title-underline);
+}
+.model-name {
+    font-weight: 300;
+    font-size: 1.05em;
+    color: var(--model-container-text-light);
+}
+.model-title-small {
+    font-size: 0.8em;
+    color: var(--model-container-text-dimmed);
+}
+.model-class {
+    font-size: 0.95em;
+    color: var(--model-container-text-dimmed);
+}
+.resource-model-data {
+    display: flex;
+    flex-direction: row;
+    padding: 0.5rem;
+}
+.model-meta {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.model-image {
+    cursor: pointer;
+    position: relative;
+    height: 14rem;
+    width: 14rem;
+    min-height: 14rem;
+    min-width: 14rem;
+    max-height: 14rem;
+    max-width: 14rem;
+    border-radius: 0.5rem;
+    border: 0.1rem solid var(--model-image-border);
+}
+.model-image img {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    border-radius: 0.5rem;
+}
+.model-icon-disable {
+    display: none;
+}
+.model-meta-row {
+    display: flex;
+    flex-direction: row;
+}
+.model-meta-label {
+    color: var(--model-container-text-dimmed);
+    text-align: right;
+    min-width: 6rem;
+    max-width: 6rem;
+    margin: 0.2rem;
+}
+.model-meta-value {
+    text-align: left;
+    margin: 0.2rem;
+    width: 100%;
+    max-height: 6rem;
+    overflow-y: scroll;
+}
+.model-corner-box {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+}
+.model-corner-box :nth-child(5).div-button {
+    margin-left: 0.5rem;
+}
+.model-modification-mark {
+    height: 1rem;
+    width: 1rem;
+    background-color: var(--model-mark-inner);
+    border: 0.2rem solid var(--model-mark-border);
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    margin-right: 0.5rem;
+}
+.model-modification-mark-active {
+    background-color: var(--model-mark-inner-active);
+    border: 0.2rem solid var(--model-mark-border-active);
+}
+.model-edit-title {
+    font-weight: 300;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    font-size: 1.1rem;
+    height: 3rem;
+    border-bottom: 2px solid var(--model-edit-image-border);
+}
+.model-edit-pinroot {
+    display: flex;
+    flex-direction: row;
+    padding: 2rem;
+}
+.model-edit-pinroot-img-box {
+    position: relative;
+    width: 304px;
+    height: 304px;
+    border: 2px solid var(--model-edit-image-border);
+    border-radius: 0.5rem;
+}
+.pin-ptr {
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    top: 150px;
+    left: 150px;
+    height: 1.5rem;
+    width: 1.5rem;
+    border: 2px solid var(--pin-pointer-outer);
+    border-radius: 0 0 1.5rem 0;
+}
+.pin-ptr span:nth-child(1) {
+    position: absolute;
+    display: block;
+    z-index: 2;
+    width: 0.6rem;
+    height: 0.6rem;
+    top: -0.3rem;
+    left: -0.3rem;
+    border-radius: 0.4rem;
+    border: 2px solid var(--pin-pointer-outer);
+    background-color: var(--pin-pointer-inner);
+}
+.model-edit-pinroot-img {
+    width: 300px;
+    height: 300px;
+    border-radius: 0.5rem;
+}
+.model-edit-pinroot-data {
+    padding-left: 1rem;
+}
+.model-edit-pinroot-data div {
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    flex-direction: row;
+    width: max-content;
+}
+.model-edit-pinroot-data div .div-button {
+    margin: 0.2rem;
+}
+.edit-entry-row-label {
+    display: inline-block;
+    width: 15rem;
+    text-align: right;
+}
+.edit-param-entry {
+    display: inline-block;
+    width: 20rem;
+    margin-left: 0;
+    margin-right: 1rem;
+}
+.edit-entry-row {
+    width: 100%;
+}
+.edit-indent-label {
+    display: block;
+    text-align: left;
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+.edit-indent-block {
+    border-radius: 1rem;
+    margin-left: 2rem;
+    margin-right: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    width: max-content;
+    background-color: #ffffff06;
+}
+.model-edit-vector-value-block .edit-entry-row-label {
+    width: 6rem;
+}

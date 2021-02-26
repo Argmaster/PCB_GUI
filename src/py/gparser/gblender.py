@@ -267,3 +267,4 @@ class BlenderBackend(DrawingBackendAbstract):
         Object.join(Global.getActive(), *Global.getSelected())
         with Edit(self.ROOT) as edit:
             edit.removeDoubles()
+        Object.ScaleBy(self.ROOT, 0.0254, 0.0254, 0.0254)
