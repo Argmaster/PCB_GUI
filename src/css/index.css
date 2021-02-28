@@ -64,6 +64,30 @@ textarea {
     background-color: var(--std-input-background-hover);
     border: 2px solid var(--std-input-border-hover);
 }
+input[type="file"].standard-text-input {
+    padding: 0.05rem 1rem 0.05rem 0.05rem;
+}
+input[type="file"].standard-text-input::-webkit-file-upload-button {
+    color: var(--main-text);
+    background-color: var(--std-input-background);
+    border: 2px solid var(--std-input-border);
+    border-radius: 0.2rem;
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    margin: 0.3rem;
+    transition: all ease 150ms;
+}
+input[type="file"].standard-text-input::-webkit-file-upload-button:hover {
+    background-color: var(--std-input-background-hover);
+    border: 2px solid var(--std-input-border-hover);
+}
+input[type="file"].standard-text-input::-webkit-file-upload-button:focus {
+    background-color: var(--std-input-background-hover);
+    border: 2px solid var(--std-input-border-hover);
+}
+input[type="file"].standard-text-input::-webkit-file-upload-button:active {
+    background-color: var(--std-input-background-hover);
+    border: 2px solid var(--std-input-border-hover);
+}
 .div-button {
     text-align: center;
     cursor: pointer;
