@@ -162,7 +162,7 @@
 }
 .progress-bar {
     position: relative;
-    background-color: #1a1a1a;
+    background-color: var(--gerber-progress-background);
     height: 2rem;
     width: 100%;
     margin-bottom: 1rem;
@@ -173,11 +173,11 @@
     background-size: 30px 30px;
     background-image: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.15) 25%,
+        var(--gerber-progress-strip) 25%,
         transparent 25%,
         transparent 50%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.15) 75%,
+        var(--gerber-progress-strip) 50%,
+        var(--gerber-progress-strip) 75%,
         transparent 75%,
         transparent
     );
@@ -189,18 +189,19 @@
     display: block;
     height: 2rem;
     width: 0%;
-    background-color: var(--gerber-progress);
+    background-color: var(--gerber-progress-done);
     border-radius: 0.5rem;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
     position: relative;
     animation-direction: reverse;
 }
 #gerber-progress-label {
+    color: var(--gerber-progress-label-color);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    text-shadow: black 0 0 0.5rem;
+    text-shadow: var(--gerber-progress-background) 0 0 0.5rem;
     font-weight: 500;
     font-size: 1.1rem;
 }

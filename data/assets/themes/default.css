@@ -15,9 +15,6 @@
     --background-level-3-hover: #3a5a99;
     --background-level-3-text: #dde1eb;
 
-    --gerber-sublabel-text: #b6b6cf;
-    --gerber-sublabel-background: #2d3036;
-
     --model-container: #23272c;
     --model-container-border: #23272c;
     --model-container-active: #23272c;
@@ -30,6 +27,9 @@
     --model-mark-border: #424850;
     --model-mark-inner-active: #233285;
     --model-mark-border-active: #3e61fa;
+
+    --global-logo-shadow: #000000;
+    --global-logo-text: #FFFFFF;
 
     --model-edit-image-border: #384049;
     --pin-pointer-outer: #ffffff;
@@ -68,6 +68,13 @@
     --bookmark-border-active-hover: #1a48a5;
     --bookmark-border-inactive-hover: #484f63;
 
-    --gerber-progress: #0069cc;
+    --gerber-sublabel-text: #b6b6cf;
+    --gerber-sublabel-background: #2d3036;
+    --gerber-progress-done: #0069cc;
+    --gerber-progress-strip: #ffffff26;
+    --gerber-progress-background: #1a1a1a;
+    --gerber-progress-label-color: #ffffff;
+    --gerber-progress-label-shadow: #000000;
+
     --assembler-check: #ffffff05;
 }

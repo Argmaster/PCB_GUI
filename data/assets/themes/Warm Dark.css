@@ -15,9 +15,6 @@
     --background-level-3-hover: #993a3a;
     --background-level-3-text: #ebdddd;
 
-    --gerber-sublabel-text: #cfb6b6;
-    --gerber-sublabel-background: #362d2d;
-
     --model-container: #2c2323;
     --model-container-border: #2c2323;
     --model-container-active: #2c2323;
@@ -68,6 +65,13 @@
     --bookmark-border-active-hover: #8d3838;
     --bookmark-border-inactive-hover: #523e3e;
 
-    --gerber-progress: #a0242f;
+    --gerber-sublabel-text: #cfb6b6;
+    --gerber-sublabel-background: #362d2d;
+    --gerber-progress-done: #a0242f;
+    --gerber-progress-strip: #ffffff26;
+    --gerber-progress-background: #1a1a1a;
+    --gerber-progress-label-color: #ffffff;
+    --gerber-progress-label-shadow: #000000;
+
     --assembler-check: #ffffff05;
 }
