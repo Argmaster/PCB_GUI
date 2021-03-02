@@ -26,11 +26,11 @@
     --model-container-title-underline: #ffffff21;
     --model-container-text-light: #dbdbdb;
     --model-container-text-dimmed: #b3b3b3;
-    --model-image-border: #585151;
-    --model-mark-inner: #201919;
-    --model-mark-border: #504242;
-    --model-mark-inner-active: #8f2f2f;
-    --model-mark-border-active: #cc4646;
+    --library-position-img-border: #585151;
+    --lib-pos-dynamic-bg: #85232b;
+    --lib-pos-dynamic-bd: #fa3e67;
+    --lib-pos-static-bg: #756b0e;
+    --lib-pos-static-bd: #cab91d;
 
     --model-edit-image-border: #493838;
     --pin-pointer-outer: #ffffff;

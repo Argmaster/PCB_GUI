@@ -26,11 +26,11 @@
     --model-container-title-underline: #ffffff21;
     --model-container-text-light: #dbdbdb;
     --model-container-text-dimmed: #b3b3b3;
-    --model-image-border: #515158;
-    --model-mark-inner: #191d20;
-    --model-mark-border: #424850;
-    --model-mark-inner-active: #233285;
-    --model-mark-border-active: #3e61fa;
+    --library-position-img-border: #515158;
+    --lib-pos-dynamic-bg: #233285;
+    --lib-pos-dynamic-bd: #3e61fa;
+    --lib-pos-static-bg: #0e7531;
+    --lib-pos-static-bd: #1dca6b;
 
     --global-logo-shadow: #000000;
     --global-logo-text: #ffffff;

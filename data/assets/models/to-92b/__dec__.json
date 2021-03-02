@@ -12,7 +12,7 @@
         "caseType": "Rounded",
         "caseHoleRadius": "0",
         "caseMaterial": {
-            "color": "#282829FF",
+            "color": "#050505FF",
             "metallic": 0.0,
             "specular": 0.0,
             "roughness": 1.0

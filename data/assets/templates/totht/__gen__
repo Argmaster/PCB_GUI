@@ -6,9 +6,9 @@ from src.py.bpyx import *
 # $ <>==========================================<>
 
 if Template.caseType == "Rounded":
-    caseDepth = Template.caseWidth / 2
+    caseDepth = Template.caseWidth * 0.57
     rootObject = Mesh.Arc(
-        caseDepth,
+        Template.caseWidth / 2,
         "-125deg",
         "125deg",
         Template.caseHeight,
@@ -27,14 +27,17 @@ elif Template.caseType == "Square":
     )
     if Template.caseHoleRadius != 0:
         cutter = Mesh.Circle(
-            Template.caseHoleRadius * 2, Template.caseHoleRadius * 2, caseDepth * 2,
+            Template.caseHoleRadius * 2,
+            Template.caseHoleRadius * 2,
+            caseDepth * 2,
         )
         Object.RotateTo(cutter, y="90deg")
         Object.MoveTo(cutter, x=-caseDepth, z=Template.caseHeight * (2 / 3))
         Modifier.Boolean(rootObject, cutter)
         Global.delete(cutter)
     Modifier.Bevel(
-        rootObject, width=caseDepth / 40,
+        rootObject,
+        width=caseDepth / 40,
     )
 
 # $ <>==========================================<>
@@ -44,7 +47,9 @@ elif Template.caseType == "Square":
 
 if Template.backplateThickness != 0 and Template.backplateHeight != 0:
     backplate = Mesh.Rectangle(
-        Template.backplateHeight, Template.caseWidth, material=Template.pinMaterial,
+        Template.backplateHeight,
+        Template.caseWidth,
+        material=Template.pinMaterial,
     )
     Object.RotateTo(backplate, y="90deg")
     with Edit(backplate) as edit:
@@ -52,7 +57,9 @@ if Template.backplateThickness != 0 and Template.backplateHeight != 0:
             edit.deselectAll()
             edit.selectVerts(lambda co: co.z > 0)
             edit.bevel(
-                "VERTICES", offset=Template.backplateCutCorners, offset_type="WIDTH",
+                "VERTICES",
+                offset=Template.backplateCutCorners,
+                offset_type="WIDTH",
             )
         edit.selectAll()
         edit.extrude(x=-Template.backplateThickness)
@@ -103,7 +110,8 @@ Object.join(rootObject, *Global.getAll())
 if not Template.bend:
     if Template.pinCount:
         Object.MoveTo(
-            rootObject, z=Template.pinLength,
+            rootObject,
+            z=Template.pinLength,
         )
         if Template.pinStyle == "T-shape":
             pinObject = Mesh.Rectangle(
@@ -127,8 +135,6 @@ if not Template.bend:
                 material=Template.pinMaterial,
             )
             Material.Smooth(pinObject)
-        else:
-            raise RuntimeError(f"Invalid pin style {Template.pinStyle}.")
         Object.MoveTo(
             pinObject,
             x=Template.pinOffset,
@@ -142,41 +148,53 @@ else:
     bevelOffset = min(Template.pinThickness, Template.pinWidth) / 2
     Object.MoveBy(rootObject, z=caseLift)
     if Template.pinCount != 0:
-        pinObject = Mesh.LShape(
-            Template.pinHeight,
-            Template.pinLength + bevelOffset,
-            Template.pinThickness,
-            Template.pinWidth,
-            0,
-            0,
-            Template.bendRadius,
-            material=Template.pinMaterial,
-        )
-        Object.RotateTo(pinObject, z="180deg")
-        Object.MoveBy(
-            pinObject,
-            x=Template.pinLength / 2 - bevelOffset / 2,
-            z=-caseDepth / 2 + Template.pinThickness / 2,
-        )
-        if Template.pinStyle == "Round":
-            Modifier.Bevel(
-                pinObject,
-                width=bevelOffset,
-                segments=5,
-                limit_method="ANGLE",
-                angle_limit="30deg",
+        if Template.pinStyle in ("Rectangle", "Round"):
+            pinObject = Mesh.LShape(
+                Template.pinHeight + caseLift,
+                Template.pinLength + bevelOffset,
+                Template.pinThickness,
+                Template.pinWidth,
+                0,
+                0,
+                Template.bendRadius,
+                material=Template.pinMaterial,
             )
-            Material.Smooth()
-        elif Template.pinStyle == "Rectangle":
-            Modifier.Bevel(
+            Object.RotateTo(pinObject, z="180deg")
+            Object.MoveBy(
                 pinObject,
-                width=bevelOffset / 5,
-                segments=1,
-                limit_method="ANGLE",
-                angle_limit="30deg",
+                x=Template.pinLength / 2 - bevelOffset / 2,
+                z=-Template.pinHeight + Template.pinThickness / 2,
             )
-        else:
-            raise RuntimeError(f"Invalid value for pinStyle {Template.pinStyle}")
+            if Template.pinStyle == "Round":
+                Modifier.Bevel(
+                    pinObject,
+                    width=bevelOffset,
+                    segments=5,
+                    limit_method="ANGLE",
+                    angle_limit="30deg",
+                )
+                Material.Smooth()
+            elif Template.pinStyle == "Rectangle":
+                Modifier.Bevel(
+                    pinObject,
+                    width=bevelOffset / 5,
+                    segments=1,
+                    limit_method="ANGLE",
+                    angle_limit="30deg",
+                )
+        elif Template.pinStyle == "S-shape":
+            pinObject = Mesh.SShape(
+                caseLift,
+                Template.pinLength + bevelOffset,
+                Template.pinThickness,
+                Template.pinWidth,
+                material=Template.pinMaterial,
+            )
+            Object.RotateTo(pinObject, z="180deg")
+            Object.MoveBy(
+                pinObject,
+                x=Template.pinLength / 2 - bevelOffset / 2,
+            )
         Object.MoveTo(
             pinObject,
             y=-Template.pinSpacing * (Template.pinCount - 1) / 2,

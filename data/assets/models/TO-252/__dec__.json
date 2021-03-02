@@ -1,0 +1,49 @@
+{
+    "model": "TO-252",
+    "other": [],
+    "class": "TOTHT",
+    "author": "Krzysztof Wiśniewski",
+    "dscp": "Base version of TO-252 transistor case.",
+    "version": "v1.0",
+    "prm_dict": {
+        "caseDepth": "1.75mm",
+        "caseWidth": "6.45mm",
+        "caseHeight": "6mm",
+        "caseType": "Square",
+        "caseHoleRadius": "0",
+        "caseMaterial": {
+            "color": "#050505FF",
+            "metallic": 0.0,
+            "specular": 0.0,
+            "roughness": 1.0
+        },
+        "backplateThickness": "0.45mm",
+        "backplateHeight": "6.88mm",
+        "backplateHoleRadius": "0",
+        "backplateCutCorners": "0",
+        "label": "TO-252",
+        "fontPath": "$default",
+        "fontMaterial": {
+            "color": "#FFFFFFFF",
+            "metallic": 0,
+            "roughness": 1
+        },
+        "fontSize": "1mm",
+        "fontDepth": "0.02mm",
+        "pinWidth": "0.7mm",
+        "pinThickness": "0.5mm",
+        "pinLength": "2.74mm",
+        "pinHeight": "0",
+        "pinSpacing": "4.57mm",
+        "pinCount": 2,
+        "pinOffset": "0mm",
+        "pinMaterial": {
+            "color": "#FFFFFFFF",
+            "metallic": 0.9,
+            "roughness": 0.0
+        },
+        "pinStyle": "S-shape",
+        "bend": true,
+        "bendRadius": "0.5mm"
+    }
+}

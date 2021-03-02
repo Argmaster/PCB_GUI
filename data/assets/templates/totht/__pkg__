@@ -85,6 +85,7 @@
         "pinStyle": {
             "ttype": "Keyword",
             "options": [
+                "S-shape",
                 "T-shape",
                 "Rectangle",
                 "Round"

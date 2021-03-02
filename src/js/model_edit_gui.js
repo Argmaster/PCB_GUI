@@ -510,53 +510,58 @@ modelWorkspaceAdd = {
                 </div>
                 <div class="model-edit-pinroot-img-comment">Bottom view</div>
             </div>
-            <div class="model-edit-pinroot-data">
-
-                <div>
-                    <span>offset X</span>
-                    <input
-                        type="number"
-                        class="standard-text-input"
-                        value="${userpref.getModelRNA(
-                            ACTIVE_MODEL._model,
-                            "$Xaxis",
-                            0
-                        )}"
-                        RNA="$Xaxis"
-                    />
+            <div>
+                <div class="model-edit-desription">
+                    <div>About:</div>
+                    <div>${ACTIVE_MODEL._dscp}</div>
                 </div>
-                <div>
-                    <span>offset Y</span>
-                    <input
-                        type="number"
-                        class="standard-text-input"
-                        value="${userpref.getModelRNA(
-                            ACTIVE_MODEL._model,
-                            "$Yaxis",
-                            0
-                        )}"
-                        RNA="$Yaxis"
-                    />
-                </div>
-                <div>
-                    <span>Rotation</span>
-                    <input
-                        type="number"
-                        class="standard-text-input"
-                        value="${userpref.getModelRNA(
-                            ACTIVE_MODEL._model,
-                            "$Angle",
-                            0
-                        )}"
-                        RNA="$Angle"
-                    />
-                </div>
-                <div>
-                    <div class="div-button" id="export-model">
-                        Export Model
+                <div class="model-edit-pinroot-data">
+                    <div>
+                        <span>offset X</span>
+                        <input
+                            type="number"
+                            class="standard-text-input"
+                            value="${userpref.getModelRNA(
+                                ACTIVE_MODEL._model,
+                                "$Xaxis",
+                                0
+                            )}"
+                            RNA="$Xaxis"
+                        />
                     </div>
-                    <div class="div-button" id="delete-model">
-                        Delete Model
+                    <div>
+                        <span>offset Y</span>
+                        <input
+                            type="number"
+                            class="standard-text-input"
+                            value="${userpref.getModelRNA(
+                                ACTIVE_MODEL._model,
+                                "$Yaxis",
+                                0
+                            )}"
+                            RNA="$Yaxis"
+                        />
+                    </div>
+                    <div>
+                        <span>Rotation</span>
+                        <input
+                            type="number"
+                            class="standard-text-input"
+                            value="${userpref.getModelRNA(
+                                ACTIVE_MODEL._model,
+                                "$Angle",
+                                0
+                            )}"
+                            RNA="$Angle"
+                        />
+                    </div>
+                    <div>
+                        <div class="div-button" id="export-model">
+                            Export Model
+                        </div>
+                        <div class="div-button" id="delete-model">
+                            Delete Model
+                        </div>
                     </div>
                 </div>
             </div>
@@ -632,40 +637,36 @@ modelWorkspaceAdd = {
 };
 let appendModelBox = function ($target, model) {
     $target.append(
-        `<div class="resource-model-container">
-            <div class="resource-model-data">
-                <div class="model-image">
+        `<div class="library-position-box">
+            <div class="library-position-main">
+                <div class="library-position-img">
                     <img src="${model.package_path}/__top__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
                     <img class="model-icon-disable" src="${model.package_path}/__bot__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
                 </div>
-                <div class="model-meta">
-                    <div class="model-title">
-                        <span class="model-title-small">model</span>
-                        <span class="model-name">${model._model}</span>
-                        <span class="model-title-small">class</span>
-                        <span class="model-class">${model._class}</span>
+                <div class="library-position-meta">
+                    <div class="library-position-meta-row">
+                        <div class="library-position-meta-label">Model:</div>
+                        <div class="library-position-meta-text">${model._model}</div>
                     </div>
-                    <div class="model-meta-row">
-                        <div class="model-meta-label">Author:</div>
-                        <div class="model-meta-value">${model._author}</div>
+                    <div class="library-position-meta-row">
+                        <div class="library-position-meta-label">Class:</div>
+                        <div class="library-position-meta-text">${model._class}</div>
                     </div>
-                    <div class="model-meta-row">
-                        <div class="model-meta-label">About:</div>
-                        <div class="model-meta-value">${model._dscp}</div>
+                    <div class="library-position-meta-row">
+                        <div class="library-position-meta-label">Author:</div>
+                        <div class="library-position-meta-text">${model._author}</div>
                     </div>
                 </div>
             </div>
-            <div class="model-corner-box">
-                <div class="model-modification-mark model-modification-mark-active"></div>
-                <div class="model-modification-mark model-modification-mark-active"></div>
-                <div class="model-modification-mark model-modification-mark-active"></div>
+            <div class="library-position-nav">
+                <div class="library-position-type">dynamic</div>
                 <div class="div-button model-edit-button">More</div>
                 <div class="div-button model-edit-button"">Make</div>
             </div>
         </div>`
     );
-    let $this = $target.find(".resource-model-container").last();
-    $this.find(".model-image").on("click", function () {
+    let $this = $target.find(".library-position-box").last();
+    $this.find(".library-position-img").on("click", function () {
         $(this).find("img").toggle();
     });
     $this
@@ -683,11 +684,11 @@ let appendModelBox = function ($target, model) {
         });
 };
 function init3DModelEditMenu($this, model) {
-    $(".resource-model-container").each(function () {
-        $(this).removeClass("resource-model-container-active");
+    $(".library-position-box").each(function () {
+        $(this).removeClass("library-position-box-active");
     });
     try {
-        $this.addClass("resource-model-container-active");
+        $this.addClass("library-position-box-active");
         let panel = $("#model-edit-panel");
         ACTIVE_MODEL = model;
         modelWorkspaceAdd.editMenu(panel);

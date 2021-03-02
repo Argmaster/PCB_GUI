@@ -4,6 +4,9 @@
     display: flex;
     flex-direction: row;
 }
+#model-workspace-box ::-webkit-scrollbar-track {
+    background: #00000000;
+}
 #model-edit-panel {
     display: flex;
     flex-direction: column;
@@ -15,7 +18,7 @@
     height: 100%;
     overflow-y: scroll;
 }
-#resource-model-container-container {
+#library-position-box-container {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -32,7 +35,7 @@
     width: 100%;
     margin-bottom: 0.5rem;
 }
-.resource-model-container {
+.library-position-box {
     position: relative;
     padding: 0.5rem;
     margin-top: 1rem;
@@ -42,59 +45,43 @@
     border: 2px solid var(--model-container-border);
     background-color: var(--model-container);
     width: 40rem;
-    height: 16.5rem;
+    height: 11.5rem;
     transition: all 150 ease;
 }
-.resource-model-container ::-webkit-scrollbar-track {
-    background: #00000000;
-}
-.resource-model-container-active {
+.library-position-box-active {
     border-color: var(--model-container-border-active);
     background-color: var(--model-container-active);
 }
-.model-title {
-    font-weight: 300;
-    margin: 0.5rem;
-    padding: 0.5rem;
-    border-bottom: 0.1rem solid var(--model-container-title-underline);
-}
-.model-name {
-    font-weight: 300;
-    font-size: 1.05em;
-    color: var(--model-container-text-light);
-}
-.model-title-small {
-    font-size: 0.8em;
-    color: var(--model-container-text-dimmed);
-}
-.model-class {
-    font-size: 0.95em;
-    color: var(--model-container-text-dimmed);
-}
-.resource-model-data {
+.library-position-meta-row {
     display: flex;
     flex-direction: row;
-    padding: 0.5rem;
+    width: 100%;
+    height: fit-content;
 }
-.model-meta {
+.library-position-main {
+    display: flex;
+    flex-direction: row;
+    padding: 0.2rem;
+}
+.library-position-meta {
     width: 100%;
     min-height: 100%;
     display: flex;
     flex-direction: column;
 }
-.model-image {
+.library-position-img {
     cursor: pointer;
     position: relative;
-    height: 14rem;
-    width: 14rem;
-    min-height: 14rem;
-    min-width: 14rem;
-    max-height: 14rem;
-    max-width: 14rem;
+    height: 10rem;
+    width: 10rem;
+    min-height: 10rem;
+    min-width: 10rem;
+    max-height: 10rem;
+    max-width: 10rem;
     border-radius: 0.5rem;
-    border: 0.1rem solid var(--model-image-border);
+    border: 0.1rem solid var(--library-position-img-border);
 }
-.model-image img {
+.library-position-img img {
     position: absolute;
     height: 100%;
     width: 100%;
@@ -103,46 +90,38 @@
 .model-icon-disable {
     display: none;
 }
-.model-meta-row {
-    display: flex;
-    flex-direction: row;
-}
-.model-meta-label {
+.library-position-meta-label {
     color: var(--model-container-text-dimmed);
     text-align: right;
-    min-width: 6rem;
-    max-width: 6rem;
+    min-width: 5rem;
+    max-width: 5rem;
     margin: 0.2rem;
 }
-.model-meta-value {
+.library-position-meta-text {
     text-align: left;
     margin: 0.2rem;
     width: 100%;
-    max-height: 6rem;
+    max-height: 2rem;
     overflow-y: scroll;
 }
-.model-corner-box {
+.library-position-nav {
     display: flex;
     flex-direction: row;
+    align-items: center;
     position: absolute;
-    bottom: 1rem;
-    right: 1rem;
+    bottom: 0.5rem;
+    right: 0.5rem;
 }
-.model-corner-box :nth-child(5).div-button {
+.library-position-nav div {
     margin-left: 0.5rem;
 }
-.model-modification-mark {
-    height: 1rem;
-    width: 1rem;
-    background-color: var(--model-mark-inner);
-    border: 0.2rem solid var(--model-mark-border);
-    border-radius: 0.5rem;
-    margin-top: 1rem;
-    margin-right: 0.5rem;
-}
-.model-modification-mark-active {
-    background-color: var(--model-mark-inner-active);
-    border: 0.2rem solid var(--model-mark-border-active);
+.library-position-type {
+    height: fit-content;
+    padding: 0.2rem;
+    border-radius: 0.4rem;
+    font-size: 0.8rem;
+    background-color: var(--lib-pos-dynamic-bg);
+    border: 0.1rem solid var(--lib-pos-dynamic-bd);
 }
 .model-edit-title {
     font-weight: 300;
@@ -207,6 +186,22 @@
 }
 .model-edit-pinroot-data div .div-button {
     margin: 0.2rem;
+}
+.model-edit-desription {
+    display: flex;
+    flex-direction: column;
+}
+.model-edit-desription :nth-child(1) {
+    width: 5rem;
+    text-align: center;
+    color: var(--model-container-text-dimmed);
+}
+.model-edit-desription :nth-child(2) {
+    padding: 0.5rem;
+    display: block;
+    width: 25rem;
+    height: 9rem;
+    overflow-y: scroll;
 }
 .edit-entry-row-label {
     display: inline-block;

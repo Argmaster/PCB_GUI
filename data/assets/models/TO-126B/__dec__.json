@@ -1,0 +1,49 @@
+{
+    "model": "TO-126B",
+    "other": [],
+    "class": "TOTHT",
+    "author": "Krzysztof Wiśniewski",
+    "dscp": "Bend version of TO-126 transistor case.",
+    "version": "v1.0",
+    "prm_dict": {
+        "caseDepth": "2.4mm",
+        "caseWidth": "7.4mm",
+        "caseHeight": "10.5mm",
+        "caseType": "Square",
+        "caseHoleRadius": "1.4mm",
+        "caseMaterial": {
+            "color": "#050505FF",
+            "metallic": 0.0,
+            "specular": 0.0,
+            "roughness": 1.0
+        },
+        "backplateThickness": "0",
+        "backplateHeight": "0",
+        "backplateHoleRadius": "0",
+        "backplateCutCorners": "0",
+        "label": "TO-126B",
+        "fontPath": "$default",
+        "fontMaterial": {
+            "color": "#FFFFFFFF",
+            "metallic": 0,
+            "roughness": 1
+        },
+        "fontSize": "1.2mm",
+        "fontDepth": "0.01mm",
+        "pinWidth": "0.8mm",
+        "pinThickness": "0.49mm",
+        "pinLength": "4mm",
+        "pinHeight": "4mm",
+        "pinSpacing": "2.25mm",
+        "pinCount": 3,
+        "pinOffset": "0mm",
+        "pinMaterial": {
+            "color": "#FFFFFFFF",
+            "metallic": 0.9,
+            "roughness": 0.0
+        },
+        "pinStyle": "Rectangle",
+        "bend": true,
+        "bendRadius": "0.5mm"
+    }
+}

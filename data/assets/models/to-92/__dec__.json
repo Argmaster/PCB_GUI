@@ -2,7 +2,7 @@
     "model": "TO-92",
     "other": [],
     "class": "TOTHT",
-    "author": "KW",
+    "author": "Krzysztof Wiśniewski",
     "dscp": "TO-92 transistor. Simple component based on TOTHT template class.",
     "version": "v1.0",
     "prm_dict": {
@@ -12,7 +12,7 @@
         "caseType": "Rounded",
         "caseHoleRadius": "0",
         "caseMaterial": {
-            "color": "#282829FF",
+            "color": "#050505FF",
             "metallic": 0.0,
             "specular": 0.0,
             "roughness": 1.0
