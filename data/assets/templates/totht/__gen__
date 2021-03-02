@@ -27,17 +27,14 @@ elif Template.caseType == "Square":
     )
     if Template.caseHoleRadius != 0:
         cutter = Mesh.Circle(
-            Template.caseHoldeRadius * 2,
-            Template.caseHoldeRadius * 2,
-            caseDepth * 2,
+            Template.caseHoleRadius * 2, Template.caseHoleRadius * 2, caseDepth * 2,
         )
         Object.RotateTo(cutter, y="90deg")
-        Object.MoveTo(cutter, y=-caseDepth)
+        Object.MoveTo(cutter, x=-caseDepth, z=Template.caseHeight * (2 / 3))
         Modifier.Boolean(rootObject, cutter)
         Global.delete(cutter)
     Modifier.Bevel(
-        rootObject,
-        width=caseDepth / 40,
+        rootObject, width=caseDepth / 40,
     )
 
 # $ <>==========================================<>
@@ -47,9 +44,7 @@ elif Template.caseType == "Square":
 
 if Template.backplateThickness != 0 and Template.backplateHeight != 0:
     backplate = Mesh.Rectangle(
-        Template.backplateHeight,
-        Template.caseWidth,
-        material=Template.pinMaterial,
+        Template.backplateHeight, Template.caseWidth, material=Template.pinMaterial,
     )
     Object.RotateTo(backplate, y="90deg")
     with Edit(backplate) as edit:
@@ -57,9 +52,7 @@ if Template.backplateThickness != 0 and Template.backplateHeight != 0:
             edit.deselectAll()
             edit.selectVerts(lambda co: co.z > 0)
             edit.bevel(
-                "VERTICES",
-                offset=Template.backplateCutCorners,
-                offset_type="WIDTH",
+                "VERTICES", offset=Template.backplateCutCorners, offset_type="WIDTH",
             )
         edit.selectAll()
         edit.extrude(x=-Template.backplateThickness)
@@ -68,9 +61,10 @@ if Template.backplateThickness != 0 and Template.backplateHeight != 0:
         cutter = Mesh.Circle(
             Template.backplateHoleRadius * 2,
             Template.backplateHoleRadius * 2,
-            Template.backplateThickness + caseDepth,
+            (Template.backplateThickness + caseDepth) * 2,
         )
         Object.RotateTo(cutter, y="90deg")
+        Object.MoveBy(cutter, x=-caseDepth - Template.backplateThickness)
         Object.MoveBy(
             cutter,
             z=Template.caseHeight
@@ -109,8 +103,7 @@ Object.join(rootObject, *Global.getAll())
 if not Template.bend:
     if Template.pinCount:
         Object.MoveTo(
-            rootObject,
-            z=Template.pinLength,
+            rootObject, z=Template.pinLength,
         )
         if Template.pinStyle == "T-shape":
             pinObject = Mesh.Rectangle(

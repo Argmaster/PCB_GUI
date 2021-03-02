@@ -289,11 +289,8 @@ class Global(Namespace):
         bpy.ops.wm.save_as_mainfile(filepath=path)
 
     @staticmethod
-    def eevee(
-        render_samples: int = 64,
-        use_high_quality_normals: bool = True
-    ):
-        bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+    def eevee(render_samples: int = 64, use_high_quality_normals: bool = True):
+        bpy.context.scene.render.engine = "BLENDER_EEVEE"
         eevee = bpy.context.scene.eevee
         eevee.taa_render_samples = render_samples
         bpy.context.scene.render.use_high_quality_normals = use_high_quality_normals
@@ -305,12 +302,12 @@ class Global(Namespace):
         use_gpu: bool = True,
         use_adaptive_sampling: bool = False,
         use_denoising: bool = False,
-        denoiser: str="NLM"
+        denoiser: str = "NLM",
     ):
-        bpy.context.scene.render.engine = 'CYCLES'
+        bpy.context.scene.render.engine = "CYCLES"
         cycles = bpy.context.scene.cycles
         cycles.samples = render_samples
-        cycles.feature_set = 'EXPERIMENTAL' if use_experimentals else 'SUPPORTED'
+        cycles.feature_set = "EXPERIMENTAL" if use_experimentals else "SUPPORTED"
         cycles.device = "GPU" if use_gpu else "CPU"
         cycles.use_adaptive_sampling = use_adaptive_sampling
         cycles.use_denoising = use_denoising
@@ -324,7 +321,7 @@ class Global(Namespace):
         tile_x: float = 64,
         tile_y: float = 64,
         threads_count: int = 0,
-        film_transparent: bool = True
+        film_transparent: bool = True,
     ):
         render = bpy.context.scene.render
         render.filepath = outpath
@@ -335,10 +332,10 @@ class Global(Namespace):
         render.film_transparent = film_transparent
 
         if threads_count > 0:
-            render.threads_mode = 'FIXED'
+            render.threads_mode = "FIXED"
             render.threads = threads_count
         else:
-            render.threads_mode = 'AUTO'
+            render.threads_mode = "AUTO"
         bpy.ops.render.render(write_still=True)
 
 
@@ -719,8 +716,7 @@ class Edit:
         return bpy.ops.mesh.remove_doubles(threshold=treshold)
 
     def selectVerts(
-        self,
-        xyz_test: callable,
+        self, xyz_test: callable,
     ):
         """Selects verices by their absolute position
 
@@ -1134,6 +1130,30 @@ class Object(Namespace):
         bpy_obj.scale.z *= z
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
         return bpy_obj
+
+    @staticmethod
+    def TransformTo(
+        bpy_obj: BlenderObject,
+        location: tuple = None,
+        rotation: tuple = None,
+        scale: tuple = None,
+    ):
+        if location is not None:
+            Object.MoveTo(
+                bpy_obj,
+                TType.UnitOfLength.parse(location[0]),
+                TType.UnitOfLength.parse(location[1]),
+                TType.UnitOfLength.parse(location[2]),
+            )
+        if rotation is not None:
+            Object.RotateTo(
+                bpy_obj,
+                TType.Angle.parse(rotation[0]),
+                TType.Angle.parse(rotation[1]),
+                TType.Angle.parse(rotation[2]),
+            )
+        if scale is not None:
+            Object.ScaleTo(bpy_obj, *scale)
 
     def duplicate(
         bpy_obj,
@@ -1863,11 +1883,7 @@ class MaterialNodes(Namespace):
 
             self.output: INVERT_node_output = INVERT_node_output(self)
 
-        def update(
-            self,
-            factor: float = None,
-            color: TType.Color = None,
-        ) -> Material:
+        def update(self, factor: float = None, color: TType.Color = None,) -> Material:
             """Update Invert node represented by this object.
 
             Args:
@@ -2144,8 +2160,7 @@ class LowLevel(Namespace):
         if center_point:
             vd.append((0, 0, 0))
         return LowLevel.fromPyData(
-            vd,
-            [(index, index + 1) for index in range(vertices - 1)],
+            vd, [(index, index + 1) for index in range(vertices - 1)],
         )
 
     @staticmethod
@@ -2177,8 +2192,7 @@ class LowLevel(Namespace):
             + [(x, y, z)]
         )
         return LowLevel.fromPyData(
-            vd,
-            [(index, index + 1) for index in range(len(vd) - 1)],
+            vd, [(index, index + 1) for index in range(len(vd) - 1)],
         )
 
     @staticmethod
@@ -2209,8 +2223,7 @@ class LowLevel(Namespace):
             + [(x, y_half, height)]
         )
         return LowLevel.fromPyData(
-            vd,
-            [(index, index + 1) for index in range(len(vd) - 1)],
+            vd, [(index, index + 1) for index in range(len(vd) - 1)],
         )
 
 
@@ -2219,9 +2232,9 @@ class Mesh(Namespace):
         x_size: TType.UnitOfLength = 1.0,
         y_size: TType.UnitOfLength = 1.0,
         z_size: TType.UnitOfLength = 0.0,
-        location: tuple=(0,0,0),
-        rotation: tuple=(0,0,0),
-        scale: tuple=(1,1,1),
+        location: tuple = None,
+        rotation: tuple = None,
+        scale: tuple = None,
         *,
         material: dict = None,
     ) -> BlenderObject:
@@ -2251,6 +2264,7 @@ class Mesh(Namespace):
         if z_size:
             Edit(bpy_obj).enter().extrude(z=1).exit()
         Object.ScaleBy(bpy_obj, x_size, y_size, z_size)
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return bpy_obj
@@ -2263,6 +2277,9 @@ class Mesh(Namespace):
         vertices: int = 24,
         *,
         material: dict = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         """
         Args:
@@ -2289,6 +2306,7 @@ class Mesh(Namespace):
         if z_size:
             Edit(bpy_obj).enter().extrude(z=1).exit()
         Object.ScaleBy(bpy_obj, x_size, y_size, z_size)
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return bpy_obj
@@ -2301,6 +2319,9 @@ class Mesh(Namespace):
         center_point: bool = False,
         *,
         material: dict = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         radius = TType.UnitOfLength.parse(radius)
         x_size = TType.UnitOfLength.parse(x_size)
@@ -2323,6 +2344,7 @@ class Mesh(Namespace):
             edit.MoveBy(x_size / 2)
             if z_size:
                 edit.extrude(z=z_size)
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return bpy_obj
@@ -2336,6 +2358,9 @@ class Mesh(Namespace):
         center_point: bool = False,
         *,
         material: dict = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         bpy_obj = LowLevel.makeArc(
             radius, begin_angle, end_angle, vertices, center_point
@@ -2345,9 +2370,11 @@ class Mesh(Namespace):
             edit.makeEdgeFace()
             if z_size:
                 edit.extrude(z=z_size)
+        bpy_obj = Global._Bpy_getActive()
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
-        return Global._Bpy_getActive()
+        return bpy_obj
 
     def Text(
         text: str = "Text",
@@ -2359,6 +2386,9 @@ class Mesh(Namespace):
         resolution: int = 10,
         *,
         material: dict = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         bpy.ops.object.text_add(
             radius=1.0,
@@ -2378,6 +2408,7 @@ class Mesh(Namespace):
         if font:
             bpy_obj.data.font = bpy.data.fonts.load(font)
         Object.convert(bpy_obj, "MESH")
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return bpy_obj
@@ -2388,6 +2419,9 @@ class Mesh(Namespace):
         radius: TType.UnitOfLength = 1.0,
         *,
         material: dict = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         """
         Args:
@@ -2407,9 +2441,11 @@ class Mesh(Namespace):
             rotation=(0, 0, 0),
             scale=(1, 1, 1),
         )
+        bpy_obj = Global._Bpy_getActive()
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
-            Material(Global._Bpy_getActive()).update(**material)
-        return Global._Bpy_getActive()
+            Material(bpy_obj).update(**material)
+        return bpy_obj
 
     def LShape(
         height: TType.UnitOfLength = 1.0,
@@ -2422,6 +2458,9 @@ class Mesh(Namespace):
         vertices: float = 16,
         *,
         material: dict = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         height = TType.UnitOfLength.parse(height)
         length = TType.UnitOfLength.parse(length)
@@ -2430,14 +2469,7 @@ class Mesh(Namespace):
         boostHeight = TType.UnitOfLength.parse(boostHeight)
         boostWidth = TType.UnitOfLength.parse(boostWidth)
         radius = TType.UnitOfLength.parse(radius)
-        bpy_obj = LowLevel.LShape(
-            length,
-            width,
-            height,
-            boostHeight,
-            radius,
-            vertices,
-        )
+        bpy_obj = LowLevel.LShape(length, width, height, boostHeight, radius, vertices,)
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
@@ -2452,6 +2484,7 @@ class Mesh(Namespace):
             edit.selectAll()
             edit.MoveBy(x=-length / 2)
         Modifier.Solidify(bpy_obj, thickness, 1, True)
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return bpy_obj
@@ -2464,24 +2497,22 @@ class Mesh(Namespace):
         vertices: float = 16,
         *,
         material: dict = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         height = TType.UnitOfLength.parse(height)
         length = TType.UnitOfLength.parse(length)
         thickness = TType.UnitOfLength.parse(thickness)
         width = TType.UnitOfLength.parse(width)
-        bpy_obj = LowLevel.SShape(
-            length,
-            width,
-            height,
-            thickness,
-            vertices,
-        )
+        bpy_obj = LowLevel.SShape(length, width, height, thickness, vertices,)
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
             edit.selectAll()
             edit.MoveBy(x=-length / 2)
         Modifier.Solidify(bpy_obj, thickness, 0, True)
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return Global._Bpy_getActive()
@@ -2495,6 +2526,9 @@ class Mesh(Namespace):
             Tuple[float, float, float]
         ] = None,  # [(ring_center_offset, ring_height, depth), ...]
         material: TType.MaterialParams = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         height = TType.UnitOfLength.parse(height)
         radius = TType.UnitOfLength.parse(radius)
@@ -2513,13 +2547,14 @@ class Mesh(Namespace):
                         elevation += ring_center_offset - elevation
                     ring_height *= height
                     edit.extrude(0, 0, ring_height / 2)
-                    scale = (radius - depth) / radius
-                    edit.ScaleBy(scale, scale, 1)
+                    scl = (radius - depth) / radius
+                    edit.ScaleBy(scl, scl, 1)
                     edit.extrude(0, 0, ring_height / 2)
-                    edit.ScaleBy(1 / scale, 1 / scale, 1)
+                    edit.ScaleBy(1 / scl, 1 / scl, 1)
                     elevation += ring_height
             if elevation < height:
                 edit.extrude(0, 0, height - elevation)
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return bpy_obj
@@ -2533,6 +2568,9 @@ class Mesh(Namespace):
         sideEdges: Tuple[int, float] = None,
         botEdgeRing: Tuple[int, float] = None,
         material: TType.MaterialParams = None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
     ) -> BlenderObject:
         sizeX = TType.UnitOfLength.parse(sizeX)
         sizeY = TType.UnitOfLength.parse(sizeY)
@@ -2551,9 +2589,7 @@ class Mesh(Namespace):
                     if co0.z >= tz and co1.z >= tz:
                         edge.select = True
                 edit.bevel(
-                    offset=topEdgeRing[0],
-                    segments=topEdgeRing[1],
-                    offset_type="WIDTH",
+                    offset=topEdgeRing[0], segments=topEdgeRing[1], offset_type="WIDTH",
                 )
             if botEdgeRing is not None:
                 edit.deselectAll()
@@ -2563,9 +2599,7 @@ class Mesh(Namespace):
                     if co0.z <= -tz and co1.z <= -tz:
                         edge.select = True
                 edit.bevel(
-                    offset=botEdgeRing[0],
-                    segments=botEdgeRing[1],
-                    offset_type="WIDTH",
+                    offset=botEdgeRing[0], segments=botEdgeRing[1], offset_type="WIDTH",
                 )
             if sideEdges is not None:
                 edit.deselectAll()
@@ -2575,10 +2609,9 @@ class Mesh(Namespace):
                     if co0.z != co1.z:
                         edge.select = True
                 edit.bevel(
-                    offset=sideEdges[0],
-                    segments=sideEdges[1],
-                    offset_type="WIDTH",
+                    offset=sideEdges[0], segments=sideEdges[1], offset_type="WIDTH",
                 )
+        Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
         return bpy_obj
