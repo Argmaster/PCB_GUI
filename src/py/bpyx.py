@@ -716,7 +716,8 @@ class Edit:
         return bpy.ops.mesh.remove_doubles(threshold=treshold)
 
     def selectVerts(
-        self, xyz_test: callable,
+        self,
+        xyz_test: callable,
     ):
         """Selects verices by their absolute position
 
@@ -1883,7 +1884,11 @@ class MaterialNodes(Namespace):
 
             self.output: INVERT_node_output = INVERT_node_output(self)
 
-        def update(self, factor: float = None, color: TType.Color = None,) -> Material:
+        def update(
+            self,
+            factor: float = None,
+            color: TType.Color = None,
+        ) -> Material:
             """Update Invert node represented by this object.
 
             Args:
@@ -2160,7 +2165,8 @@ class LowLevel(Namespace):
         if center_point:
             vd.append((0, 0, 0))
         return LowLevel.fromPyData(
-            vd, [(index, index + 1) for index in range(vertices - 1)],
+            vd,
+            [(index, index + 1) for index in range(vertices - 1)],
         )
 
     @staticmethod
@@ -2192,7 +2198,8 @@ class LowLevel(Namespace):
             + [(x, y, z)]
         )
         return LowLevel.fromPyData(
-            vd, [(index, index + 1) for index in range(len(vd) - 1)],
+            vd,
+            [(index, index + 1) for index in range(len(vd) - 1)],
         )
 
     @staticmethod
@@ -2223,7 +2230,8 @@ class LowLevel(Namespace):
             + [(x, y_half, height)]
         )
         return LowLevel.fromPyData(
-            vd, [(index, index + 1) for index in range(len(vd) - 1)],
+            vd,
+            [(index, index + 1) for index in range(len(vd) - 1)],
         )
 
 
@@ -2469,7 +2477,14 @@ class Mesh(Namespace):
         boostHeight = TType.UnitOfLength.parse(boostHeight)
         boostWidth = TType.UnitOfLength.parse(boostWidth)
         radius = TType.UnitOfLength.parse(radius)
-        bpy_obj = LowLevel.LShape(length, width, height, boostHeight, radius, vertices,)
+        bpy_obj = LowLevel.LShape(
+            length,
+            width,
+            height,
+            boostHeight,
+            radius,
+            vertices,
+        )
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
@@ -2505,7 +2520,13 @@ class Mesh(Namespace):
         length = TType.UnitOfLength.parse(length)
         thickness = TType.UnitOfLength.parse(thickness)
         width = TType.UnitOfLength.parse(width)
-        bpy_obj = LowLevel.SShape(length, width, height, thickness, vertices,)
+        bpy_obj = LowLevel.SShape(
+            length,
+            width,
+            height,
+            thickness,
+            vertices,
+        )
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
@@ -2577,8 +2598,6 @@ class Mesh(Namespace):
         sizeZ = TType.UnitOfLength.parse(sizeZ)
         bpy_obj = Mesh.Rectangle(sizeX, sizeY, sizeZ)
         Object.MoveBy(bpy_obj, z=-0.5)
-        tx = sizeX / 2
-        ty = sizeY / 2
         tz = sizeZ / 2
         with Edit(bpy_obj) as edit:
             if topEdgeRing is not None:
@@ -2589,7 +2608,9 @@ class Mesh(Namespace):
                     if co0.z >= tz and co1.z >= tz:
                         edge.select = True
                 edit.bevel(
-                    offset=topEdgeRing[0], segments=topEdgeRing[1], offset_type="WIDTH",
+                    offset=topEdgeRing[0],
+                    segments=topEdgeRing[1],
+                    offset_type="WIDTH",
                 )
             if botEdgeRing is not None:
                 edit.deselectAll()
@@ -2599,7 +2620,9 @@ class Mesh(Namespace):
                     if co0.z <= -tz and co1.z <= -tz:
                         edge.select = True
                 edit.bevel(
-                    offset=botEdgeRing[0], segments=botEdgeRing[1], offset_type="WIDTH",
+                    offset=botEdgeRing[0],
+                    segments=botEdgeRing[1],
+                    offset_type="WIDTH",
                 )
             if sideEdges is not None:
                 edit.deselectAll()
@@ -2609,8 +2632,36 @@ class Mesh(Namespace):
                     if co0.z != co1.z:
                         edge.select = True
                 edit.bevel(
-                    offset=sideEdges[0], segments=sideEdges[1], offset_type="WIDTH",
+                    offset=sideEdges[0],
+                    segments=sideEdges[1],
+                    offset_type="WIDTH",
                 )
+        Object.TransformTo(bpy_obj, location, rotation, scale)
+        if material is not None:
+            Material(bpy_obj).update(**material)
+        return bpy_obj
+
+    @staticmethod
+    def Trapeze3D(
+        topX: TType.UnitOfLength = 0.8,
+        topY: TType.UnitOfLength = 0.8,
+        botX: TType.UnitOfLength = 1.0,
+        botY: TType.UnitOfLength = 1.0,
+        sizeZ: TType.UnitOfLength = 1.0,
+        material: TType.MaterialParams=None,
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
+        scale=(1, 1, 1),
+    ):
+        topX = TType.UnitOfLength.parse(topX)
+        topY = TType.UnitOfLength.parse(topY)
+        botX = TType.UnitOfLength.parse(botX)
+        botY = TType.UnitOfLength.parse(botY)
+        sizeZ = TType.UnitOfLength.parse(sizeZ)
+        bpy_obj = Mesh.Rectangle(botX, botY)
+        with Edit(bpy_obj) as edit:
+            edit.extrude(z=sizeZ)
+            edit.ScaleBy(topX/botX, topY/botY)
         Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)

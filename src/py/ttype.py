@@ -395,7 +395,7 @@ class TType(Namespace):
 
         def __init__(self, template: dict, **_) -> None:
             self.__dict__["_kwargs"] = {
-                key: TType.TTYPES[val["ttype"]](val) for key, val in template.items()
+                key.lower(): TType.TTYPES[val["ttype"]](**val) for key, val in template.items()
             }
 
         def __setattr__(self, key: str, **_) -> None:

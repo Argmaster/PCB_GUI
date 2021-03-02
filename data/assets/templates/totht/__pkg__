@@ -1,7 +1,7 @@
 {
     "class": "TOTHT",
     "gtype": "python",
-    "author": "KW",
+    "author": "Krzysztof Wiśniewski",
     "dscp": "Package contains generator for THT transistor cases.",
     "version": "v1.0",
     "tem_dict": {

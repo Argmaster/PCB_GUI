@@ -1,0 +1,298 @@
+{
+    "class": "MCU",
+    "gtype": "python",
+    "author": "Krzysztof Wiśniewski",
+    "dscp": "For microcontroller-like units",
+    "version": "v1.0",
+    "tem_dict": {
+        "mark": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "shape": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "Rectangle",
+                        "Circle"
+                    ]
+                },
+                "X": {
+                    "ttype": "UnitOfLength"
+                },
+                "Y": {
+                    "ttype": "UnitOfLength"
+                },
+                "depth": {
+                    "ttype": "UnitOfLength"
+                },
+                "offsetX": {
+                    "ttype": "UnitOfLength"
+                },
+                "offsetY": {
+                    "ttype": "UnitOfLength"
+                }
+            }
+        },
+        "topSubcase": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "topX": {
+                    "ttype": "UnitOfLength"
+                },
+                "topY": {
+                    "ttype": "UnitOfLength"
+                },
+                "botX": {
+                    "ttype": "UnitOfLength"
+                },
+                "botY": {
+                    "ttype": "UnitOfLength"
+                },
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "midSubcase": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "X": {
+                    "ttype": "UnitOfLength"
+                },
+                "Y": {
+                    "ttype": "UnitOfLength"
+                },
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "botSubcase": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "topX": {
+                    "ttype": "UnitOfLength"
+                },
+                "topY": {
+                    "ttype": "UnitOfLength"
+                },
+                "botX": {
+                    "ttype": "UnitOfLength"
+                },
+                "botY": {
+                    "ttype": "UnitOfLength"
+                },
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "pinX": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "length": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "thickness": {
+                    "ttype": "UnitOfLength"
+                },
+                "count": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        128
+                    ]
+                },
+                "spacing": {
+                    "ttype": "UnitOfLength"
+                },
+                "bendRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostZ": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostWidth": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "S-shape",
+                        "L-shape"
+                    ]
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "pin_X": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "length": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "thickness": {
+                    "ttype": "UnitOfLength"
+                },
+                "count": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        128
+                    ]
+                },
+                "spacing": {
+                    "ttype": "UnitOfLength"
+                },
+                "bendRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostZ": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostWidth": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "S-shape",
+                        "L-shape"
+                    ]
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "pinY": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "length": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "thickness": {
+                    "ttype": "UnitOfLength"
+                },
+                "count": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        128
+                    ]
+                },
+                "spacing": {
+                    "ttype": "UnitOfLength"
+                },
+                "bendRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostZ": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostWidth": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "S-shape",
+                        "L-shape"
+                    ]
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "pin_Y": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "length": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "thickness": {
+                    "ttype": "UnitOfLength"
+                },
+                "count": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        128
+                    ]
+                },
+                "spacing": {
+                    "ttype": "UnitOfLength"
+                },
+                "bendRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostZ": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostWidth": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "S-shape",
+                        "L-shape"
+                    ]
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "label": {
+            "ttype": "String"
+        },
+        "fontPath": {
+            "ttype": "PathExpression"
+        },
+        "fontMaterial": {
+            "ttype": "MaterialParams"
+        },
+        "fontSize": {
+            "ttype": "UnitOfLength"
+        },
+        "fontDepth": {
+            "ttype": "UnitOfLength"
+        }
+    }
+}

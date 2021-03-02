@@ -496,9 +496,9 @@ modelWorkspaceAdd = {
         $target.append(`
         <div class="model-edit-title">
             <span class="model-title-small">model</span>
-            <span class="model-name">${ACTIVE_MODEL._model}</span>
+            <span>${ACTIVE_MODEL._model}</span>
             <span class="model-title-small">class</span>
-            <span class="model-class">${ACTIVE_MODEL._class}</span>
+            <span>${ACTIVE_MODEL._class}</span>
         </div>
         <div class="model-edit-pinroot">
             <div class="model-edit-pinroot-img-box">
@@ -670,10 +670,10 @@ let appendModelBox = function ($target, model) {
         $(this).find("img").toggle();
     });
     $this
-        .find(":nth-child(4).model-edit-button")
+        .find(":nth-child(2).model-edit-button")
         .on("click", () => init3DModelEditMenu($this, model));
     $this
-        .find(":nth-child(5).model-edit-button")
+        .find(":nth-child(3).model-edit-button")
         .on("click", async function () {
             $(this).addClass("breath-div-button");
             try {
@@ -705,4 +705,20 @@ $(async function () {
     setInterval(autoSave, 100);
     await loadTemplates();
     await loadModels();
+    $("#library-search").on("input", function () {
+        let regex = new RegExp($(this).val());
+        $("#library-position-box-container")
+            .find(".library-position-box")
+            .each(function () {
+                let text = $(this)
+                    .find(".library-position-meta-text")
+                    .first()
+                    .text();
+                if (text.match(regex) == null) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            });
+    });
 });
