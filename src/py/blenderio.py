@@ -225,17 +225,20 @@ LAYER_TYPES = {
         "dark_material": {
             "color": "rgba(255, 255, 255, 255)",
             "roughness": 0.5,
-            "specular": 0,
+            "specular": 0.5,
+            "metallic": 0.5,
         },
         "clear_material": {
             "color": "rgba(255, 255, 255, 255)",
             "roughness": 0.5,
-            "specular": 0,
+            "specular": 0.5,
+            "metallic": 0.5,
         },
         "region_material": {
             "color": "rgba(0, 0, 0, 255)",
-            "roughness": 1.0,
-            "specular": 0,
+            "roughness": 0.5,
+            "specular": 0.5,
+            "metallic": 0.5,
         },
     },
     "SOLDER_MASK": {

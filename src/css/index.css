@@ -46,23 +46,24 @@ textarea {
 }
 .standard-text-input {
     background-color: var(--std-input-background);
-    border: 2px solid var(--std-input-border);
+    border: 1px solid var(--std-input-border);
     border-radius: 0.2rem;
-    padding: 0.3rem 1rem 0.3rem 1rem;
+    padding: 0.25rem 0.6rem 0.25rem 0.6rem;
     margin: 0.3rem;
+    font-weight: 200;
     transition: all ease 150ms;
 }
 .standard-text-input:hover {
     background-color: var(--std-input-background-hover);
-    border: 2px solid var(--std-input-border-hover);
+    border-color: var(--std-input-border-hover);
 }
 .standard-text-input:focus {
     background-color: var(--std-input-background-hover);
-    border: 2px solid var(--std-input-border-hover);
+    border-color: var(--std-input-border-hover);
 }
 .standard-text-input:active {
     background-color: var(--std-input-background-hover);
-    border: 2px solid var(--std-input-border-hover);
+    border-color: var(--std-input-border-hover);
 }
 input[type="file"].standard-text-input {
     padding: 0.05rem 1rem 0.05rem 0.05rem;
@@ -70,10 +71,10 @@ input[type="file"].standard-text-input {
 input[type="file"].standard-text-input::-webkit-file-upload-button {
     color: var(--main-text);
     background-color: var(--std-input-background);
-    border: 2px solid var(--std-input-border);
+    border: 1px solid var(--std-input-border);
     border-radius: 0.2rem;
     padding: 0.3rem 1rem 0.3rem 1rem;
-    margin: 0.3rem;
+    margin: 0.1rem;
     transition: all ease 150ms;
 }
 input[type="file"].standard-text-input::-webkit-file-upload-button:hover {
@@ -92,7 +93,7 @@ input[type="file"].standard-text-input::-webkit-file-upload-button:active {
     text-align: center;
     cursor: pointer;
     align-self: center;
-    padding: 0.5rem 1rem 0.5rem 1rem;
+    padding: 0.35rem 0.8rem 0.35rem 0.8rem;
     width: fit-content;
     background-color: var(--std-button-background);
     border: 2px solid var(--std-button-border);
@@ -103,7 +104,7 @@ input[type="file"].standard-text-input::-webkit-file-upload-button:active {
 }
 .div-button:hover {
     background-color: var(--std-button-background-hover);
-    border: 2px solid var(--std-button-border-hover);
+    border-color: var(--std-button-border-hover);
 }
 @keyframes div-button-breath-anim {
     0% {
@@ -139,10 +140,10 @@ nav {
     flex-direction: row;
     height: 100%;
     width: fit-content;
-    min-width: 36rem;
+    min-width: 45rem;
     max-width: 100%;
     overflow-y: hidden;
-    overflow-x: scroll;
+    overflow-x: show;
 }
 .bookmark-box {
     flex-shrink: 0;
@@ -150,7 +151,7 @@ nav {
     text-align: center;
     width: 9rem;
     height: fit-content;
-    padding: 0.2rem;
+    padding: 0.35rem;
     padding-left: 0.8rem;
     cursor: pointer;
     transition: all ease 150ms;
@@ -184,15 +185,6 @@ nav {
     -webkit-app-region: drag;
     width: 100%;
     min-width: 10rem;
-}
-#window-window-nav div {
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
-    padding-left: 0.2rem;
-    background-color: var(--bookmark-container-background);
-    font-size: 1.2rem;
-    filter: brightness(80%);
-    width: fit-content;
 }
 #window-window-buttons {
     display: flex;

@@ -11,9 +11,13 @@
     --background-level-2-text: #dfcdcd;
     --background-level-2-hover: #993a3a;
     --background-level-2-border: #756262;
+    --background-level-2-5: #2c2525;
+    --background-level-2-5-hover: #382e2e;
+    --background-level-2-box-shadow: #0000000a;
     --background-level-3: #362d2d;
     --background-level-3-hover: #993a3a;
     --background-level-3-text: #ebdddd;
+    --background-level-3-box-shadow: #0806062a;
 
     --model-container: #2c2323;
     --model-container-border: #2c2323;

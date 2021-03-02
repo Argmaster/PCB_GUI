@@ -133,13 +133,13 @@ class ModelPackage {
                 } finally {
                     blender_io.kill();
                 }
+                dialog.showMessageBoxSync({
+                    type: "info",
+                    buttons: ["Ok"],
+                    title: "Finished generating 3D model.",
+                    message: "Finished generating 3D model.",
+                });
             }
-            dialog.showMessageBoxSync({
-                type: "info",
-                buttons: ["Ok"],
-                title: "Finished generating 3D model.",
-                message: "Finished generating 3D model.",
-            });
         } catch (e) {
             dialog.showErrorBox(
                 "Unable traverse template tree for this model.",

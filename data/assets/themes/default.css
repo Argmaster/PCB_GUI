@@ -11,9 +11,13 @@
     --background-level-2-text: #cdd3df;
     --background-level-2-hover: #3a5a99;
     --background-level-2-border: #626275;
-    --background-level-3: #2d3036;
-    --background-level-3-hover: #3a5a99;
+    --background-level-2-5: #25272c;
+    --background-level-2-5-hover: #2e3138;
+    --background-level-2-box-shadow: #0000000a;
+    --background-level-3: #2c2b33;
+    --background-level-3-hover: #2e529e;
     --background-level-3-text: #dde1eb;
+    --background-level-3-box-shadow: #0806062a;
 
     --model-container: #23272c;
     --model-container-border: #23272c;
@@ -29,7 +33,7 @@
     --model-mark-border-active: #3e61fa;
 
     --global-logo-shadow: #000000;
-    --global-logo-text: #FFFFFF;
+    --global-logo-text: #ffffff;
 
     --model-edit-image-border: #384049;
     --pin-pointer-outer: #ffffff;

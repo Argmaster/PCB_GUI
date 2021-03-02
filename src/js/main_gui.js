@@ -26,23 +26,10 @@ function makeDataDirs() {
         if (fs.existsSync("./temp")) {
             fs.rmdirSync("./temp", { recursive: true });
         }
-        fs.mkdirSync("./temp");
-        fs.mkdirSync("./temp/gerber");
+        fs.mkdirSync("./temp/gerber", { recursive: true });
     } catch (e) {}
     try {
-        fs.mkdirSync("./data");
-    } catch (e) {}
-    try {
-        fs.mkdirSync("./data/user");
-    } catch (e) {}
-    try {
-        fs.mkdirSync("./data/assets");
-    } catch (e) {}
-    try {
-        fs.mkdirSync("./data/assets/models");
-    } catch (e) {}
-    try {
-        fs.mkdirSync("./data/assets/templates");
+        fs.mkdirSync("./data/assets/templates", { recursive: true });
     } catch (e) {}
 }
 function initBookmarks() {

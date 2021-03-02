@@ -398,6 +398,7 @@ modelWorkspaceAdd = {
                 userpref.delModelRNA(ACTIVE_MODEL._model, _rna, raw_val);
             }
         });
+        $this.trigger("change");
         return $this;
     },
     keyword: function ($target, _label, _rna) {
@@ -436,6 +437,7 @@ modelWorkspaceAdd = {
                 userpref.delModelRNA(ACTIVE_MODEL._model, _rna, raw_val);
             }
         });
+        $this.trigger("change");
         return $this;
     },
     Switch: function ($target, _ttype, _label, _rna) {
@@ -506,8 +508,10 @@ modelWorkspaceAdd = {
                 <div class="pin-ptr">
                     <span></span>
                 </div>
+                <div class="model-edit-pinroot-img-comment">Bottom view</div>
             </div>
             <div class="model-edit-pinroot-data">
+
                 <div>
                     <span>offset X</span>
                     <input
@@ -581,6 +585,7 @@ modelWorkspaceAdd = {
                 userpref.setModelRNA(ACTIVE_MODEL._model, "$Xaxis", value);
                 $(".pin-ptr").css({ left: value + 150 });
             });
+            Xaxis.trigger("input");
             Yaxis.on("input", function () {
                 let value = parseFloat(Yaxis.val());
                 if (value > 150) {
@@ -592,6 +597,7 @@ modelWorkspaceAdd = {
                 Yaxis.val(value);
                 $(".pin-ptr").css({ top: value * -1 + 150 });
             });
+            Yaxis.trigger("input");
             Angle.on("input", function () {
                 let value = parseFloat(Angle.val());
                 if (value > 359) {
@@ -615,7 +621,7 @@ modelWorkspaceAdd = {
                     ],
                 });
                 if (file != undefined) {
-                    exportModel(ACTIVE_MODEL, path);
+                    exportModel(ACTIVE_MODEL, file);
                 }
             } catch (e) {
                 dialog.showErrorBox("Unable to export model.", e.stack);
@@ -693,9 +699,9 @@ function init3DModelEditMenu($this, model) {
         );
     }
 }
-$(function () {
-    const model_container = $("#resource-model-container-container");
-    for (const key in models) {
-        appendModelBox(model_container, models[key]);
-    }
+$(async function () {
+    initSettingsGui();
+    setInterval(autoSave, 100);
+    await loadTemplates();
+    await loadModels();
 });

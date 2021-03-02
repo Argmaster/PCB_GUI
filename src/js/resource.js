@@ -30,8 +30,12 @@ async function loadTemplates() {
 async function loadModelSpec(dir) {
     try {
         let model = new ModelPackage(dir, templates);
-        if (!fs.existsSync(model.bot_path)) await model.makeIcons();
+        if (!fs.existsSync(model.bot_path)) {
+            await model.makeIcons();
+        }
         models[model._model] = model;
+        appendModelBox($("#resource-model-container-container"), model);
+        $("#models-names").append(`<option value="${model._model}"></option>`);
     } catch (e) {
         dialog.showErrorBox(
             `Unable to load model ${dir}\n due to error`,
@@ -84,7 +88,7 @@ function importModel(filepath) {
     try {
         tar.x({ sync: true, gzip: true, file: filepath, cwd: temp_path });
         let temp_model = new ModelPackage(temp_path, templates);
-        let save_path = `./data/assets/models/${temp_model._model}`;
+        let save_path = `${process.cwd()}/data/assets/models/${temp_model._model}`;
         console.log(save_path);
         if (
             !fs.existsSync(save_path) ||
@@ -103,6 +107,7 @@ function importModel(filepath) {
                     `${save_path}/${fname}`
                 );
             }
+            loadModelSpec(save_path);
         }
     } catch (e) {
         dialog.showErrorBox("Unable to import model.", e.stack);
@@ -258,10 +263,3 @@ function initSettingsGui() {
         currentWebContents.reload();
     });
 }
-async function initGUI() {
-    initSettingsGui();
-    setInterval(autoSave, 100);
-    await loadTemplates();
-    await loadModels();
-}
-$(initGUI);

@@ -259,6 +259,7 @@ let TOKENS_DONE = 0;
 let STOP_GERBER_GENERATION = false;
 let GENERATION_LOCK = false;
 let RENDERING_LOCK = false;
+let PREVIEW_PATH = null;
 async function generateGerberLayer(layer, layer_type, layer_id) {
     STOP_GERBER_GENERATION = false;
     let blender_io = new BlenderIO(userpref);
@@ -411,6 +412,23 @@ function interruptModelGeneration() {
         );
     }
 }
+function saveGerberModel() {
+    if (!GENERATION_LOCK && TOKENS_DONE != 0) {
+        let save_as_path = dialog.showSaveDialogSync({
+            title: "Save 3D model",
+            properties: [],
+            filters: [{ name: "glTF 2.0", extensions: ["glb"] }],
+        });
+        if (save_as_path != undefined) {
+            fs.copyFileSync("./temp/gerber/merged.glb", save_as_path);
+        }
+    } else {
+        dialog.showErrorBox(
+            "Unable to save model.",
+            "You haven't generated gerber model."
+        );
+    }
+}
 async function renderPreview() {
     if (!GENERATION_LOCK && TOKENS_DONE != 0) {
         GENERATION_LOCK = true;
@@ -429,10 +447,8 @@ async function renderPreview() {
                 blender_io.kill();
             }
             let preview = $("#gerber-preview");
-            preview.prop(
-                "src",
-                `${process.cwd()}/temp/gerber/${render_file}.png`
-            );
+            PREVIEW_PATH = `${process.cwd()}/temp/gerber/${render_file}.png`;
+            preview.prop("src", PREVIEW_PATH);
             preview.css({ top: 0, left: 0 });
         } catch (e) {
             dialog.showErrorBox("Unable to finish rendering.", e.stack);
@@ -449,6 +465,23 @@ async function renderPreview() {
         dialog.showErrorBox(
             "Unable to start rendering process",
             "You have to generate 3D model before you can render it."
+        );
+    }
+}
+function savePreview() {
+    if (PREVIEW_PATH != null) {
+        let save_as_path = dialog.showSaveDialogSync({
+            title: "Save 3D model",
+            properties: [],
+            filters: [{ name: "PNG image", extensions: ["png"] }],
+        });
+        if (save_as_path != undefined) {
+            fs.copyFileSync(PREVIEW_PATH, save_as_path);
+        }
+    } else {
+        dialog.showErrorBox(
+            "No preview available.",
+            "You haven't generated any gerber file preview."
         );
     }
 }
@@ -653,6 +686,8 @@ function gerberUI() {
     $("#generate-gerber").on("click", generateGerberModel);
     $("#render-gerber").on("click", renderPreview);
     $("#stop-generate-gerber").on("click", interruptModelGeneration);
+    $("#save-gerber-model").on("click", saveGerberModel);
+    $("#save-gerber-preview").on("click", savePreview);
     $("#recoginze-gerber-dir").on("click", recognizeFilesFromDir);
     $("#save-gerber-layers").on("click", saveGerberLayers);
     $("#load-gerber-layers").on("click", loadGerberLayers);

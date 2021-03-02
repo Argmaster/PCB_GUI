@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="../css/model_edit.css" />
         <link rel="stylesheet" href="../css/gerber.css" />
         <link rel="stylesheet" href="../css/global.css" />
-        <link rel="stylesheet" href="../css/assemble.css" />
+        <link rel="stylesheet" href="../css/assembler.css" />
         <link
             rel="stylesheet"
             href="../../node_modules/jquery-ui-dist/jquery-ui.theme.min.css"
@@ -29,6 +29,7 @@
         <script defer src="../js/model_edit_gui.js"></script>
         <script defer src="../js/gerber.js"></script>
         <script defer src="../js/assembler_gui.js"></script>
+        <datalist id="models-names"></datalist>
     </head>
     <body>
         <div id="global-container">
@@ -37,11 +38,12 @@
                     <div class="bookmark-box bookmark-inactive">Global</div>
                     <div class="bookmark-box bookmark-inactive">Models</div>
                     <div class="bookmark-box bookmark-inactive">Gerber</div>
-                    <div class="bookmark-box bookmark-inactive">Assemble</div>
+                    <div class="bookmark-box bookmark-inactive">Assembler</div>
+                    <div class="bookmark-box bookmark-inactive">
+                        Development
+                    </div>
                 </div>
-                <div id="window-window-nav">
-                    <div>&#x2771;</div>
-                </div>
+                <div id="window-window-nav"></div>
                 <div id="window-window-buttons">
                     <div>_</div>
                     <div>&#x2752;</div>
@@ -111,14 +113,28 @@
                                         Generate 3D model
                                     </div>
                                     <div
-                                        class="div-button width-prct-50"
+                                        class="div-button"
                                         id="stop-generate-gerber"
                                     >
                                         Interrupt
                                     </div>
+                                    <div
+                                        class="div-button"
+                                        id="save-gerber-model"
+                                    >
+                                        Save 3D model
+                                    </div>
                                 </div>
-                                <div class="div-button" id="render-gerber">
-                                    Render preview
+                                <div class="div-button-group">
+                                    <div class="div-button" id="render-gerber">
+                                        Render preview
+                                    </div>
+                                    <div
+                                        class="div-button"
+                                        id="save-gerber-preview"
+                                    >
+                                        Save preview
+                                    </div>
                                 </div>
                                 <div
                                     class="div-button"
@@ -181,20 +197,139 @@
                 <div class="workspace-box">
                     <div id="assemble-container">
                         <div id="assemble-models-panel">
+                            <div class="div-button assembler-panel-button">
+                                Build preview
+                            </div>
+                            <div class="div-button assembler-panel-button">
+                                Render preview
+                            </div>
                             <div class="assembler-subsection">
                                 <div class="assembler-subsection-header">
                                     <div>&#x203A;</div>
-                                    Source
+                                    Sources
                                 </div>
                                 <div class="assembler-subsection-body">
-                                    <select class="standard-text-input">
-                                        <option>.netlist file</option>
-                                    </select>
-                                    <input
-                                        class="standard-text-input"
-                                        type="file"
-                                        accept=".net,.txt,.json,.bcl"
-                                    />
+                                    <div
+                                        class="assembler-subsection-body-inner"
+                                        id="assembler-source-section"
+                                    >
+                                        <div
+                                            class="assembler-subsecion-body-label"
+                                        >
+                                            Components list and position source
+                                        </div>
+                                        <select
+                                            class="standard-text-input"
+                                            id="assembler-comp-src-type-select"
+                                            value="select"
+                                        >
+                                            <option value="assembler-comp-pl-p">
+                                                Parts List + Place
+                                            </option>
+                                            <option value="assembler-comp-json">
+                                                JSON file
+                                            </option>
+                                            <option value="assembler-comp-xlsx">
+                                                XLSX file
+                                            </option>
+                                            <option value="assembler-comp-csv">
+                                                CSV file
+                                            </option>
+                                        </select>
+                                        <div
+                                            class="assembler-comp-src"
+                                            id="assembler-comp-pl-p"
+                                        >
+                                            <div
+                                                class="assembler-subsecion-body-label"
+                                            >
+                                                Parts list
+                                            </div>
+                                            <input
+                                                class="standard-text-input"
+                                                ext="Parts List:pls;Text:txt"
+                                                placeholder="Select file path"
+                                            />
+                                            <div
+                                                class="assembler-subsecion-body-label"
+                                            >
+                                                Place
+                                            </div>
+                                            <input
+                                                class="standard-text-input"
+                                                ext="Place:place;Text:txt"
+                                                placeholder="Select file path"
+                                            />
+                                        </div>
+                                        <div
+                                            class="assembler-comp-src"
+                                            id="assembler-comp-json"
+                                        >
+                                            <div
+                                                class="assembler-subsecion-body-label"
+                                            >
+                                                JSON
+                                            </div>
+                                            <input
+                                                class="standard-text-input"
+                                                ext="JSON:json;Text:txt"
+                                                placeholder="Select file path"
+                                            />
+                                        </div>
+                                        <div
+                                            class="assembler-comp-src"
+                                            id="assembler-comp-xlsx"
+                                        >
+                                            <div
+                                                class="assembler-subsecion-body-label"
+                                            >
+                                                XLSX
+                                            </div>
+                                            <input
+                                                class="standard-text-input"
+                                                ext="Excel:xlsx;Text:txt"
+                                                placeholder="Select file path"
+                                            />
+                                        </div>
+                                        <div
+                                            class="assembler-comp-src"
+                                            id="assembler-comp-csv"
+                                        >
+                                            <div
+                                                class="assembler-subsecion-body-label"
+                                            >
+                                                CSV
+                                            </div>
+                                            <input
+                                                class="standard-text-input"
+                                                ext="CSV:csv;Text:txt"
+                                                placeholder="Select file path"
+                                            />
+                                        </div>
+                                        <div
+                                            class="assembler-subsecion-body-label"
+                                        >
+                                            PCB 3D model
+                                        </div>
+                                        <input
+                                            id="assembler-pcb-src"
+                                            class="standard-text-input"
+                                            ext="glTF 2.0:glb;Wavefront:obj;FBX:fbx"
+                                            placeholder="Select file path"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="assembler-subsection">
+                                <div class="assembler-subsection-header">
+                                    <div>&#x203A;</div>
+                                    Components list
+                                </div>
+                                <div class="assembler-subsection-body">
+                                    <div
+                                        class="assembler-subsection-body-inner"
+                                        id="assembler-components-list"
+                                    ></div>
                                 </div>
                             </div>
                         </div>

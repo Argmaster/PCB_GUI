@@ -182,7 +182,7 @@ class Global(Namespace):
         return bpy.data.objects
 
     @staticmethod
-    def getMode():
+    def getMode() -> str:
         """Returns current working mode. Usually either EDIT_MESH or OBJECT.
 
         Returns:
@@ -2219,6 +2219,9 @@ class Mesh(Namespace):
         x_size: TType.UnitOfLength = 1.0,
         y_size: TType.UnitOfLength = 1.0,
         z_size: TType.UnitOfLength = 0.0,
+        location: tuple=(0,0,0),
+        rotation: tuple=(0,0,0),
+        scale: tuple=(1,1,1),
         *,
         material: dict = None,
     ) -> BlenderObject:
@@ -2229,6 +2232,9 @@ class Mesh(Namespace):
             x_size (TType.UnitOfLength, optional): Value that can be parsed by TType.UnitsOfLength.parse(). Defaults to 1.
             y_size (TType.UnitOfLength, optional): Value that can be parsed by TType.UnitsOfLength.parse(). Defaults to 1.
             z_size (TType.UnitOfLength, optional): Value that can be parsed by TType.UnitsOfLength.parse(). Defaults to 1.
+            location (tuple, 3xTType.UnitOfLength): initial location of object
+            rotation (tuple, 3xTType.Angle): initial rotation of object
+            scale (tuple, 3xfloat): initial scale of object
         """
         x_size = TType.UnitOfLength.parse(x_size)
         y_size = TType.UnitOfLength.parse(y_size)

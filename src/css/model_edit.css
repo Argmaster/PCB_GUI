@@ -164,6 +164,9 @@
     border: 2px solid var(--model-edit-image-border);
     border-radius: 0.5rem;
 }
+.model-edit-pinroot-img-comment {
+    opacity: 50%;
+}
 .pin-ptr {
     cursor: pointer;
     display: block;
@@ -214,7 +217,7 @@
     display: inline-block;
     width: 20rem;
     margin-left: 0;
-    margin-right: 1rem;
+    margin-right: 0.5rem;
 }
 .edit-entry-row {
     width: 100%;
