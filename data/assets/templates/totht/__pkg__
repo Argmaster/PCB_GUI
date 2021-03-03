@@ -18,7 +18,8 @@
             "ttype": "Keyword",
             "options": [
                 "Square",
-                "Rounded"
+                "Rounded",
+                "Obround"
             ]
         },
         "caseHoleRadius": {
@@ -90,6 +91,12 @@
                 "Rectangle",
                 "Round"
             ]
+        },
+        "pinBoostZ": {
+            "ttype": "UnitOfLength"
+        },
+        "pinBoostWidth": {
+            "ttype": "UnitOfLength"
         },
         "bend": {
             "ttype": "Bool"

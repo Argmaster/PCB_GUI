@@ -32,7 +32,7 @@
         "fontDepth": "0.02mm",
         "pinWidth": "1.1mm",
         "pinThickness": "0.5mm",
-        "pinLength": "6mm",
+        "pinLength": "3mm",
         "pinHeight": "6mm",
         "pinSpacing": "5.4mm",
         "pinCount": 3,
@@ -43,6 +43,8 @@
             "roughness": 0.0
         },
         "pinStyle": "Rectangle",
+        "pinBoostZ": "5mm",
+        "pinBoostWidth": "2mm",
         "bend": true,
         "bendRadius": "0.5mm"
     }

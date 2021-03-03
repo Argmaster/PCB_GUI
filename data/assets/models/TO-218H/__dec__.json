@@ -42,7 +42,9 @@
             "metallic": 0.9,
             "roughness": 0.0
         },
-        "pinStyle": "Rectangle",
+        "pinStyle": "T-shape",
+        "pinBoostZ": "3mm",
+        "pinBoostWidth": "2mm",
         "bend": false,
         "bendRadius": "0.5mm"
     }

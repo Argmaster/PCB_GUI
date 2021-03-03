@@ -39,7 +39,24 @@ elif Template.caseType == "Square":
         rootObject,
         width=caseDepth / 40,
     )
-
+elif Template.caseType == "Obround":
+    caseDepth = Template.caseDepth
+    rootObject = Mesh.Obround(
+        caseDepth / 2,
+        Template.caseWidth,
+        Template.caseHeight,
+        material=Template.caseMaterial,
+    )
+    Object.RotateBy(rootObject, z="90deg")
+    Modifier.Bevel(rootObject, width=caseDepth / 5, segments=3, limit_method="ANGLE")
+    Material.Smooth(rootObject)
+    bpy_ring = Mesh.Obround(
+        (caseDepth / 2) * 1.1,
+        Template.caseWidth * 1.1,
+        caseDepth / 5,
+        material=Template.caseMaterial,
+    )
+    Object.RotateBy(bpy_ring, z="90deg")
 # $ <>==========================================<>
 # $ <>          Generate TO backplate           <>
 # $ <>==========================================<>
@@ -117,9 +134,15 @@ if not Template.bend:
             pinObject = Mesh.Rectangle(
                 Template.pinThickness,
                 Template.pinWidth,
-                Template.pinHeight,
+                0,
                 material=Template.pinMaterial,
             )
+            boostZ = numpy.clip([Template.pinBoostZ], 0, Template.pinHeight)[0]
+            with Edit(pinObject) as edit:
+                edit.extrude(z=boostZ)
+                edit.extrude(z=0)
+                edit.ScaleBy(y=Template.pinBoostWidth / Template.pinWidth)
+                edit.extrude(z=Template.pinHeight - boostZ)
         elif Template.pinStyle == "Rectangle":
             pinObject = Mesh.Rectangle(
                 Template.pinThickness,
@@ -148,14 +171,14 @@ else:
     bevelOffset = min(Template.pinThickness, Template.pinWidth) / 2
     Object.MoveBy(rootObject, z=caseLift)
     if Template.pinCount != 0:
-        if Template.pinStyle in ("Rectangle", "Round"):
+        if Template.pinStyle in ("Rectangle", "Round", "T-shape"):
             pinObject = Mesh.LShape(
                 Template.pinHeight + caseLift,
                 Template.pinLength + bevelOffset,
                 Template.pinThickness,
                 Template.pinWidth,
-                0,
-                0,
+                Template.pinBoostZ,
+                Template.pinBoostWidth,
                 Template.bendRadius,
                 material=Template.pinMaterial,
             )
@@ -174,14 +197,6 @@ else:
                     angle_limit="30deg",
                 )
                 Material.Smooth()
-            elif Template.pinStyle == "Rectangle":
-                Modifier.Bevel(
-                    pinObject,
-                    width=bevelOffset / 5,
-                    segments=1,
-                    limit_method="ANGLE",
-                    angle_limit="30deg",
-                )
         elif Template.pinStyle == "S-shape":
             pinObject = Mesh.SShape(
                 caseLift,
@@ -203,4 +218,7 @@ else:
         Modifier.Array(pinObject, 0, Template.pinSpacing, 0, Template.pinCount)
         Object.join(rootObject, *Global.getAll())
         with Edit(rootObject) as edit:
-            edit.MoveBy(x=-Template.pinLength + Template.pinThickness / 2)
+            edit.MoveBy(
+                x=-Template.pinLength + Template.pinThickness / 2,
+                z=Template.pinHeight - Template.pinBoostZ,
+            )

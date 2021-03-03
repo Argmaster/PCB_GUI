@@ -43,6 +43,8 @@
             "roughness": 0.0
         },
         "pinStyle": "Rectangle",
+        "pinBoostZ": "0",
+        "pinBoostWidth": "0",
         "bend": true,
         "bendRadius": "0.5mm"
     }

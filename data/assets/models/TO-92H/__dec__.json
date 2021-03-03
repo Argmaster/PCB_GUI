@@ -42,6 +42,8 @@
             "metallic": 0.9,
             "roughness": 0.0
         },
+        "pinBoostZ": "0",
+        "pinBoostWidth": "0",
         "pinStyle": "Rectangle",
         "bend": false,
         "bendRadius": "0.5mm"
