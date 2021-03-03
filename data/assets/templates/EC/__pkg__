@@ -1,0 +1,111 @@
+{
+    "class": "EC",
+    "gtype": "python",
+    "author": "Krzysztof Wiśniewski",
+    "dscp": "Electrolytic Capacitor generator class",
+    "version": "v1.0",
+    "tem_dict": {
+        "base": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "sizeX": {
+                    "ttype": "UnitOfLength"
+                },
+                "sizeY": {
+                    "ttype": "UnitOfLength"
+                },
+                "cutDepth": {
+                    "ttype": "UnitOfLength"
+                },
+                "boost": {
+                    "ttype": "UnitOfLength"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "can": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "radius": {
+                    "ttype": "UnitOfLength"
+                },
+                "ringRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "bevel": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        8
+                    ]
+                },
+                "bevelDepth": {
+                    "ttype": "UnitOfLength"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "markMaterial": {
+            "ttype": "MaterialParams"
+        },
+        "pin": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "length": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "thickness": {
+                    "ttype": "UnitOfLength"
+                },
+                "spacing": {
+                    "ttype": "UnitOfLength"
+                },
+                "bendRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "THT",
+                        "Flat",
+                        "Bend"
+                    ]
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "label": {
+            "ttype": "String"
+        },
+        "fontPath": {
+            "ttype": "PathExpression"
+        },
+        "fontMaterial": {
+            "ttype": "MaterialParams"
+        },
+        "fontSize": {
+            "ttype": "UnitOfLength"
+        },
+        "fontDepth": {
+            "ttype": "UnitOfLength"
+        }
+    }
+}

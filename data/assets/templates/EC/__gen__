@@ -1,0 +1,86 @@
+from src.py.bpyx import *
+
+
+bpy_can = Mesh.IndentedCylinder(
+    Template.can.height,
+    Template.can.radius,
+    indents=[
+        [
+            0.2,
+            0.1,
+            Template.can.radius - Template.can.ringRadius,
+        ]
+    ],
+    material=Template.can.material,
+)
+Modifier.Bevel(
+    bpy_can,
+    width=Template.can.bevelDepth,
+    segments=Template.can.bevel,
+    limit_method="ANGLE",
+)
+Material.Smooth(bpy_can)
+
+if Template.base.height:
+    Object.MoveBy(bpy_can, z=Template.base.height)
+    bpy_base = Mesh.Rectangle(
+        Template.base.sizeX,
+        Template.base.sizeY,
+        material=Template.base.material,
+    )
+    with Edit(bpy_base) as edit:
+        edit.deselectAll()
+        edit.selectVerts(lambda co: co.x > 0)
+        edit.bevel("VERTICES", offset=Template.base.cutDepth)
+        edit.selectAll()
+        edit.extrude(z=Template.base.height + Template.base.boost)
+    cutter = Mesh.Rectangle(
+        0.35 * Template.base.sizeX,
+        Template.base.sizeY,
+        Template.base.boost * 2,
+        location=(0, 0, Template.base.height),
+    )
+    Modifier.Boolean(bpy_base, cutter)
+    Object.RotateBy(cutter, z="90deg")
+    Modifier.Boolean(bpy_base, cutter)
+    Global.delete(cutter)
+
+if Template.pin.style == "Flat":
+    bpy_pin = Mesh.Rectangle(
+        Template.pin.length,
+        Template.pin.width,
+        Template.pin.thickness,
+        location=(
+            Template.pin.spacing / 2 + Template.pin.length / 2,
+            0,
+            -Template.pin.thickness,
+        ),
+        material=Template.pin.material,
+    )
+    Object.duplicate(bpy_pin, x=-(Template.pin.spacing + Template.pin.length))
+
+Mesh.Arc(
+    Template.can.radius - Template.can.bevelDepth,
+    "115deg",
+    "245deg",
+    Template.fontDepth,
+    vertices=48,
+    material=Template.markMaterial,
+    location=(0, 0, Template.base.height + Template.can.height),
+)
+Mesh.Text(
+    Template.label,
+    Template.fontPath,
+    Template.fontSize,
+    Template.fontDepth,
+    material=Template.fontMaterial,
+    align_x="LEFT",
+    location=(
+        -Template.can.radius / 3.3,
+        0,
+        Template.base.height + Template.can.height,
+    ),
+)
+
+root = Mesh.Rectangle(0, 0, 0)
+Object.join(root, *Global.getAll())

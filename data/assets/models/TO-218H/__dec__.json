@@ -1,40 +1,40 @@
 {
-    "model": "TO-126B",
+    "model": "TO-218H",
     "other": [],
     "class": "TOTHT",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "Bend version of TO-126 transistor case.",
+    "dscp": "Base version of TO-218 transistor case.",
     "version": "v1.0",
     "prm_dict": {
-        "caseDepth": "2.4mm",
-        "caseWidth": "7.4mm",
-        "caseHeight": "10.5mm",
+        "caseDepth": "3.5mm",
+        "caseWidth": "14.7mm",
+        "caseHeight": "12.2mm",
         "caseType": "Square",
-        "caseHoleRadius": "1.4mm",
+        "caseHoleRadius": "0",
         "caseMaterial": {
             "color": "#050505FF",
             "metallic": 0.0,
             "specular": 0.0,
             "roughness": 1.0
         },
-        "backplateThickness": "0",
-        "backplateHeight": "0",
-        "backplateHoleRadius": "0",
-        "backplateCutCorners": "0",
-        "label": "TO-126B",
+        "backplateThickness": "1.17mm",
+        "backplateHeight": "20.35mm",
+        "backplateHoleRadius": "2mm",
+        "backplateCutCorners": "3mm",
+        "label": "TO-218",
         "fontPath": "$default",
         "fontMaterial": {
             "color": "#FFFFFFFF",
             "metallic": 0,
             "roughness": 1
         },
-        "fontSize": "1.2mm",
-        "fontDepth": "0.01mm",
-        "pinWidth": "0.8mm",
-        "pinThickness": "0.49mm",
-        "pinLength": "4mm",
-        "pinHeight": "4mm",
-        "pinSpacing": "2.25mm",
+        "fontSize": "2mm",
+        "fontDepth": "0.02mm",
+        "pinWidth": "1.1mm",
+        "pinThickness": "0.5mm",
+        "pinLength": "6mm",
+        "pinHeight": "6mm",
+        "pinSpacing": "5.4mm",
         "pinCount": 3,
         "pinOffset": "0mm",
         "pinMaterial": {
@@ -43,7 +43,7 @@
             "roughness": 0.0
         },
         "pinStyle": "Rectangle",
-        "bend": true,
+        "bend": false,
         "bendRadius": "0.5mm"
     }
 }

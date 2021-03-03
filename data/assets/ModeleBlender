@@ -1,0 +1,110 @@
+Punktem wyjścia jest "footprint" czyli rysunek punktów lutowniczych z programu FreePCB. Elementy układane są na footprint.
+W przypadku elementów przewlekanych (THT) miejsce ułożenie element jest jednoznaczne i wynika z umiejscowienia otworów.
+W przypadku elementów montowanych powierzchniowo (SMD) punkt lutowniczy jest zwykle nieco większy i w praktyce ułożenie elementu robi się "na oko". Trzeba by opracować algorytm centrowania układu (lub brać pod uwagę dane z fpcplace i centroid)...
+Zwykle footprint jednoznacznie określa montowany na nim element (np układ scalony). 
+Niektóre footprints np 1206 mogą służyć do umieszczania na nich różnych elementów np  rezystor, kondensator, dioda.
+Należy ustalić/dostosować nazewnictwo footprints i nazewnictwo modeli.  
+
+W programie FreePCB biblioteka (*.fpl) i footprints to pliki tekstowe.
+Każdy footprint ma swój ograniczający prostokąt (sel_rect) o 10mils większy, widoczny jedynie gdy w programie zaznaczy się element.
+Każdy footprint ma swój outline który jest widoczny na silkscreen
+Centroid to punkt który służy do "łapania" elementów oraz do generowania pliku placement  
+
+Plik *.fpc to plik projektu płytki. Jest to plik tekstowy w którym znajdują się:
+przekopiowane z bibliotek *.fpl używane footprints, prowadzone ścieżki (nets) oraz obszary.
+
+Na płytce PCB element może byc położony pod kątem 0,90,180,270 stopni na górnej (top) lub dolnej (bottom) stronie.
+
+W bibliotekach *.fpl zawsze podana jest (chyba) orientacja 0 stopni
+
+Działanie programu FpcPlace może być konfigurowane plikiem *.ini
+
+Układy SMD
+
+Układy scalone. Różnią się tylko: ilość nóżek, rozstaw, szerokość 
+rozstaw: 50mils (0.05", 1.27mm) szerokość: zwykle 150 lub 300mils
+kolor czarny, na górnej powierzchni opis: np "74HCT14"
+
+Rodzina SO (footprint jednoznacznie określa model)
+SO8	 8 nózek, 0.05" (1.27mm), 150mils
+SO14	14 nózek, 0.05, 150mils
+SO16	16 nózek, 0.05, 150mils
+
+SO14W	14 nózek, 0.05, 300mils
+SO16W	16 nózek, 0.05, 300mils
+SO18W	18 nózek, 0.05, 300mils
+SO20W	20 nózek, 0.05, 300mils
+SO24W	24 nózek, 0.05, 300mils
+SO28W	28 nózek, 0.05, 300mils
+
+
+#do wyjaśnienia..
+#Rodzina MSOP
+#podobnie jak SOx ale mniejszy rozstaw np 26mils
+#SOP8
+#MSOP10
+#
+#Rodzina SSOP rozstaw 20mils?
+#SOP20
+#SSOP28
+#
+#Rodzina TSOP
+
+Rezystory, kondensatory, diody i LED SMD: standardowe footprints:
+1206, 0805  dla rezystora i kondensatora	
+1206D,0805D dla diody i LED dodatkowe oznaczenie katody na silkscreen
+
+modele różnią się tylko obrazkiem
+nazwy modeli (np..):
+R1206, R0805	rezystor, czarne tło + oznaczenie numeryczne np "501"
+C1206, C0805	kondensator, szarobrązowe tło, 0805 nie ma opisu..
+D1206, D0805	dioda sygnałowa np 1N4148
+L1206, L0805	LED (kolor R, G, B, W ??)
+
+kondensatory elektrolityczne SMD (footprint rożni się średnicą i określa model)
+CES40  opis np 10u/16
+CES64  opis np 47u/16
+
+#kondensatory tantalowe SMD
+
+
+==================================
+
+Układy THT
+Układy scalone. Różnią się tylko: ilość nóżek, rozstaw, szerokość 
+rozstaw: 0.1" (2.54mm) szerokośc: zwykle 150 lub 300mils
+kolor czarny, na górnej powierzchni opis: np "74HCT14"
+(metodologia jak dla SO)
+DIL8
+DIL14
+DIL16
+DIL18
+DIL20
+DIL24
+DIL28
+DIL32
+DIL40
+
+
+Tranzystory przewlekane
+TO92 zawsze w pionie, opis na bocznej, płaskej powierzchni np "2N3096"
+TO126V leżący poziomo + opis np "BD136"
+TO126H stojący pionowo
+
+TO220H leżący poziomo + opis np "7805"
+TO220V stojący pionowo
+
+Rezonatory kwarcowe przewlekane
+HC18U + opis np "4MHz"
+ 
+Goldpiny
+proste, kątowe, 1 i 2 rzędowe 
+
+kondensatory przewlekane  
+diody przewlekane
+
+złącza DB9,DB15-proste,kątowe, BNC, USB-A,B,C zwykłe,mini,mikro
+
+Jak traktować/opisywać/projektować modele indywidualne (jeden footprint+model) np dla FT232BL 
+
+

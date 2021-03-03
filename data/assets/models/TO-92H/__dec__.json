@@ -1,9 +1,9 @@
 {
-    "model": "TO-92B",
+    "model": "TO-92H",
     "other": [],
     "class": "TOTHT",
-    "author": "KW",
-    "dscp": "Bend version of TO-92 transistor case.",
+    "author": "Krzysztof Wiśniewski",
+    "dscp": "TO-92 transistor. Simple component based on TOTHT template class.",
     "version": "v1.0",
     "prm_dict": {
         "caseDepth": "3.18mm",
@@ -43,7 +43,7 @@
             "roughness": 0.0
         },
         "pinStyle": "Rectangle",
-        "bend": true,
+        "bend": false,
         "bendRadius": "0.5mm"
     }
 }

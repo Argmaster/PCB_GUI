@@ -1,15 +1,15 @@
 {
-    "model": "TO-92",
+    "model": "TO-218V",
     "other": [],
     "class": "TOTHT",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "TO-92 transistor. Simple component based on TOTHT template class.",
+    "dscp": "Bend version of TO-218 transistor case.",
     "version": "v1.0",
     "prm_dict": {
-        "caseDepth": "3.18mm",
-        "caseWidth": "4.45mm",
-        "caseHeight": "4.32mm",
-        "caseType": "Rounded",
+        "caseDepth": "3.5mm",
+        "caseWidth": "14.7mm",
+        "caseHeight": "12.2mm",
+        "caseType": "Square",
         "caseHoleRadius": "0",
         "caseMaterial": {
             "color": "#050505FF",
@@ -17,24 +17,24 @@
             "specular": 0.0,
             "roughness": 1.0
         },
-        "backplateThickness": "0",
-        "backplateHeight": "0",
-        "backplateHoleRadius": "0",
-        "backplateCutCorners": "0",
-        "label": "TO-92",
+        "backplateThickness": "1.17mm",
+        "backplateHeight": "20.35mm",
+        "backplateHoleRadius": "2mm",
+        "backplateCutCorners": "3mm",
+        "label": "TO-218",
         "fontPath": "$default",
         "fontMaterial": {
             "color": "#FFFFFFFF",
             "metallic": 0,
             "roughness": 1
         },
-        "fontSize": "1.2mm",
-        "fontDepth": "0.01mm",
-        "pinWidth": "0.41mm",
-        "pinThickness": "0.38mm",
-        "pinLength": "4mm",
-        "pinHeight": "4mm",
-        "pinSpacing": "1.27mm",
+        "fontSize": "2mm",
+        "fontDepth": "0.02mm",
+        "pinWidth": "1.1mm",
+        "pinThickness": "0.5mm",
+        "pinLength": "6mm",
+        "pinHeight": "6mm",
+        "pinSpacing": "5.4mm",
         "pinCount": 3,
         "pinOffset": "0mm",
         "pinMaterial": {
@@ -43,7 +43,7 @@
             "roughness": 0.0
         },
         "pinStyle": "Rectangle",
-        "bend": false,
+        "bend": true,
         "bendRadius": "0.5mm"
     }
 }

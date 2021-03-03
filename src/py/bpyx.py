@@ -722,7 +722,7 @@ class Edit:
         """Selects verices by their absolute position
 
         Args:
-            xyz_test: (callable, optional) function returning bool selection value for (x, y, z) params
+            xyz_test: (callable, optional) function returning bool selection value for co param
         """
         for v in self.verts:
             if xyz_test(v.co):
@@ -2492,8 +2492,8 @@ class Mesh(Namespace):
                 for edge in edit.edges:
                     edge.select = (
                         edge.calc_length() > 0
-                        and edge.verts[0].co.z > boostHeight
-                        and edge.verts[1].co.z > boostHeight
+                        and edge.verts[0].co.z >= boostHeight - height * 0.5 * 10e-4
+                        and edge.verts[1].co.z >= boostHeight - height * 0.5 * 10e-4
                     )
                 edit.ScaleBy(y=boostWidth / width)
             edit.selectAll()
@@ -2553,7 +2553,7 @@ class Mesh(Namespace):
     ) -> BlenderObject:
         height = TType.UnitOfLength.parse(height)
         radius = TType.UnitOfLength.parse(radius)
-        bpy_obj = Mesh.Circle(radius, radius, vertices=vertices)
+        bpy_obj = Mesh.Circle(radius * 2, radius * 2, vertices=vertices)
         with Edit(bpy_obj) as edit:
             elevation = 0
             if indents is not None:
@@ -2648,7 +2648,7 @@ class Mesh(Namespace):
         botX: TType.UnitOfLength = 1.0,
         botY: TType.UnitOfLength = 1.0,
         sizeZ: TType.UnitOfLength = 1.0,
-        material: TType.MaterialParams=None,
+        material: TType.MaterialParams = None,
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
@@ -2661,7 +2661,7 @@ class Mesh(Namespace):
         bpy_obj = Mesh.Rectangle(botX, botY)
         with Edit(bpy_obj) as edit:
             edit.extrude(z=sizeZ)
-            edit.ScaleBy(topX/botX, topY/botY)
+            edit.ScaleBy(topX / botX, topY / botY)
         Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
             Material(bpy_obj).update(**material)
