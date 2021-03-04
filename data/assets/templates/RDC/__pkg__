@@ -1,43 +1,29 @@
 {
-    "class": "EC",
+    "class": "RDC",
     "gtype": "python",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "Electrolytic Capacitor generator class",
+    "dscp": "Package contains generator for resistors, diodes and small capacitors transistor cases.",
     "version": "v1.0",
     "tem_dict": {
-        "base": {
+        "case": {
             "ttype": "NestedTemplate",
             "template": {
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "Rectangle",
+                        "Cylinder",
+                        "Diode",
+                        "Indented"
+                    ]
+                },
                 "height": {
                     "ttype": "UnitOfLength"
                 },
-                "sizeX": {
+                "width": {
                     "ttype": "UnitOfLength"
                 },
-                "sizeY": {
-                    "ttype": "UnitOfLength"
-                },
-                "cutDepth": {
-                    "ttype": "UnitOfLength"
-                },
-                "boost": {
-                    "ttype": "UnitOfLength"
-                },
-                "material": {
-                    "ttype": "MaterialParams"
-                }
-            }
-        },
-        "can": {
-            "ttype": "NestedTemplate",
-            "template": {
-                "height": {
-                    "ttype": "UnitOfLength"
-                },
-                "radius": {
-                    "ttype": "UnitOfLength"
-                },
-                "ringRadius": {
+                "length": {
                     "ttype": "UnitOfLength"
                 },
                 "bevel": {
@@ -55,12 +41,18 @@
                 }
             }
         },
-        "markMaterial": {
-            "ttype": "MaterialParams"
-        },
         "pin": {
             "ttype": "NestedTemplate",
             "template": {
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "Rectangle",
+                        "Cylinder",
+                        "S-shape",
+                        "L-shape"
+                    ]
+                },
                 "height": {
                     "ttype": "UnitOfLength"
                 },
@@ -73,19 +65,62 @@
                 "thickness": {
                     "ttype": "UnitOfLength"
                 },
-                "spacing": {
+                "bevel": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        8
+                    ]
+                },
+                "bevelDepth": {
                     "ttype": "UnitOfLength"
                 },
-                "bendRadius": {
-                    "ttype": "UnitOfLength"
-                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "mark": {
+            "ttype": "NestedTemplate",
+            "template": {
                 "style": {
                     "ttype": "Keyword",
                     "options": [
-                        "Straight",
-                        "Flat",
-                        "Bend"
+                        "Obround",
+                        "Rectangle",
+                        "Circle"
                     ]
+                },
+                "length": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "posX": {
+                    "ttype": "UnitOfLength"
+                },
+                "posY": {
+                    "ttype": "UnitOfLength"
+                },
+                "posZ": {
+                    "ttype": "UnitOfLength"
+                },
+                "subtract": {
+                    "ttype": "Bool"
+                },
+                "bevel": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        8
+                    ]
+                },
+                "bevelDepth": {
+                    "ttype": "UnitOfLength"
                 },
                 "material": {
                     "ttype": "MaterialParams"

@@ -1,0 +1,122 @@
+from src.py.bpyx import *
+
+
+# ! <>========================<>
+# !       Case creation
+# ! <>========================<>
+
+if Template.case.style == "Rectangle":
+    root = Mesh.Rectangle(
+        Template.case.length,
+        Template.case.width,
+        Template.case.height,
+        material=Template.case.material,
+    )
+    if Template.case.bevel:
+        Modifier.Bevel(
+            root,
+            width=Template.case.bevelDepth,
+            segments=Template.case.bevel,
+        )
+elif Template.case.style == "Cylinder":
+    root = Mesh.Cylinder(
+        Template.case.length,
+        Template.case.width,
+        Template.case.height,
+        material=Template.case.material,
+    )
+    Object.RotateBy(root, y="90deg")
+    if Template.case.bevel:
+        Modifier.Bevel(
+            root,
+            width=Template.case.bevelDepth,
+            segments=Template.case.bevel,
+        )
+elif Template.case.style == "Diode":
+    # TODO Diode shape!
+    pass
+elif Template.case.style == "Indented":
+    # TODO Indented shape!
+    pass
+
+# ! <>========================<>
+# !       Mark creation
+# ! <>========================<>
+
+lift_text = Template.case.height
+if Template.mark.length and Template.mark.width and Template.mark.height:
+    if Template.mark.style == "Rectangle":
+        mark = Mesh.Rectangle(
+            Template.mark.length,
+            Template.mark.width,
+            Template.mark.height,
+            material=Template.mark.material,
+        )
+        Object.MoveTo(
+            mark,
+            Template.mark.posX,
+            Template.mark.posY,
+            Template.mark.posZ,
+        )
+        if Template.mark.bevel:
+            Modifier.Bevel(
+                mark,
+                width=Template.mark.bevelDepth,
+                segments=Template.mark.bevel,
+            )
+        if Template.mark.subtract:
+            Modifier.Boolean(root, mark)
+            Global.delete(mark)
+        else:
+            lift_text = Template.mark.height + Template.mark.posZ
+    elif Template.case.style == "Obround":
+        # TODO Diode shape!
+        pass
+    elif Template.case.style == "Circle":
+        # TODO Indented shape!
+        pass
+
+
+# ! <>========================<>
+# !       Pins creation
+# ! <>========================<>
+
+if Template.pin.style == "Rectangle":
+    pin = Mesh.Rectangle(
+        Template.pin.length,
+        Template.pin.width,
+        Template.pin.height,
+        material=Template.pin.material,
+    )
+    Object.MoveTo(pin, x=Template.case.length / 2 + Template.pin.length / 2)
+    if Template.pin.bevel:
+        Modifier.Bevel(
+            pin,
+            width=Template.pin.bevelDepth,
+            segments=Template.pin.bevel,
+        )
+    Object.duplicate(pin, x=-(Template.case.length + Template.pin.length))
+elif Template.pin.style == "Cylinder":
+    # TODO Cylinder shape!
+    pass
+elif Template.pin.style == "S-shape":
+    # TODO S-shape shape!
+    pass
+elif Template.pin.style == "L-shape":
+    # TODO L-shape shape!
+    pass
+
+Mesh.Text(
+    Template.label,
+    Template.fontPath,
+    Template.fontSize,
+    Template.fontDepth,
+    material=Template.fontMaterial,
+    location=(
+        0,
+        0,
+        lift_text,
+    ),
+)
+
+Object.join(root, *Global.getAll())

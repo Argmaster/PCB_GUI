@@ -1,0 +1,177 @@
+{
+    "class": "TO",
+    "gtype": "python",
+    "author": "Krzysztof Wiśniewski",
+    "dscp": "Package contains generator for TO transistor alike cases.",
+    "version": "v1.0",
+    "tem_dict": {
+        "case": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "depth": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "Rectangle",
+                        "Rounded",
+                        "Obround"
+                    ]
+                },
+                "hole": {
+                    "ttype": "UnitOfLength"
+                },
+                "holeOffset": {
+                    "ttype": "UnitOfLength"
+                },
+                "bevel": {
+                    "ttype": "UnitOfLength"
+                },
+                "segments": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        8
+                    ]
+                },
+                "smooth": {
+                    "ttype": "Bool"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "backplate": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "thickness": {
+                    "ttype": "UnitOfLength"
+                },
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "lift": {
+                    "ttype": "UnitOfLength"
+                },
+                "hole": {
+                    "ttype": "UnitOfLength"
+                },
+                "holeOffset": {
+                    "ttype": "UnitOfLength"
+                },
+                "bevel": {
+                    "ttype": "UnitOfLength"
+                },
+                "segments": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        8
+                    ]
+                },
+                "smooth": {
+                    "ttype": "Bool"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "pin": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "thickness": {
+                    "ttype": "UnitOfLength"
+                },
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "length": {
+                    "ttype": "UnitOfLength"
+                },
+                "spacing": {
+                    "ttype": "UnitOfLength"
+                },
+                "count": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        64
+                    ]
+                },
+                "offset": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "S-shape",
+                        "T-shape",
+                        "Rectangle",
+                        "Circle"
+                    ]
+                },
+                "boostZ": {
+                    "ttype": "UnitOfLength"
+                },
+                "boostWidth": {
+                    "ttype": "UnitOfLength"
+                },
+                "bend": {
+                    "ttype": "Bool"
+                },
+                "bendRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "bevel": {
+                    "ttype": "UnitOfLength"
+                },
+                "segments": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        8
+                    ]
+                },
+                "smooth": {
+                    "ttype": "Bool"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "label": {
+            "ttype": "String"
+        },
+        "fontPath": {
+            "ttype": "PathExpression"
+        },
+        "fontMaterial": {
+            "ttype": "MaterialParams"
+        },
+        "fontSize": {
+            "ttype": "UnitOfLength"
+        },
+        "fontDepth": {
+            "ttype": "UnitOfLength"
+        },
+        "lift": {
+            "ttype": "UnitOfLength"
+        }
+    }
+}

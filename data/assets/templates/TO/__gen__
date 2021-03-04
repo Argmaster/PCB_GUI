@@ -1,0 +1,297 @@
+from src.py.bpyx import *
+
+
+# ?================================>
+# ? Special for TO-92 transistor
+# ?================================>
+if Template.case.style == "Rounded":
+    root = Mesh.Arc(
+        Template.case.width / 2,
+        "-125deg",
+        "125deg",
+        Template.case.height,
+        material=Template.case.material,
+    )
+    if Template.case.bevel:
+        Modifier.Bevel(
+            root,
+            width=Template.case.bevel,
+            segments=Template.case.segments,
+            limit_method="ANGLE",
+        )
+    if Template.case.smooth:
+        Material.Smooth(root)
+# ?================================>
+# ? Special for squerish transistors
+# ?================================>
+elif Template.case.style == "Rectangle":
+    root = Mesh.Rectangle(
+        Template.case.depth,
+        Template.case.width,
+        Template.case.height,
+        material=Template.case.material,
+    )
+    if Template.case.hole:
+        cutter = Mesh.Circle(
+            Template.case.hole * 2,
+            Template.case.hole * 2,
+            Template.case.depth * 2,
+            rotation=(0, "90deg", 0),
+        )
+        Object.MoveBy(cutter, x=Template.case.depth, z=Template.case.holeOffset)
+        Modifier.Boolean(root, cutter)
+        Global.delete(cutter)
+    if Template.case.bevel:
+        Modifier.Bevel(
+            root,
+            width=Template.case.bevel,
+            segments=Template.case.segments,
+            limit_method="ANGLE",
+        )
+    if Template.case.smooth:
+        Material.Smooth(root)
+
+    if Template.backplate.thickness and Template.backplate.thickness:
+        back = Mesh.Rectangle(
+            Template.backplate.thickness,
+            Template.backplate.width,
+            Template.backplate.height,
+            location=(
+                -Template.case.depth / 2 - Template.backplate.thickness / 2,
+                0,
+                Template.backplate.lift,
+            ),
+            material=Template.backplate.material,
+        )
+        if Template.backplate.hole:
+            cutter = Mesh.Circle(
+                Template.backplate.hole * 2,
+                Template.bacbackplatek.hole * 2,
+                Template.backplate.depth * 2,
+                rotation=(0, "90deg", 0),
+            )
+            Object.MoveBy(
+                cutter,
+                x=Template.case.depth / 2,
+                z=Template.backplate.holeOffset,
+            )
+            Modifier.Boolean(root, cutter)
+            Global.delete(cutter)
+        if Template.backplate.bevel:
+            Modifier.Bevel(
+                back,
+                width=Template.backplate.bevel,
+                segments=Template.backplate.segments,
+                limit_method="ANGLE",
+            )
+        if Template.backplate.smooth:
+            Material.Smooth(back)
+# ?================================>
+# ? Special for quartz clocks etc
+# ?================================>
+elif Template.case.style == "Obround":
+    root = Mesh.Obround(
+        Template.case.depth / 2,
+        Template.case.width,
+        Template.case.height,
+        material=Template.case.material,
+    )
+    Object.RotateBy(root, z="90deg")
+    if Template.case.bevel:
+        Modifier.Bevel(
+            root,
+            width=Template.case.bevel,
+            segments=Template.case.segments,
+            limit_method="ANGLE",
+        )
+    if Template.case.smooth:
+        Material.Smooth(root)
+    root_lower = Mesh.Obround(
+        Template.case.depth / 2 + Template.case.depth / 10,
+        Template.case.width + Template.case.depth / 10,
+        Template.case.bevel,
+        material=Template.case.material,
+    )
+    Object.RotateBy(root_lower, z="90deg")
+    if Template.case.bevel:
+        Modifier.Bevel(
+            root_lower,
+            width=Template.case.bevel / 12,
+            segments=2,
+            limit_method="ANGLE",
+        )
+    if Template.case.smooth:
+        Material.Smooth(root_lower)
+
+# ?================================>
+# ? Text label
+# ?================================>
+Mesh.Text(
+    Template.label,
+    Template.fontPath,
+    Template.fontSize,
+    Template.fontDepth,
+    material=Template.fontMaterial,
+)
+Transform.rotateZ("90deg")
+Transform.translate(0, 0, Template.case.height)
+
+# $ Join this whole object (back + case)
+# $ to simplify rotation in case of bend pins
+Object.join(root, *Global.getAll())
+
+# ?================================>
+# ? Pinout composition
+# ?================================>
+if Template.pin.count:
+    if Template.pin.bend:
+        Object.RotateBy(root, y="-90deg")
+        Object.MoveBy(root, z=Template.case.depth / 2 + Template.backplate.thickness)
+        if Template.pin.style == "S-shape":
+            pin = Mesh.SShape(
+                Template.pin.height,
+                Template.pin.length,
+                Template.pin.thickness,
+                Template.pin.width,
+                material=Template.pin.material,
+            )
+            Object.RotateTo(pin, z="180deg")
+            Object.MoveBy(
+                pin,
+                x=Template.pin.length / 2,
+                z=Template.backplate.thickness
+                + Template.case.depth / 2
+                + Template.pin.thickness / 2,
+            )
+            if Template.pin.bevel:
+                Modifier.Bevel(
+                    pin,
+                    width=Template.pin.bevel / 8,
+                    segments=2,
+                    limit_method="ANGLE",
+                )
+            if Template.pin.smooth:
+                Material.Smooth(pin)
+            Object.MoveTo(
+                pin,
+                x=Template.pin.offset,
+                y=-Template.pin.spacing * (Template.pin.count - 1) / 2,
+                z=-Template.pin.height,
+            )
+            Modifier.Array(
+                pin,
+                0,
+                Template.pin.spacing,
+                0,
+                Template.pin.count,
+            )
+            Object.join(root, *Global.getAll())
+            Object.MoveBy(root, x=-Template.pin.length * 0.8)
+        else:
+            pin = Mesh.LShape(
+                Template.pin.height,
+                Template.pin.length,
+                Template.pin.thickness,
+                Template.pin.width,
+                Template.pin.boostZ,
+                Template.pin.boostWidth,
+                Template.pin.bendRadius,
+                material=Template.pin.material,
+            )
+            Object.RotateTo(pin, z="180deg")
+            Object.MoveBy(
+                pin,
+                x=Template.pin.length / 2,
+                z=Template.pin.offset
+                + Template.backplate.thickness
+                + Template.case.depth / 2
+                + Template.pin.thickness / 2,
+            )
+            if Template.pin.bevel:
+                Modifier.Bevel(
+                    pin,
+                    width=Template.pin.bevel / 8,
+                    segments=2,
+                    limit_method="ANGLE",
+                )
+            if Template.pin.smooth:
+                Material.Smooth(pin)
+            Object.MoveTo(
+                pin,
+                x=Template.pin.offset,
+                y=-Template.pin.spacing * (Template.pin.count - 1) / 2,
+                z=-Template.pin.height,
+            )
+            Modifier.Array(
+                pin,
+                0,
+                Template.pin.spacing,
+                0,
+                Template.pin.count,
+            )
+            Object.join(root, *Global.getAll())
+            Object.MoveBy(root, x=-Template.pin.length + Template.pin.thickness / 2)
+
+    else:
+        # ?================================>
+        # ? Rectanle-based pin
+        # ?================================>
+        if Template.pin.style == "Rectangle":
+            pin = Mesh.Rectangle(
+                Template.pin.thickness,
+                Template.pin.width,
+                Template.pin.height,
+                material=Template.pin.material,
+            )
+        # ?================================>
+        # ? Circle-based pin
+        # ?================================>
+        elif Template.pin.style == "Circle":
+            pin = Mesh.Circle(
+                Template.pin.thickness,
+                Template.pin.width,
+                Template.pin.height,
+                material=Template.pin.material,
+            )
+        # ?================================>
+        # ? T-shaped pin (ie, wider top)
+        # ?================================>
+        elif Template.pin.style == "T-shape":
+            pin = Mesh.Rectangle(
+                Template.pin.thickness,
+                Template.pin.width,
+                0,
+                material=Template.pin.material,
+            )
+            boostZ = numpy.clip([Template.pin.boostZ], 0, Template.pin.height)[0]
+            with Edit(pin) as edit:
+                edit.extrude(z=boostZ)
+                edit.extrude(z=0)
+                edit.ScaleBy(y=Template.pin.boostWidth / Template.pin.width)
+                edit.extrude(z=Template.pin.height - boostZ)
+
+        if Template.pin.bevel:
+            Modifier.Bevel(
+                pin,
+                width=Template.pin.bevel / 8,
+                segments=2,
+                limit_method="ANGLE",
+            )
+        if Template.pin.smooth:
+            Material.Smooth(pin)
+        Object.MoveTo(
+            pin,
+            x=Template.pin.offset,
+            y=-Template.pin.spacing * (Template.pin.count - 1) / 2,
+            z=-Template.pin.height,
+        )
+        Modifier.Array(
+            pin,
+            0,
+            Template.pin.spacing,
+            0,
+            Template.pin.count,
+        )
+
+Object.join(root, *Global.getAll())
+Object.MoveBy(root, z=Template.lift)

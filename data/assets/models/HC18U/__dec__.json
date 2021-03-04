@@ -1,26 +1,66 @@
 {
     "model": "HC18U",
     "other": [],
-    "class": "TOTHT",
+    "class": "TO",
     "author": "Krzysztof Wiśniewski",
     "dscp": "HC18U quartz crystal.",
     "version": "v1.0",
     "prm_dict": {
-        "caseDepth": "4.65mm",
-        "caseWidth": "10.9mm",
-        "caseHeight": "13mm",
-        "caseType": "Obround",
-        "caseHoleRadius": "0",
-        "caseMaterial": {
-            "color": "#BBBBBBFF",
-            "metallic": 0.7,
-            "specular": 0.0,
-            "roughness": 0.3
+        "case": {
+            "depth": "4.65mm",
+            "width": "10.9mm",
+            "height": "13mm",
+            "style": "Obround",
+            "hole": "0",
+            "holeOffset": "0",
+            "bevel": "1mm",
+            "segments": "3",
+            "smooth": true,
+            "material": {
+                "color": "#BBBBBBFF",
+                "metallic": 0.7,
+                "specular": 0.0,
+                "roughness": 0.3
+            }
         },
-        "backplateThickness": "0",
-        "backplateHeight": "0",
-        "backplateHoleRadius": "0",
-        "backplateCutCorners": "0",
+        "backplate": {
+            "thickness": "0",
+            "height": "0",
+            "width": "0",
+            "lift": "0",
+            "hole": "0",
+            "holeOffset": "0",
+            "bevel": "0",
+            "segments": "0",
+            "smooth": false,
+            "material": {
+                "color": "#BBBBBBFF",
+                "metallic": 0.9,
+                "roughness": 0.0
+            }
+        },
+        "pin": {
+            "width": "0.86mm",
+            "thickness": "0.86mm",
+            "length": "5.2mm",
+            "height": "6mm",
+            "spacing": "4.88mm",
+            "count": 2,
+            "offset": "0mm",
+            "style": "Circle",
+            "boostZ": "0",
+            "boostWidth": "0",
+            "bend": false,
+            "bendRadius": "1.5mm",
+            "bevel": "0",
+            "segments": "0",
+            "smooth": true,
+            "material": {
+                "color": "#BBBBBBFF",
+                "metallic": 0.9,
+                "roughness": 0.0
+            }
+        },
         "label": "HC18U",
         "fontPath": "$default",
         "fontMaterial": {
@@ -28,24 +68,8 @@
             "metallic": 0,
             "roughness": 1
         },
-        "fontSize": "1.2mm",
-        "fontDepth": "0.01mm",
-        "pinWidth": "0.86mm",
-        "pinThickness": "0.86mm",
-        "pinLength": "5.2mm",
-        "pinHeight": "5.2mm",
-        "pinSpacing": "4.88mm",
-        "pinCount": 2,
-        "pinOffset": "0mm",
-        "pinMaterial": {
-            "color": "#BBBBBBFF",
-            "metallic": 0.9,
-            "roughness": 0.0
-        },
-        "pinStyle": "Round",
-        "pinBoostZ": "0",
-        "pinBoostWidth": "0",
-        "bend": false,
-        "bendRadius": "0.5mm"
+        "fontSize": "1.4mm",
+        "fontDepth": "0.02mm",
+        "lift": "1mm"
     }
 }

@@ -44,16 +44,17 @@ elif Template.caseType == "Obround":
     rootObject = Mesh.Obround(
         caseDepth / 2,
         Template.caseWidth,
-        Template.caseHeight,
+        Template.caseHeight - caseDepth / 10,
         material=Template.caseMaterial,
     )
     Object.RotateBy(rootObject, z="90deg")
+    Object.MoveBy(rootObject, z=caseDepth / 10)
     Modifier.Bevel(rootObject, width=caseDepth / 5, segments=3, limit_method="ANGLE")
     Material.Smooth(rootObject)
     bpy_ring = Mesh.Obround(
-        (caseDepth / 2) * 1.1,
-        Template.caseWidth * 1.1,
-        caseDepth / 5,
+        (caseDepth / 2) + caseDepth / 10,
+        Template.caseWidth + caseDepth / 10,
+        caseDepth * (3 / 10),
         material=Template.caseMaterial,
     )
     Object.RotateBy(bpy_ring, z="90deg")
@@ -196,7 +197,7 @@ else:
                     limit_method="ANGLE",
                     angle_limit="30deg",
                 )
-                Material.Smooth()
+                Material.Smooth(pinObject)
         elif Template.pinStyle == "S-shape":
             pinObject = Mesh.SShape(
                 caseLift,
@@ -220,5 +221,5 @@ else:
         with Edit(rootObject) as edit:
             edit.MoveBy(
                 x=-Template.pinLength + Template.pinThickness / 2,
-                z=Template.pinHeight - Template.pinBoostZ,
+                z=Template.pinHeight - Template.pinBoostZ - Template.pinThickness / 2,
             )
