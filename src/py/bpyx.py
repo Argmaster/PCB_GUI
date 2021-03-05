@@ -2471,8 +2471,8 @@ class Mesh(Namespace):
         length: TType.UnitOfLength = 1.0,
         thickness: TType.UnitOfLength = 0.05,
         width: TType.UnitOfLength = 0.1,
-        boostHeight: TType.UnitOfLength = 0.6,
-        boostWidth: TType.UnitOfLength = 0.3,
+        boostHeight: TType.UnitOfLength = 0,
+        boostWidth: TType.UnitOfLength = 0,
         radius: TType.UnitOfLength = 0.1,
         vertices: float = 16,
         *,
@@ -2499,7 +2499,7 @@ class Mesh(Namespace):
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
-            if boostWidth and boostHeight:
+            if boostWidth or boostHeight:
                 for edge in edit.edges:
                     edge.select = (
                         edge.calc_length() > 0

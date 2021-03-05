@@ -72,9 +72,7 @@ class TType(Namespace):
                 return self._value
 
         @staticmethod
-        def _destruct_literal(
-            literal: str, literal_regex: List[List[str]]
-        ) -> float:
+        def _destruct_literal(literal: str, literal_regex: List[List[str]]) -> float:
             """Parse given literal by looping over given
             regex list untill length of literal is 0 or no
             match was found.
@@ -395,7 +393,8 @@ class TType(Namespace):
 
         def __init__(self, template: dict, **_) -> None:
             self.__dict__["_kwargs"] = {
-                key.lower(): TType.TTYPES[val["ttype"]](**val) for key, val in template.items()
+                key.lower(): TType.TTYPES[val["ttype"]](**val)
+                for key, val in template.items()
             }
 
         def __setattr__(self, key: str, **_) -> None:
@@ -617,7 +616,7 @@ class Template:
         self.__dict__["_kwargs"] = {}
         for key in template_dict.keys():
             param_dict = template_dict[key]
-            ttype = TType.TTYPES[param_dict["ttype"]](**param_dict)
+            ttype: TType.TType = TType.TTYPES[param_dict["ttype"]](**param_dict)
             ttype.set(params[key])
             self.__dict__["_kwargs"][key] = ttype
         self.__dict__["definition_lock"] = False

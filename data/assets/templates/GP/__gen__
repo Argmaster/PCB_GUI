@@ -1,0 +1,134 @@
+from src.py.bpyx import *
+
+
+if Template.base.style == "Rectangle":
+    root = Mesh.Rectangle(
+        Template.base.width,
+        Template.base.width,
+        Template.base.height,
+        material=Template.base.material,
+    )
+elif Template.base.style == "Circle":
+    root = Mesh.Circle(
+        Template.base.width,
+        Template.base.width,
+        Template.base.height,
+        material=Template.base.material,
+    )
+
+if Template.base.bevel:
+    Modifier.Bevel(
+        root,
+        width=Template.base.bevel,
+        segments=Template.base.segments,
+        limit_method="ANGLE",
+    )
+if Template.base.smooth:
+    Material.Smooth(root)
+
+
+if Template.pin.top.style == "Rectangle":
+    top_pin = Mesh.Rectangle(
+        Template.pin.top.width,
+        Template.pin.top.width,
+        Template.pin.top.height,
+        material=Template.pin.material,
+        location=(0, 0, Template.base.height),
+    )
+elif Template.pin.top.style == "Circle":
+    top_pin = Mesh.Circle(
+        Template.pin.top.width,
+        Template.pin.top.width,
+        Template.pin.top.height,
+        material=Template.pin.material,
+        location=(0, 0, Template.base.height),
+    )
+
+if Template.pin.top.bevel:
+    Modifier.Bevel(
+        top_pin,
+        width=Template.pin.top.bevel,
+        segments=Template.pin.top.segments,
+        limit_method="ANGLE",
+    )
+if Template.pin.smooth:
+    Material.Smooth(top_pin)
+
+
+if not Template.pin.bot.bend:
+    if Template.pin.bot.style == "Rectangle":
+        bot_pin = Mesh.Rectangle(
+            Template.pin.bot.width,
+            Template.pin.bot.width,
+            Template.pin.bot.height,
+            material=Template.pin.material,
+        )
+    elif Template.pin.style == "Circle":
+        bot_pin = Mesh.Circle(
+            Template.pin.bot.width,
+            Template.pin.bot.width,
+            Template.pin.bot.height,
+            material=Template.pin.material,
+        )
+
+    if Template.pin.bot.bevel:
+        Modifier.Bevel(
+            bot_pin,
+            width=Template.pin.bot.bevel,
+            segments=Template.pin.bot.segments,
+            limit_method="ANGLE",
+        )
+    if Template.pin.smooth:
+        Material.Smooth(bot_pin)
+
+    Object.ScaleBy(bot_pin, z=-1)
+    Object.join(root, *Global.getAll())
+
+    Modifier.Array(root, offset_x=Template.base.width, count=Template.countX)
+    Modifier.Array(root, offset_y=Template.base.width, count=Template.countY)
+
+    Object.join(root, *Global.getAll())
+    Object.MoveBy(
+        root,
+        x=(-Template.base.width / 2) * (Template.countX - 1),
+        y=(-Template.base.width / 2) * (Template.countY - 1),
+    )
+
+else:
+    Object.join(root, *Global.getAll())
+    Object.RotateBy(root, y="90deg")
+    Object.MoveBy(root, z=Template.base.width / 2)
+    for i in range(Template.countX):
+        new = Object.duplicate(root, z=Template.base.width)
+        height = (
+            Template.pin.bot.height
+            + (Template.base.width) * (i + 0.5)
+            + (Template.pin.bot.width / 2)
+        )
+        length = (
+            Template.pin.bot.length
+            + (Template.base.width) * (i + 0.5)
+            + (Template.pin.bot.width / 2)
+        )
+        pin = Mesh.LShape(
+            height,
+            length,
+            Template.pin.bot.width,
+            Template.pin.bot.width,
+            radius=Template.pin.bot.bendRadius,
+            material=Template.pin.material,
+            location=(-length / 2, 0, 0),
+        )
+        if i != Template.countX - 1:
+            root = new
+        else:
+            Global.delete(new)
+    Object.join(root, *Global.getAll())
+    Modifier.Array(root, offset_y=Template.base.width, count=Template.countY)
+    Object.MoveBy(
+        root,
+        x=(Template.base.width / 2) * (Template.countX),
+        y=(-Template.base.width / 2) * (Template.countY - 1),
+    )
+
+Object.MoveBy(root, z=Template.lift)

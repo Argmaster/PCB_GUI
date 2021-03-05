@@ -1,0 +1,136 @@
+{
+    "class": "GP",
+    "gtype": "python",
+    "author": "Krzysztof Wiśniewski",
+    "dscp": "Package contains generator for goldpin-like structures",
+    "version": "v1.0",
+    "tem_dict": {
+        "base": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "height": {
+                    "ttype": "UnitOfLength"
+                },
+                "width": {
+                    "ttype": "UnitOfLength"
+                },
+                "style": {
+                    "ttype": "Keyword",
+                    "options": [
+                        "Rectangle",
+                        "Circle"
+                    ]
+                },
+                "bevel": {
+                    "ttype": "UnitOfLength"
+                },
+                "segments": {
+                    "ttype": "Int",
+                    "range": [
+                        0,
+                        8
+                    ]
+                },
+                "smooth": {
+                    "ttype": "Bool"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                }
+            }
+        },
+        "pin": {
+            "ttype": "NestedTemplate",
+            "template": {
+                "smooth": {
+                    "ttype": "Bool"
+                },
+                "material": {
+                    "ttype": "MaterialParams"
+                },
+                "top": {
+                    "ttype": "NestedTemplate",
+                    "template": {
+                        "height": {
+                            "ttype": "UnitOfLength"
+                        },
+                        "width": {
+                            "ttype": "UnitOfLength"
+                        },
+                        "style": {
+                            "ttype": "Keyword",
+                            "options": [
+                                "Rectangle",
+                                "Circle"
+                            ]
+                        },
+                        "bevel": {
+                            "ttype": "UnitOfLength"
+                        },
+                        "segments": {
+                            "ttype": "Int",
+                            "range": [
+                                0,
+                                8
+                            ]
+                        }
+                    }
+                },
+                "bot": {
+                    "ttype": "NestedTemplate",
+                    "template": {
+                        "height": {
+                            "ttype": "UnitOfLength"
+                        },
+                        "length": {
+                            "ttype": "UnitOfLength"
+                        },
+                        "width": {
+                            "ttype": "UnitOfLength"
+                        },
+                        "style": {
+                            "ttype": "Keyword",
+                            "options": [
+                                "Rectangle",
+                                "Circle"
+                            ]
+                        },
+                        "bevel": {
+                            "ttype": "UnitOfLength"
+                        },
+                        "segments": {
+                            "ttype": "Int",
+                            "range": [
+                                0,
+                                8
+                            ]
+                        },
+                        "bend": {
+                            "ttype": "Bool"
+                        },
+                        "bendRadius": {
+                            "ttype": "UnitOfLength"
+                        }
+                    }
+                }
+            }
+        },
+        "countX": {
+            "ttype": "Int",
+            "range": [
+                1,
+                64
+            ]
+        },
+        "countY": {
+            "ttype": "Int",
+            "range": [
+                1,
+                64
+            ]
+        },
+        "lift": {
+            "ttype": "UnitOfLength"
+        }
+    }
+}
