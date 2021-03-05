@@ -38,7 +38,7 @@ elif Template.case.style == "Rectangle":
             Template.case.depth * 2,
             rotation=(0, "90deg", 0),
         )
-        Object.MoveBy(cutter, x=Template.case.depth, z=Template.case.holeOffset)
+        Object.MoveBy(cutter, x=-Template.case.depth, z=Template.case.holeOffset)
         Modifier.Boolean(root, cutter)
         Global.delete(cutter)
     if Template.case.bevel:
@@ -56,26 +56,36 @@ elif Template.case.style == "Rectangle":
             Template.backplate.thickness,
             Template.backplate.width,
             Template.backplate.height,
-            location=(
-                -Template.case.depth / 2 - Template.backplate.thickness / 2,
-                0,
-                Template.backplate.lift,
-            ),
             material=Template.backplate.material,
+        )
+        if Template.backplate.cut:
+            with Edit(back) as edit:
+                edit.deselectAll()
+                edit.selectEdges(
+                    lambda co1, co2: co1.y == co2.y
+                    and co1.z > Template.backplate.height / 2
+                    and co2.z > Template.backplate.height / 2
+                )
+                edit.bevel(offset=Template.backplate.cut)
+        Object.MoveBy(
+            back,
+            -Template.case.depth / 2 - Template.backplate.thickness / 2,
+            0,
+            Template.backplate.lift,
         )
         if Template.backplate.hole:
             cutter = Mesh.Circle(
                 Template.backplate.hole * 2,
-                Template.bacbackplatek.hole * 2,
-                Template.backplate.depth * 2,
+                Template.backplate.hole * 2,
+                Template.backplate.thickness * 2,
                 rotation=(0, "90deg", 0),
             )
             Object.MoveBy(
                 cutter,
-                x=Template.case.depth / 2,
+                x=-Template.case.depth,
                 z=Template.backplate.holeOffset,
             )
-            Modifier.Boolean(root, cutter)
+            Modifier.Boolean(back, cutter)
             Global.delete(cutter)
         if Template.backplate.bevel:
             Modifier.Bevel(

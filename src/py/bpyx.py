@@ -718,7 +718,7 @@ class Edit:
     def selectVerts(
         self,
         xyz_test: callable,
-    ):
+    ) -> Edit:
         """Selects verices by their absolute position
 
         Args:
@@ -727,17 +727,28 @@ class Edit:
         for v in self.verts:
             if xyz_test(v.co):
                 v.select = True
+        return self
 
-    def selectFaces(self, facing_xyz: tuple) -> None:
+    def selectEdges(
+        self,
+        co_test: callable,
+    ) -> Edit:
+        for e in self.edges:
+            if co_test(e.verts[0].co, e.verts[1].co):
+                e.select = True
+        return self
+
+    def selectFaces(self, facing_xyz: tuple) -> Edit:
         for face in self.faces:
             if face.normal.dot(facing_xyz) > 0:
                 face.select = True
 
         return self
 
-    def selectReverse(self):
+    def selectReverse(self) -> Edit:
         for v in self.verts:
             v.select = not v.select
+        return self
 
     @staticmethod
     def selectAll() -> None:

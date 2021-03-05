@@ -3,7 +3,7 @@
     "gtype": "python",
     "author": "Krzysztof Wiśniewski",
     "dscp": "Package contains generator for TO transistor alike cases.",
-    "version": "v1.0",
+    "version": "v1.1",
     "tem_dict": {
         "case": {
             "ttype": "NestedTemplate",
@@ -79,6 +79,9 @@
                         0,
                         8
                     ]
+                },
+                "cut": {
+                    "ttype": "UnitOfLength"
                 },
                 "smooth": {
                     "ttype": "Bool"
