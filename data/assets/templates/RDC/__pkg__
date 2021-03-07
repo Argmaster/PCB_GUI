@@ -36,6 +36,9 @@
                 "bevelDepth": {
                     "ttype": "UnitOfLength"
                 },
+                "smooth": {
+                    "ttype": "Bool"
+                },
                 "material": {
                     "ttype": "MaterialParams"
                 }
@@ -74,6 +77,12 @@
                 },
                 "bevelDepth": {
                     "ttype": "UnitOfLength"
+                },
+                "bendRadius": {
+                    "ttype": "UnitOfLength"
+                },
+                "smooth": {
+                    "ttype": "Bool"
                 },
                 "material": {
                     "ttype": "MaterialParams"

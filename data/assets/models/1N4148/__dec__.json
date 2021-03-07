@@ -1,36 +1,36 @@
 {
-    "model": "C0805",
+    "model": "1N4148",
     "other": [],
     "class": "RDC",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "Capacitor 0805 case",
+    "dscp": "1N4148 resistor case",
     "version": "v1.0",
     "prm_dict": {
         "case": {
-            "style": "Rectangle",
-            "height": "0.45mm",
-            "width": "1.2mm",
-            "length": "1.4mm",
-            "bevel": 0,
-            "bevelDepth": 0,
-            "smooth": false,
+            "style": "Cylinder",
+            "height": "0.1in",
+            "width": "0.1in",
+            "length": "0.2in",
+            "bevel": 2,
+            "bevelDepth": "0.005in",
+            "smooth": true,
             "material": {
-                "color": "#382403FF",
+                "color": "#050505FF",
                 "metallic": 0.0,
                 "specular": 0.0,
                 "roughness": 1.0
             }
         },
         "pin": {
-            "style": "Rectangle",
-            "height": "0.45mm",
-            "width": "1.2mm",
-            "length": "0.3mm",
-            "thickness": "0",
-            "bevel": 0,
-            "bevelDepth": 0,
+            "style": "L-shape",
+            "height": "0.1in",
+            "width": "0.024in",
+            "length": "0.05in",
+            "thickness": "0.02in",
+            "bevel": 1,
+            "bevelDepth": "0.008in",
             "bendRadius": "0.03in",
-            "smooth": false,
+            "smooth": true,
             "material": {
                 "color": "#BBBBBBFF",
                 "metallic": 0.7,
@@ -50,7 +50,7 @@
             "bevelDepth": 0,
             "material": {}
         },
-        "label": "0805",
+        "label": "",
         "fontPath": "$default",
         "fontMaterial": {
             "color": "#FFFFFFFF",

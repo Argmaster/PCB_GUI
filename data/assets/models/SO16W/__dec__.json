@@ -3,7 +3,7 @@
     "other": [],
     "class": "MCU",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "SO wide 16-pin microcotroller case.",
+    "dscp": "SO 16-pin wide.",
     "version": "v1.0",
     "prm_dict": {
         "mark": {

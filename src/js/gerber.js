@@ -437,7 +437,10 @@ async function renderPreview() {
             await blender_io.begin();
             try {
                 await blender_io.call(
-                    new IO_OUT("renderPreview", { render_file: render_file }),
+                    new IO_OUT("renderPreview", {
+                        source: `${process.cwd()}/temp/gerber/merged.glb`,
+                        render_file: `${process.cwd()}/temp/gerber/${render_file}.png`,
+                    }),
                     "OK"
                 );
             } finally {
@@ -645,12 +648,12 @@ function loadGerberLayers() {
 let GERBER_PREVIEW_SCALE = 1;
 function zoomGerberPreview(event) {
     if (event.code == "Equal" && event.ctrlKey) {
-        GERBER_PREVIEW_SCALE += 0.05;
+        GERBER_PREVIEW_SCALE *= 1.1;
         $("#gerber-preview").css({
             transform: `scale(${GERBER_PREVIEW_SCALE})`,
         });
     } else if (event.code == "Minus" && event.ctrlKey) {
-        GERBER_PREVIEW_SCALE -= 0.05;
+        GERBER_PREVIEW_SCALE /= 1.1;
         $("#gerber-preview").css({
             transform: `scale(${GERBER_PREVIEW_SCALE})`,
         });

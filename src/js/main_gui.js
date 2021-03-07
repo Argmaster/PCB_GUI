@@ -59,6 +59,34 @@ function initBookmarks() {
     }
     toggleBookmark(0);
 }
+String.prototype.hashCode = function () {
+    var hash = 0;
+
+    if (this.length == 0) return hash;
+
+    for (i = 0; i < this.length; i++) {
+        char = this.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash = hash & hash;
+    }
+
+    return hash;
+};
+function disableComponent(target) {
+    if (!$(target).attr("disabled")) {
+        $(target).attr("disabled", true);
+        $(target).css("cursor", "wait");
+        $(target).css("filter", "saturate(50%)");
+        return true;
+    } else {
+        return false;
+    }
+}
+function enableComponent(target) {
+    $(target).attr("disabled", false);
+    $(target).css("cursor", "pointer");
+    $(target).css("filter", "saturate(100%)");
+}
 function showErrorBox(message, error) {
     if (userpref.get("debug.log.javascript.stack"))
         dialog.showErrorBox(message, error.stack);

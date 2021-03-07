@@ -203,17 +203,20 @@
                 <div class="workspace-box">
                     <div id="assemble-container">
                         <div id="assemble-models-panel">
-                            <div class="div-button assembler-panel-button" id="assembler-build-preview">
-                                Build preview
-                            </div>
-                            <div class="div-button assembler-panel-button" id="assembler-render-preview">
-                                Render preview
-                            </div>
-                            <div class="div-button assembler-panel-button" id="assembler-export">
-                                Export setup
-                            </div>
-                            <div class="div-button assembler-panel-button" id="assembler-clear">
-                                Clear workspace
+                            <div class="assembler-subsection">
+                                <div class="assembler-subsection-header">
+                                    <div>&#x203A;</div>
+                                    Controls
+                                </div>
+                                <div
+                                    class="assembler-subsection-body"
+                                    id="assembler-controls"
+                                >
+                                    <div class="div-button">Build model</div>
+                                    <div class="div-button">Export setup</div>
+                                    <div class="div-button">Save 3D model</div>
+                                    <div class="div-button">Update Preview</div>
+                                </div>
                             </div>
                             <div class="assembler-subsection">
                                 <div class="assembler-subsection-header">
@@ -284,7 +287,7 @@
                                             </div>
                                             <input
                                                 class="standard-text-input"
-                                                ext="JSON:json;Text:txt"
+                                                ext="Assembler setup:astp;JSON:json;Text:txt"
                                                 placeholder="Select file path"
                                             />
                                         </div>
@@ -345,7 +348,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="assemble-preview-panel"></div>
+                        <div id="assemble-preview-panel">
+                            <div class="assembler-preview-box"></div>
+                        </div>
                     </div>
                 </div>
             </main>

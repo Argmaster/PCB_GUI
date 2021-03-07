@@ -13,6 +13,7 @@
             "length": "1.4mm",
             "bevel": 0,
             "bevelDepth": 0,
+            "smooth": false,
             "material": {
                 "color": "#050505FF",
                 "metallic": 0.0,
@@ -28,6 +29,8 @@
             "thickness": "0",
             "bevel": 0,
             "bevelDepth": 0,
+            "bendRadius": "0.03in",
+            "smooth": false,
             "material": {
                 "color": "#BBBBBBFF",
                 "metallic": 0.7,

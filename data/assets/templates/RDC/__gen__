@@ -18,20 +18,25 @@ if Template.case.style == "Rectangle":
             width=Template.case.bevelDepth,
             segments=Template.case.bevel,
         )
+    if Template.case.smooth:
+        Material.Smooth(root)
 elif Template.case.style == "Cylinder":
-    root = Mesh.Cylinder(
-        Template.case.length,
-        Template.case.width,
+    root = Mesh.Circle(
         Template.case.height,
+        Template.case.height,
+        Template.case.length,
         material=Template.case.material,
     )
     Object.RotateBy(root, y="90deg")
+    Object.MoveBy(root, x=-Template.case.length / 2, z=Template.case.width / 2)
     if Template.case.bevel:
         Modifier.Bevel(
             root,
             width=Template.case.bevelDepth,
             segments=Template.case.bevel,
         )
+    if Template.case.smooth:
+        Material.Smooth(root)
 elif Template.case.style == "Diode":
     # TODO Diode shape!
     pass
@@ -95,6 +100,8 @@ if Template.pin.style == "Rectangle":
             width=Template.pin.bevelDepth,
             segments=Template.pin.bevel,
         )
+    if Template.pin.smooth:
+        Material.Smooth(pin)
     Object.duplicate(pin, x=-(Template.case.length + Template.pin.length))
 elif Template.pin.style == "Cylinder":
     # TODO Cylinder shape!
@@ -103,9 +110,32 @@ elif Template.pin.style == "S-shape":
     # TODO S-shape shape!
     pass
 elif Template.pin.style == "L-shape":
-    # TODO L-shape shape!
-    pass
-
+    pin = Mesh.LShape(
+        Template.pin.height,
+        Template.pin.length + Template.pin.bevelDepth * 2,
+        Template.pin.thickness,
+        Template.pin.width,
+        radius=Template.pin.bendRadius,
+        location=(
+            -(Template.case.length + Template.pin.length) / 2,
+            0,
+            -Template.pin.height
+            + Template.case.height / 2
+            + Template.pin.thickness / 2,
+        ),
+        material=Template.pin.material,
+    )
+    if Template.pin.bevel:
+        Modifier.Bevel(
+            pin,
+            width=Template.pin.bevelDepth,
+            segments=Template.pin.bevel,
+            limit_method="ANGLE",
+        )
+    if Template.pin.smooth:
+        Material.Smooth(pin)
+    pin_two = Object.duplicate(pin)
+    Object.RotateBy(pin_two, z="180deg")
 Mesh.Text(
     Template.label,
     Template.fontPath,

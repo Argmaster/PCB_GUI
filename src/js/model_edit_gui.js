@@ -191,7 +191,7 @@ modelWorkspaceAdd = {
                 <input
                     type="text"
                     class="standard-text-input edit-param-entry"
-                    placeholder=${_default}
+                    placeholder="${_default}"
                     RNA="${_rna}"
                     value="${_user_pref}"
                 />
@@ -677,7 +677,28 @@ let appendModelBox = function ($target, model) {
         .on("click", async function () {
             $(this).addClass("breath-div-button");
             try {
-                await model.make();
+                try {
+                    let params = model.traverse();
+                    let save_as_path = dialog.showSaveDialogSync({
+                        title: "Save 3D model",
+                        properties: [],
+                        filters: [{ name: "glTF 2.0", extensions: ["glb"] }],
+                    });
+                    if (save_as_path != undefined) {
+                        await model.make(params, save_as_path);
+                        dialog.showMessageBoxSync({
+                            type: "info",
+                            buttons: ["Ok"],
+                            title: "Finished generating 3D model.",
+                            message: "Finished generating 3D model.",
+                        });
+                    }
+                } catch (e) {
+                    showErrorBox(
+                        "Unable traverse template tree for this model.",
+                        e
+                    );
+                }
             } finally {
                 $(this).removeClass("breath-div-button");
             }

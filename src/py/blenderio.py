@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import sys
@@ -17,6 +19,15 @@ from src.py.gparser.gparser import GerberParser
 
 RENDER_SAMPLES: int = 0
 RENDER_ENGINE: str = "EEVEE"
+
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
 class IO_OBJECT:
@@ -112,6 +123,7 @@ class BlenderIO:
             raise Exception()
         self.python_log_in = mess.data["python_log_in"]
         self.python_log_out = mess.data["python_log_out"]
+        self.render_dpi = mess.data["render_dpi"]
         global RENDER_ENGINE
         global RENDER_SAMPLES
         RENDER_ENGINE = mess.data["render_engine"]
@@ -282,7 +294,7 @@ LAYER_TYPES = {
         },
     },
 }
-
+# TODO thickness is wrong scale -> mult by 1e3
 
 def renderGerberLayer(io_in: IO_IN, io: BlenderIO):
     io_in.data["layer"]
@@ -335,7 +347,7 @@ def joinLayers(io_in: IO_IN, io: BlenderIO):
 
 
 def renderPreview(io_in: IO_IN, io: BlenderIO):
-    Global.Import(f"{os.getcwd()}/temp/gerber/merged.glb")
+    Global.Import(io_in.data["source"])
     root = Global.getActive()
     # prepare to make a render
     width = root.dimensions.x
@@ -348,7 +360,7 @@ def renderPreview(io_in: IO_IN, io: BlenderIO):
         type="SUN", align="WORLD", location=(0, 0, 0), scale=(1, 1, 1)
     )
     # add camera
-    camera = Camera(location=(0, 0, 1))
+    camera = Camera(location=(0, 0, root.location.z + root.dimensions.z + 1))
     camera.ortho_scale = max(width, height)
     camera.type = "ORTHO"
     camera.setMain()
@@ -358,11 +370,36 @@ def renderPreview(io_in: IO_IN, io: BlenderIO):
     elif RENDER_ENGINE == "CYCLES":
         Global.cycles(RENDER_SAMPLES)
     # render image
-    Global.render(
-        f"{os.getcwd()}/temp/gerber/{io_in.data['render_file']}.png",
-        1920,
-        1920 * (height / width),
+    io.log(
+        "W & H:",
+        width,
+        height,
+        width * io.render_dpi * 40,
+        height * io.render_dpi * 40,
     )
+    w = width * io.render_dpi * 40
+    h = height * io.render_dpi * 40
+    if w * h > 1e8:
+        raise RuntimeError("Output image is too big, lower your dpi and retry.")
+    else:
+        Global.render(
+            io_in.data["render_file"],
+            w,
+            h,
+        )
+    return IO_OUT("OK")
+
+
+def buildAssembler(io_in: IO_IN, io: BlenderIO):
+    Global.Import(io_in.data["pcb"])
+    _bpy_PCB = Global.getActive()
+    for code, setup in io_in.data["setup"].items():
+        Global.Import(setup["path"])
+        bpy_obj = Global.getActive()
+        Object.MoveTo(bpy_obj, setup["cox"], setup["coy"], 0)
+        Object.RotateTo(bpy_obj, z=TType.Angle.parse(f"{setup['rot']}deg"))
+    Global.selectAll()
+    Global.Export(io_in.data["out"])
     return IO_OUT("OK")
 
 
@@ -378,6 +415,7 @@ def mainloop():
         "renderGerberLayer": renderGerberLayer,
         "joinLayers": joinLayers,
         "renderPreview": renderPreview,
+        "buildAssembler": buildAssembler,
     }
     while True:
         try:

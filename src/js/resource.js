@@ -197,6 +197,16 @@ function initSettingsGui() {
         "",
         "debug.blender.samples"
     );
+    globalWorkspaceAdd.entryNumber(
+        box,
+        "Render DPI",
+        3000,
+        10,
+        1,
+        300,
+        "",
+        "debug.blender.dpi"
+    );
     globalWorkspaceAdd.entryToggle(
         box,
         "Blender in background",

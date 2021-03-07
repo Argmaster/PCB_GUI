@@ -36,15 +36,10 @@
 }
 #gerber-preview {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: auto;
-    margin-bottom: auto;
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
+    width: 100%;
     height: auto;
     cursor: move;
+    image-rendering: pixelated;
 }
 .gerber-panel-buttons {
     display: flex;

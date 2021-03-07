@@ -34,6 +34,7 @@ class BlenderIO {
         this.keep_blender_open = userpref.get("debug.blender.keep_open");
         this.render_engine = userpref.get("debug.blender.engine");
         this.render_samples = userpref.get("debug.blender.samples");
+        this.render_dpi = userpref.get("debug.blender.dpi");
         this.STREAM_FIFO = [];
         this.SOCKET_FIFO = [];
         this.SOCKET_BUFF = "";
@@ -92,6 +93,7 @@ class BlenderIO {
                 python_log_out: this.python_log_out,
                 render_engine: this.render_engine,
                 render_samples: this.render_samples,
+                render_dpi: this.render_dpi,
             })
         );
         mess = await this.read_status("WAITING SOCKET");

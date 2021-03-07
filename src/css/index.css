@@ -93,11 +93,11 @@ input[type="file"].standard-text-input::-webkit-file-upload-button:active {
     text-align: center;
     cursor: pointer;
     align-self: center;
-    padding: 0.35rem 0.8rem 0.35rem 0.8rem;
+    padding: 0.3rem 0.7rem 0.3rem 0.7rem;
     width: fit-content;
     background-color: var(--std-button-background);
     border: 2px solid var(--std-button-border);
-    border-radius: 0.5rem;
+    border-radius: 0.3rem;
     font-size: 1rem;
     transition: all 300 ease;
     font-weight: 300;

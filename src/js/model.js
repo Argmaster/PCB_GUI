@@ -110,38 +110,23 @@ class ModelPackage {
                 );
         }
     }
-    async make() {
+    traverse() {
+        return this._traverse(this.template.tem_dict, "RAW", "");
+    }
+    async make(params, save_as_path) {
+        let blender_io = new BlenderIO(userpref);
+        await blender_io.begin();
         try {
-            let params = this._traverse(this.template.tem_dict, "RAW", "");
-            let save_as_path = dialog.showSaveDialogSync({
-                title: "Save 3D model",
-                properties: [],
-                filters: [{ name: "glTF 2.0", extensions: ["glb"] }],
-            });
-            if (save_as_path != undefined) {
-                let blender_io = new BlenderIO(userpref);
-                await blender_io.begin();
-                try {
-                    await blender_io.call(
-                        new IO_OUT("make3DModel", {
-                            template_pkg_path: this.template.package_path,
-                            template_params: params,
-                            save_as: save_as_path,
-                        }),
-                        "OK"
-                    );
-                } finally {
-                    blender_io.kill();
-                }
-                dialog.showMessageBoxSync({
-                    type: "info",
-                    buttons: ["Ok"],
-                    title: "Finished generating 3D model.",
-                    message: "Finished generating 3D model.",
-                });
-            }
-        } catch (e) {
-            showErrorBox("Unable traverse template tree for this model.", e);
+            await blender_io.call(
+                new IO_OUT("make3DModel", {
+                    template_pkg_path: this.template.package_path,
+                    template_params: params,
+                    save_as: save_as_path,
+                }),
+                "OK"
+            );
+        } finally {
+            blender_io.kill();
         }
     }
 }
