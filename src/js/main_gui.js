@@ -9,7 +9,6 @@ const {
 const currentWebContents = getCurrentWebContents();
 const mainWindow = BrowserWindow.getFocusedWindow();
 
-
 const UserPref = require("../js/userpref").UserPref;
 const userpref = new UserPref();
 
@@ -59,6 +58,11 @@ function initBookmarks() {
         }
     }
     toggleBookmark(0);
+}
+function showErrorBox(message, error) {
+    if (userpref.get("debug.log.javascript.stack"))
+        dialog.showErrorBox(message, error.stack);
+    else dialog.showErrorBox(message, error.message);
 }
 function initWindowNav() {
     $("#window-window-buttons :nth-child(1)").on("click", () => {

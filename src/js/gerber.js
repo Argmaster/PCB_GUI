@@ -342,10 +342,7 @@ async function generateGerberModel() {
             layers = pullGerbereConfig();
         } catch (e) {
             layers = undefined;
-            dialog.showErrorBox(
-                "Unable to pull gerber layer confguration.",
-                e.stack
-            );
+            showErrorBox("Unable to pull gerber layer confguration.", e);
         }
         if (layers != undefined) {
             let promises = [];
@@ -373,9 +370,9 @@ async function generateGerberModel() {
                 } catch (e) {
                     interrupt = true;
                     if (e.message != "GENINT")
-                        dialog.showErrorBox(
+                        showErrorBox(
                             "Unable to continue generation due to fatal error.",
-                            e.stack
+                            e
                         );
                 }
             }
@@ -392,9 +389,9 @@ async function generateGerberModel() {
                         message: `Tokens resolved: ${TOKEN_STACK_SIZE}. Now you can render preview.`,
                     });
                 } catch (e) {
-                    dialog.showErrorBox(
+                    showErrorBox(
                         "Unable to finish model processing due to fatal error.",
-                        e.stack
+                        e
                     );
                 }
             }
@@ -451,7 +448,7 @@ async function renderPreview() {
             preview.prop("src", PREVIEW_PATH);
             preview.css({ top: 0, left: 0 });
         } catch (e) {
-            dialog.showErrorBox("Unable to finish rendering.", e.stack);
+            showErrorBox("Unable to finish rendering.", e);
         }
         $("#render-gerber").removeClass("breath-div-button");
         GENERATION_LOCK = false;
@@ -602,7 +599,7 @@ function saveGerberLayers() {
             fs.writeFileSync(file, JSON.stringify(layers));
         }
     } catch (e) {
-        dialog.showErrorBox("Unable to save gerber layers.", e.stack);
+        showErrorBox("Unable to save gerber layers.", e);
         return;
     }
 }

@@ -1,63 +1,72 @@
 from src.py.bpyx import *
 
 
-bpy_top = Mesh.Trapeze3D(
-    Template.topSubcase.topX,
-    Template.topSubcase.topY,
-    Template.topSubcase.botX,
-    Template.topSubcase.botY,
-    Template.topSubcase.height,
-    material=Template.topSubcase.material,
-    location=(0, 0, Template.midSubcase.height + Template.botSubcase.height),
-)
-if Template.mark.depth and Template.mark.X and Template.mark.Y:
-    if Template.mark.shape == "Circle":
-        cutter = Mesh.Circle(Template.mark.X, Template.mark.Y, Template.mark.depth * 2)
-    elif Template.mark.shape == "Rectangle":
-        cutter = Mesh.Rectangle(
-            Template.mark.X, Template.mark.Y, Template.mark.depth * 2
+if Template.topSubcase.height:
+    bpy_top = Mesh.Trapeze3D(
+        Template.topSubcase.topX,
+        Template.topSubcase.topY,
+        Template.topSubcase.botX,
+        Template.topSubcase.botY,
+        Template.topSubcase.height,
+        material=Template.topSubcase.material,
+        location=(0, 0, Template.midSubcase.height + Template.botSubcase.height),
+    )
+    if Template.mark.depth and Template.mark.X and Template.mark.Y:
+        if Template.mark.shape == "Circle":
+            cutter = Mesh.Circle(Template.mark.X, Template.mark.Y, Template.mark.depth * 2)
+        elif Template.mark.shape == "Rectangle":
+            cutter = Mesh.Rectangle(
+                Template.mark.X, Template.mark.Y, Template.mark.depth * 2
+            )
+        Object.MoveTo(
+            cutter,
+            Template.mark.offsetX,
+            Template.mark.offsetY,
+            Template.topSubcase.height
+            + Template.midSubcase.height
+            + Template.botSubcase.height
+            - Template.mark.depth,
         )
-    Object.MoveTo(
-        cutter,
-        Template.mark.offsetX,
-        Template.mark.offsetY,
-        Template.topSubcase.height
+        Modifier.Boolean(bpy_top, cutter)
+        Global.delete(cutter)
+
+
+if Template.midSubcase.height:
+    Mesh.Rectangle(
+        Template.midSubcase.X,
+        Template.midSubcase.Y,
+        Template.midSubcase.height,
+        material=Template.midSubcase.material,
+        location=(0, 0, Template.botSubcase.height),
+    )
+
+
+if Template.botSubcase.height:
+    Mesh.Trapeze3D(
+        Template.botSubcase.topX,
+        Template.botSubcase.topY,
+        Template.botSubcase.botX,
+        Template.botSubcase.botY,
+        Template.botSubcase.height,
+        material=Template.botSubcase.material,
+    )
+
+
+if Template.label:
+    Mesh.Text(
+        Template.label,
+        Template.fontPath,
+        Template.fontSize,
+        Template.fontDepth,
+        material=Template.fontMaterial,
+    )
+    if Template.midSubcase.X < Template.midSubcase.Y:
+        Transform.rotateZ("90deg")
+    Transform.translate(
+        z=Template.topSubcase.height
         + Template.midSubcase.height
         + Template.botSubcase.height
-        - Template.mark.depth,
     )
-    Modifier.Boolean(bpy_top, cutter)
-    Global.delete(cutter)
-
-Mesh.Rectangle(
-    Template.midSubcase.X,
-    Template.midSubcase.Y,
-    Template.midSubcase.height,
-    material=Template.midSubcase.material,
-    location=(0, 0, Template.botSubcase.height),
-)
-Mesh.Trapeze3D(
-    Template.botSubcase.topX,
-    Template.botSubcase.topY,
-    Template.botSubcase.botX,
-    Template.botSubcase.botY,
-    Template.botSubcase.height,
-    material=Template.botSubcase.material,
-)
-Mesh.Text(
-    Template.label,
-    Template.fontPath,
-    Template.fontSize,
-    Template.fontDepth,
-    material=Template.fontMaterial,
-)
-if Template.midSubcase.X < Template.midSubcase.Y:
-    Transform.rotateZ("90deg")
-Transform.translate(
-    z=Template.topSubcase.height
-    + Template.midSubcase.height
-    + Template.botSubcase.height
-)
 
 if Template.pinX.count:
     if Template.pinX.style == "S-shape":
@@ -86,6 +95,9 @@ if Template.pinX.count:
                 - Template.botSubcase.height
             )
         )
+    elif Template.pinX.style == "Inset":
+        pass
+
     Object.RotateTo(bpy_obj, z="180deg")
     begin_delta = (
         Template.midSubcase.Y - (Template.pinX.count - 1) * Template.pinX.spacing
@@ -125,6 +137,9 @@ if Template.pin_X.count:
                 - Template.botSubcase.height
             )
         )
+    elif Template.pinX.style == "Inset":
+        pass
+
     begin_delta = (
         Template.midSubcase.Y - (Template.pin_X.count - 1) * Template.pin_X.spacing
     ) / 2
@@ -164,6 +179,9 @@ if Template.pinY.count:
                 - Template.botSubcase.height
             )
         )
+    elif Template.pinX.style == "Inset":
+        pass
+
     Object.RotateTo(bpy_obj, z="-90deg")
     begin_delta = (
         Template.midSubcase.X - (Template.pinY.count - 1) * Template.pinY.spacing
@@ -202,6 +220,9 @@ if Template.pin_Y.count:
                 - Template.botSubcase.height
             )
         )
+    elif Template.pinX.style == "Inset":
+        pass
+    
     Object.RotateTo(bpy_obj, z="90deg")
     begin_delta = (
         Template.midSubcase.X - (Template.pin_Y.count - 1) * Template.pin_Y.spacing

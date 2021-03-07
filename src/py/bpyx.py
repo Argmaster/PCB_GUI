@@ -1236,6 +1236,10 @@ class Object(Namespace):
                     max_dist = abs(val)
         return max_dist
 
+    def bbox(bpy_obj: BlenderObject) -> float:
+        o = bpy_obj
+        return [o.matrix_world @ Vector(b) for b in o.bound_box]
+
     def convert(bpy_obj, target: str = "MESH") -> BlenderObject:
         """Convert object from one type to another.
 

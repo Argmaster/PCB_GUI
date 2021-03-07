@@ -1,25 +1,25 @@
 {
-    "model": "SO16W",
+    "model": "SSOP16",
     "other": [],
     "class": "MCU",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "SO wide 16-pin microcotroller case.",
+    "dscp": "SSOP 16-pin unit.",
     "version": "v1.0",
     "prm_dict": {
         "mark": {
             "shape": "Circle",
-            "X": "1mm",
-            "Y": "1mm",
-            "depth": "0.1mm",
-            "offsetX": "-2.5mm",
-            "offsetY": "3.95mm"
+            "X": "0.25mm",
+            "Y": "0.25mm",
+            "depth": "0.05mm",
+            "offsetX": "-1.45mm",
+            "offsetY": "1.95mm"
         },
         "topSubcase": {
-            "topX": "7mm",
-            "topY": "9.9mm",
-            "botX": "7.4mm",
-            "botY": "10.1mm",
-            "height": "1mm",
+            "topX": "3.6mm",
+            "topY": "4.6mm",
+            "botX": "4mm",
+            "botY": "5mm",
+            "height": "0.65mm",
             "material": {
                 "color": "#050505FF",
                 "metallic": 0.0,
@@ -28,9 +28,9 @@
             }
         },
         "midSubcase": {
-            "X": "7.4mm",
-            "Y": "10.1mm",
-            "height": "0.23mm",
+            "X": "4mm",
+            "Y": "5mm",
+            "height": "0.2mm",
             "material": {
                 "color": "#050505FF",
                 "metallic": 0.0,
@@ -39,11 +39,11 @@
             }
         },
         "botSubcase": {
-            "topX": "7.4mm",
-            "topY": "10.10mm",
-            "botX": "7mm",
-            "botY": "9.9mm",
-            "height": "1mm",
+            "topX": "4mm",
+            "topY": "5mm",
+            "botX": "3.6mm",
+            "botY": "4.6mm",
+            "height": "0.65mm",
             "material": {
                 "color": "#050505FF",
                 "metallic": 0.0,
@@ -52,12 +52,12 @@
             }
         },
         "pinX": {
-            "height": "1.23mm",
-            "length": "0.9mm",
-            "width": "0.36mm",
-            "thickness": "0.23mm",
+            "height": "0.85mm",
+            "length": "1.1mm",
+            "width": "0.27mm",
+            "thickness": "0.2mm",
             "count": 8,
-            "spacing": "1.27mm",
+            "spacing": "0.64mm",
             "bendRadius": "0",
             "boostZ": "0",
             "boostWidth": "0",
@@ -69,12 +69,12 @@
             }
         },
         "pin_X": {
-            "height": "1.23mm",
-            "length": "0.9mm",
-            "width": "0.36mm",
-            "thickness": "0.23mm",
+            "height": "0.85mm",
+            "length": "1.1mm",
+            "width": "0.27mm",
+            "thickness": "0.2mm",
             "count": 8,
-            "spacing": "1.27mm",
+            "spacing": "0.64mm",
             "bendRadius": "0",
             "boostZ": "0",
             "boostWidth": "0",
@@ -119,14 +119,14 @@
                 "roughness": 0.0
             }
         },
-        "label": "SO16",
+        "label": "SSOP16",
         "fontPath": "$default",
         "fontMaterial": {
             "color": "#FFFFFFFF",
             "metallic": 0,
             "roughness": 1
         },
-        "fontSize": "2.2mm",
+        "fontSize": "1mm",
         "fontDepth": "0.01mm"
     }
 }

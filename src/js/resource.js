@@ -10,10 +10,7 @@ async function loadTemplateSpec(dir) {
         pkg = new TemplatePackage(dir);
         templates[pkg._class] = pkg;
     } catch (e) {
-        dialog.showErrorBox(
-            `Unable to load template <${dir}>\n due to error`,
-            e.message
-        );
+        showErrorBox(`Unable to load template <${dir}>\n due to error`, e);
     }
 }
 async function loadTemplates() {
@@ -37,10 +34,7 @@ async function loadModelSpec(dir) {
         appendModelBox($("#library-position-box-container"), model);
         $("#models-names").append(`<option value="${model._model}"></option>`);
     } catch (e) {
-        dialog.showErrorBox(
-            `Unable to load model ${dir}\n due to error`,
-            e.message
-        );
+        showErrorBox(`Unable to load model ${dir}\n due to error`, e);
     }
 }
 async function loadModels() {
@@ -112,7 +106,7 @@ function importModel(filepath) {
             loadModelSpec(save_path);
         }
     } catch (e) {
-        dialog.showErrorBox("Unable to import model.", e.stack);
+        showErrorBox("Unable to import model.", e);
     }
     if (fs.existsSync(temp_path)) fs.rmdirSync(temp_path, { recursive: true });
 }
@@ -247,6 +241,12 @@ function initSettingsGui() {
         function () {
             userpref.log_change = $(this).prop("checked");
         }
+    );
+    globalWorkspaceAdd.entryToggle(
+        box,
+        "Extended error message JavaScript",
+        false,
+        "debug.log.javascript.stack"
     );
     globalWorkspaceAdd.entryToggle(
         box,

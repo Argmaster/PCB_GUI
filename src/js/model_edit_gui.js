@@ -629,7 +629,7 @@ modelWorkspaceAdd = {
                     exportModel(ACTIVE_MODEL, file);
                 }
             } catch (e) {
-                dialog.showErrorBox("Unable to export model.", e.stack);
+                showErrorBox("Unable to export model.", e);
                 return;
             }
         });
@@ -694,10 +694,7 @@ function init3DModelEditMenu($this, model) {
         modelWorkspaceAdd.editMenu(panel);
         modelWorkspaceAdd.template(panel, "Properties", "");
     } catch (e) {
-        dialog.showErrorBox(
-            "Unable to load model edit menu due to error",
-            e.stack
-        );
+        showErrorBox("Unable to load model edit menu due to error", e);
     }
 }
 $(async function () {

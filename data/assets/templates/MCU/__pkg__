@@ -133,7 +133,8 @@
                     "ttype": "Keyword",
                     "options": [
                         "S-shape",
-                        "L-shape"
+                        "L-shape",
+                        "Inset"
                     ]
                 },
                 "material": {
@@ -179,7 +180,8 @@
                     "ttype": "Keyword",
                     "options": [
                         "S-shape",
-                        "L-shape"
+                        "L-shape",
+                        "Inset"
                     ]
                 },
                 "material": {
@@ -225,7 +227,8 @@
                     "ttype": "Keyword",
                     "options": [
                         "S-shape",
-                        "L-shape"
+                        "L-shape",
+                        "Inset"
                     ]
                 },
                 "material": {
@@ -271,7 +274,8 @@
                     "ttype": "Keyword",
                     "options": [
                         "S-shape",
-                        "L-shape"
+                        "L-shape",
+                        "Inset"
                     ]
                 },
                 "material": {

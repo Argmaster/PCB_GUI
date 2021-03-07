@@ -8,26 +8,26 @@ let out = {
 function addAssemblerComponent(signature, model, label, cox, coy, rot, top) {
     $("#assembler-components-list").append(
         `<div class="assembler-component-body">
-            <div class="assembler-component-body-title"><div>&#x203A;</div>${signature} ${model}</div>
+            <div class="assembler-component-body-title" signature="${signature}"><div>&#x203A;</div>${signature} ${model}</div>
             <div class="assembler-component-body-inner">
                 <div class="assembler-component-body-row">
                     <div>model</div>
-                    <input class="standard-text-input" value="${model}" list="models-names" />
+                    <input class="standard-text-input" id="as-model" value="${model}" list="models-names" />
                     <div>label</div>
-                    <input class="standard-text-input" value="${label}" />
+                    <input class="standard-text-input" id="as-label" value="${label}" />
                 </div>
                 <div class="assembler-component-body-row">
                     <div>co. X</div>
-                    <input class="standard-text-input assembler-short" value="${cox}" />
+                    <input class="standard-text-input assembler-short" id="as-cox" value="${cox}" />
                     <div>co. Y</div>
-                    <input class="standard-text-input assembler-short" value="${coy}" />
+                    <input class="standard-text-input assembler-short" id="as-coy" value="${coy}" />
                 </div>
                 <div class="assembler-component-body-row">
                     <div>Rot</div>
-                    <input class="standard-text-input assembler-short" value="${rot}" />
+                    <input class="standard-text-input assembler-short" id="as-rot" value="${rot}" />
                     <div>Top</div>
                     <label class="switch">
-                        <input type="checkbox" />
+                        <input type="checkbox" id="as-top" />
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -69,6 +69,32 @@ function buildComponentsList(dict) {
         );
     }
 }
+function pullComponentSetup() {
+    let setup = {};
+    $("#assembler-components-list")
+        .find(".assembler-component-body")
+        .each(function () {
+            let $this = $(this);
+            let key = $this
+                .find(".assembler-component-body-title")
+                .attr("signature");
+            let model = $this.find("#as-model").val();
+            if (models[model] == undefined) {
+                throw Error(
+                    `Model: "${model}" used for component '${key}' not found in library.`
+                );
+            }
+            setup[key] = {
+                model: model,
+                label: $this.find("#as-label").val(),
+                cox: $this.find("#as-cox").val(),
+                coy: $this.find("#as-coy").val(),
+                rot: $this.find("#as-rot").val(),
+                top: $this.find("#as-top").attr("checked"),
+            };
+        });
+    return setup;
+}
 let ASSEMBLER_PROJECT_NAME = "";
 let ASSEMBLER_PARTSLIST_COMPONENTS_LIST = {};
 let ASSEMBLER_PLACE_POSITION_LIST = {};
@@ -97,7 +123,7 @@ const loadComponents = {
                 buildComponentsList(this._MERGE_PARTSLIST_PLACE());
             }
         } catch (e) {
-            dialog.showErrorBox("Unable to load parts list file.", e.stack);
+            showErrorBox("Unable to load parts list file.", e);
         }
     },
     PLACE: function (path) {
@@ -146,7 +172,7 @@ const loadComponents = {
                 buildComponentsList(this._MERGE_PARTSLIST_PLACE());
             }
         } catch (e) {
-            dialog.showErrorBox("Unable to load place file.", e.stack);
+            showErrorBox("Unable to load place file.", e);
         }
     },
     _MERGE_PARTSLIST_PLACE() {
@@ -226,4 +252,19 @@ $(function () {
         }
     });
     $(".assembler-subsection-header").trigger("click");
+    $("#assembler-export").on("click", function () {
+        try {
+            let file = dialog.showSaveDialogSync({
+                title: "Save assembler setup to file",
+                properties: [],
+                filters: [{ name: "Assembler Setup", extensions: ["astp"] }],
+            });
+            if (file != undefined) {
+                fs.writeFileSync(file, JSON.stringify(pullComponentSetup()));
+            }
+        } catch (e) {
+            showErrorBox("Unable to export setup.", e);
+            return;
+        }
+    });
 });

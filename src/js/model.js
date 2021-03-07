@@ -141,10 +141,7 @@ class ModelPackage {
                 });
             }
         } catch (e) {
-            dialog.showErrorBox(
-                "Unable traverse template tree for this model.",
-                e.stack
-            );
+            showErrorBox("Unable traverse template tree for this model.", e);
         }
     }
 }

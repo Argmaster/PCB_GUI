@@ -32,7 +32,7 @@
             "holeOffset": "0",
             "bevel": "0",
             "segments": "0",
-            "cut": "3mm",
+            "cut": "0",
             "smooth": false,
             "material": {
                 "color": "#BBBBBBFF",
