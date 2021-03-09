@@ -120,11 +120,16 @@
     font-size: 0.9rem;
 }
 .assembler-preview-box {
-    width: 100%;
+    position: relative;
+    width: fit-content;
     height: fit-content;
 }
-.assembler-preview-box img:nth-child(1) {
-    width: 100%;
+.assembler-preview-box img {
+    left: 0;
+    top: 0;
+    position: absolute;
+    width: auto;
     height: auto;
     image-rendering: pixelated;
+    border: 1px dotted white;
 }

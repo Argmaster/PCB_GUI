@@ -173,15 +173,6 @@ class BlenderIO:
         return message
 
 
-def makeBotIcon(io_in: IO_IN, io: BlenderIO):
-    tp = TemplatePackage(io_in.data["template_path"])
-    tp.makeBotIcon(
-        io_in.data["template_params"],
-        TType.PathExpression.resolve(io_in.data["model_path"]),
-    )
-    return IO_OUT("OK")
-
-
 def getTemplateParams(io_in: IO_IN, io: BlenderIO):
     TemplatePackage(io_in.data["template_path"]).params_json()
     return IO_OUT("OK")
@@ -211,9 +202,9 @@ def Detach(io_in: IO_IN, io: BlenderIO):
 
 LAYER_TYPES = {
     "COPPER": {
-        "dark_thickness": "0.1m",
-        "clear_thickness": "0.05m",
-        "region_thickness": "0.1m",
+        "dark_thickness": "0.5mm",
+        "clear_thickness": "0.2mm",
+        "region_thickness": "1mm",
         "dark_material": {
             "color": "rgba(0, 23, 0, 255)",
             "roughness": 1.0,
@@ -231,9 +222,9 @@ LAYER_TYPES = {
         },
     },
     "SILK": {
-        "dark_thickness": "0.05m",
-        "clear_thickness": "0.02m",
-        "region_thickness": "0.0m",
+        "dark_thickness": "0.1mm",
+        "clear_thickness": "0.05mm",
+        "region_thickness": "0",
         "dark_material": {
             "color": "rgba(255, 255, 255, 255)",
             "roughness": 0.5,
@@ -254,9 +245,9 @@ LAYER_TYPES = {
         },
     },
     "SOLDER_MASK": {
-        "dark_thickness": "0.05m",
-        "clear_thickness": "0.02m",
-        "region_thickness": "0.0m",
+        "dark_thickness": "0.1mm",
+        "clear_thickness": "0.05mm",
+        "region_thickness": "0",
         "dark_material": {
             "color": "rgba(135, 135, 135, 255)",
             "roughness": 1.0,
@@ -274,9 +265,9 @@ LAYER_TYPES = {
         },
     },
     "PASTE_MASK": {
-        "dark_thickness": "0.05m",
-        "clear_thickness": "0.02m",
-        "region_thickness": "0.0m",
+        "dark_thickness": "0.1mm",
+        "clear_thickness": "0.05mm",
+        "region_thickness": "0",
         "dark_material": {
             "color": "rgba(105, 105, 105, 255)",
             "roughness": 1.0,
@@ -294,7 +285,8 @@ LAYER_TYPES = {
         },
     },
 }
-# TODO thickness is wrong scale -> mult by 1e3
+# TODO thickness is wrong scale -> mult by 1e3?
+
 
 def renderGerberLayer(io_in: IO_IN, io: BlenderIO):
     io_in.data["layer"]
@@ -346,21 +338,23 @@ def joinLayers(io_in: IO_IN, io: BlenderIO):
     return IO_OUT("OK")
 
 
-def renderPreview(io_in: IO_IN, io: BlenderIO):
-    Global.Import(io_in.data["source"])
-    root = Global.getActive()
+def _render(root: BlenderObject, out: str, dpi: int):
     # prepare to make a render
     width = root.dimensions.x
     height = root.dimensions.y
-    depth = root.dimensions.z
-    # relocate PCB to no intersect with camera
-    Object.MoveTo(root, -width / 2, -height / 2, -depth)
+    center = Object.bboxCenter(root)
     # add light source
-    bpy.ops.object.light_add(
-        type="SUN", align="WORLD", location=(0, 0, 0), scale=(1, 1, 1)
-    )
+    bpy.ops.object.light_add(type="SUN")
+    light = Global.getActive()
+    Object.RotateTo(light, 0, 0, 0)
     # add camera
-    camera = Camera(location=(0, 0, root.location.z + root.dimensions.z + 1))
+    camera = Camera()
+    Object.MoveTo(
+        camera.camera,
+        center.x,
+        center.y,
+        root.location.z + root.dimensions.z + 1,
+    )
     camera.ortho_scale = max(width, height)
     camera.type = "ORTHO"
     camera.setMain()
@@ -370,24 +364,32 @@ def renderPreview(io_in: IO_IN, io: BlenderIO):
     elif RENDER_ENGINE == "CYCLES":
         Global.cycles(RENDER_SAMPLES)
     # render image
-    io.log(
-        "W & H:",
-        width,
-        height,
-        width * io.render_dpi * 40,
-        height * io.render_dpi * 40,
-    )
-    w = width * io.render_dpi * 40
-    h = height * io.render_dpi * 40
+    w = width * dpi * 40
+    h = height * dpi * 40
     if w * h > 1e8:
         raise RuntimeError("Output image is too big, lower your dpi and retry.")
     else:
+        if os.path.exists(out):
+            os.remove(out)
         Global.render(
-            io_in.data["render_file"],
+            out,
             w,
             h,
         )
-    return IO_OUT("OK")
+    Global.delete(camera.camera)
+    Global.delete(light)
+    return {
+        "bx": center.x - root.dimensions.x / 2,
+        "by": center.y - root.dimensions.y / 2,
+        "sx": root.dimensions.x,
+        "sy": root.dimensions.y,
+    }
+
+
+def renderPreview(io_in: IO_IN, io: BlenderIO):
+    Global.Import(io_in.data["source"])
+    root = Global.getActive()
+    return IO_OUT("OK", {"co": _render(root, io_in.data["render_file"], io.render_dpi)})
 
 
 def buildAssembler(io_in: IO_IN, io: BlenderIO):
@@ -403,11 +405,99 @@ def buildAssembler(io_in: IO_IN, io: BlenderIO):
     return IO_OUT("OK")
 
 
+def _photoTop(bpy_obj, out, dpi):
+    width = bpy_obj.dimensions.x
+    height = bpy_obj.dimensions.y
+    bbox = Object.bbox(bpy_obj)
+    max_xy = 0
+    for co in bbox:
+        if abs(co.x) > max_xy:
+            max_xy = abs(co.x)
+        if abs(co.y) > max_xy:
+            max_xy = abs(co.y)
+    bpy.ops.object.light_add(type="SUN")
+    light = Global.getActive()
+    Object.RotateTo(light, 0, 0, 0)
+    camera = Camera()
+    Object.MoveTo(
+        camera.camera,
+        bpy_obj.location.x,
+        bpy_obj.location.y,
+        bpy_obj.location.z + bpy_obj.dimensions.z + 1,
+    )
+    camera.ortho_scale = max_xy * 2
+    camera.type = "ORTHO"
+    camera.setMain()
+    if RENDER_ENGINE == "EEVEE":
+        # set eevee as rendering engine
+        Global.eevee(RENDER_SAMPLES)
+    elif RENDER_ENGINE == "CYCLES":
+        Global.cycles(RENDER_SAMPLES)
+    max_xy = max_xy * dpi * 40 * 2
+    if max_xy ** 2 > 1e8:
+        raise RuntimeError("Output image is too big, lower your dpi and retry.")
+    else:
+        if os.path.exists(out):
+            os.remove(out)
+        Global.render(out, max_xy, max_xy)
+    Global.delete(camera.camera)
+    Global.delete(light)
+
+
+def _photoBot(bpy_obj, out):
+    # get current object dimensions
+    x, y, _ = bpy_obj.dimensions
+    # scale it up to be 1
+    max_dim = max(x, y)
+    _s = 1 / max_dim
+    Object.ScaleBy(bpy_obj, _s, _s, _s)
+    bbox = Object.bbox(bpy_obj)
+    max_xy = 0
+    for co in bbox:
+        if abs(co.x) > max_xy:
+            max_xy = abs(co.x)
+        if abs(co.y) > max_xy:
+            max_xy = abs(co.y)
+    bpy.ops.object.light_add(type="SUN")
+    light = Global.getActive()
+    Object.RotateTo(light, x=0, y="180deg", z=0)
+    camera = Camera()
+    Object.ScaleBy(camera.camera, z=-1)
+    Object.MoveTo(
+        camera.camera,
+        bpy_obj.location.x,
+        bpy_obj.location.y,
+        -(bpy_obj.location.z + bpy_obj.dimensions.z + 1),
+    )
+    camera.ortho_scale = max_xy * 2.2
+    camera.type = "ORTHO"
+    camera.setMain()
+    if RENDER_ENGINE == "EEVEE":
+        # set eevee as rendering engine
+        Global.eevee(RENDER_SAMPLES)
+    elif RENDER_ENGINE == "CYCLES":
+        Global.cycles(RENDER_SAMPLES)
+    if os.path.exists(out):
+        os.remove(out)
+    Global.render(out, 512, 512)
+    Global.delete(camera.camera)
+    Global.delete(light)
+
+
+def makeModelAssets(io_in: IO_IN, io: BlenderIO):
+    Global.deleteAll()
+    tp = TemplatePackage(io_in.data["template_path"])
+    bpy_obj = tp.execute(io_in.data["template_params"])
+    Global.Export(f'{io_in.data["model_path"]}/__mod__.glb')
+    _photoTop(bpy_obj, f'{io_in.data["model_path"]}/__top__.png', io.render_dpi)
+    _photoBot(bpy_obj, f"{io_in.data['model_path']}/__bot__.png")
+    return IO_OUT("OK")
+
+
 def mainloop():
     io = BlenderIO()
     io.begin()
     commands = {
-        "makeBotIcon": makeBotIcon,
         "getTemplateParams": getTemplateParams,
         "make3DModel": make3DModel,
         "exitNow": exitNow,
@@ -416,6 +506,7 @@ def mainloop():
         "joinLayers": joinLayers,
         "renderPreview": renderPreview,
         "buildAssembler": buildAssembler,
+        "makeModelAssets": makeModelAssets,
     }
     while True:
         try:

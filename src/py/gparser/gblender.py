@@ -163,8 +163,6 @@ class BlenderBackend(DrawingBackendAbstract):
     def merge_mesh(self) -> None:
         if self.op_count > 100:
             Object.join(self.ROOT, *Global.getAll())
-            with Edit(self.ROOT) as edit:
-                edit.removeDoubles()
             self.op_count = 0
         else:
             self.op_count += 1
@@ -265,6 +263,4 @@ class BlenderBackend(DrawingBackendAbstract):
         Global.selectAll()
         Global.setActive(self.ROOT)
         Object.join(Global.getActive(), *Global.getSelected())
-        with Edit(self.ROOT) as edit:
-            edit.removeDoubles()
-        Object.ScaleBy(self.ROOT, 1e-3, 1e-3, 1e-3)
+        Object.ScaleBy(self.ROOT, 1e-3, 1e-3, 1)

@@ -5,6 +5,8 @@ class ModelPackage {
         this.dec_path = `${package_path}/__dec__.json`;
         this.top_path = `${package_path}/__top__.png`;
         this.bot_path = `${package_path}/__bot__.png`;
+        this.mod_path = `${package_path}/__mod__.glb`;
+        this.ico_path = `${package_path}/__ico__.png`;
         this.dec_dict = JSON.parse(fs.readFileSync(this.dec_path));
         this._class = this.dec_dict["class"];
         let regex = `[a-zA-Z0-9\\-_ \\.,\\(\\)\\[\\]\\{\\}:;\\*]`;
@@ -37,16 +39,17 @@ class ModelPackage {
     params() {
         return this.prm_dict;
     }
-    async makeIcons() {
+    async makeModelAssets() {
         let blender_io = new BlenderIO(userpref);
         await blender_io.begin();
         try {
             await blender_io.call(
-                new IO_OUT("makeBotIcon", {
+                new IO_OUT("makeModelAssets", {
                     template_path: this.template.package_path,
-                    template_params: this.params(),
+                    template_params: this.traverse(),
                     model_path: this.package_path,
-                })
+                }),
+                "OK"
             );
         } finally {
             blender_io.kill();

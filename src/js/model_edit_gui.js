@@ -503,8 +503,8 @@ modelWorkspaceAdd = {
         <div class="model-edit-pinroot">
             <div class="model-edit-pinroot-img-box">
                 <img class="model-edit-pinroot-img" src="${
-                    ACTIVE_MODEL.package_path
-                }/__bot__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
+                    ACTIVE_MODEL.bot_path
+                }" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
                 <div class="pin-ptr">
                     <span></span>
                 </div>
@@ -640,8 +640,8 @@ let appendModelBox = function ($target, model) {
         `<div class="library-position-box">
             <div class="library-position-main">
                 <div class="library-position-img">
-                    <img src="${model.package_path}/__top__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
-                    <img class="model-icon-disable" src="${model.package_path}/__bot__.png" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
+                    <img src="${model.ico_path}" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
+                    <img class="model-icon-disable" src="${model.bot_path}" onerror="this.src='../../data/assets/img/img-broken.svg';"/>
                 </div>
                 <div class="library-position-meta">
                     <div class="library-position-meta-row">

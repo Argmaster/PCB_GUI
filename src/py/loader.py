@@ -85,39 +85,3 @@ class TemplatePackage:
         Object.MoveTo(Global.getActive(), 0, 0, 0)
         return Global.getActive()
 
-    def makeBotIcon(self, template_params, path_to_save):
-        Global.deleteAll()
-        bpy_obj = self.execute(template_params)
-        # get current object dimensions
-        x, y, z = bpy_obj.dimensions
-        # scale it up to be 1
-        max_dim = max(x, y)
-        _s = 1 / max_dim
-        Object.ScaleBy(bpy_obj, _s, _s, _s)
-        bbox = Object.bbox(bpy_obj)
-        max_xy = 0
-        min_z = 0
-        for co in bbox:
-            if abs(co.x) > max_xy:
-                max_xy = abs(co.x)
-            if abs(co.y) > max_xy:
-                max_xy = abs(co.y)
-            if co.z < min_z:
-                co.z = min_z
-        bpy.ops.object.light_add(
-            type="SUN",
-        )
-        Object.RotateTo(Global.getActive(), y="-180deg")
-        camera = Camera()
-        Object.ScaleBy(camera.camera, z=-1)
-        Object.MoveTo(
-            camera.camera,
-            bpy_obj.location.x,
-            bpy_obj.location.y,
-            -(1 + z + min_z),
-        )
-        camera.ortho_scale = max_xy * 2.2
-        camera.type = "ORTHO"
-        camera.setMain()
-        Global.eevee()
-        Global.render(f"{path_to_save}/__bot__.png", 512, 512)

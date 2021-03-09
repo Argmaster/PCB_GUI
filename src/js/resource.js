@@ -27,8 +27,12 @@ async function loadTemplates() {
 async function loadModelSpec(dir) {
     try {
         let model = new ModelPackage(dir, templates);
-        if (!fs.existsSync(model.bot_path)) {
-            await model.makeIcons();
+        if (
+            !fs.existsSync(model.bot_path) ||
+            !fs.existsSync(model.top_path) ||
+            !fs.existsSync(model.mod_path)
+        ) {
+            await model.makeModelAssets();
         }
         models[model._model] = model;
         appendModelBox($("#library-position-box-container"), model);

@@ -7,6 +7,8 @@ class ModelPackage:
         self.dec_path = f"{package_path}/__dec__.json"
         self.bot_path = f"{package_path}/__bot__.png"
         self.top_path = f"{package_path}/__top__.png"
+        self.ico_path = f"{package_path}/__ico__.png"
+        self.mod_path = f"{package_path}/__mod__.glb"
         with open(self.dec_path, "r", encoding="utf-8") as file:
             self.dec_dict = json.load(file)
         self._class = str(self.dec_dict.get("class"))
