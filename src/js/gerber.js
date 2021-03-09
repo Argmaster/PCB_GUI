@@ -660,10 +660,8 @@ function zoomGerberPreview(event) {
     }
 }
 function gerberUI() {
-    $("#gerber-preview")
-        .parent(".gerber-preview")
-        .on("keydown", zoomGerberPreview);
-    $("#gerber-preview")
+    $("#gerber-container").on("keydown", zoomGerberPreview);
+    $("#gerber-container")
         .parent(".gerber-preview")
         .on("mousewheel", event => {
             if (event.ctrlKey) {

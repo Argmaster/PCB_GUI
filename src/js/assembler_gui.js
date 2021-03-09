@@ -95,7 +95,7 @@ async function renderAssemblerPCB() {
 }
 async function appendAssemblerComponentToPreview(key, cpos, $box) {
     $box.append(
-        `<img src="${cpos.model_pkg}/__top__.png" class="component" />`
+        `<img src="${cpos.model_pkg}/__top__.png" class="component" >${key}</img>`
     );
     let $comp = $box.find(".component").last();
     let [x, y] = await imageSize($comp);
@@ -131,9 +131,7 @@ async function appendAssemblerComponentToPreview(key, cpos, $box) {
         });
     });
     $comp.on("drag", function (event, ui) {
-        if ($gui.is(":hidden")) {
-            $gui.prev().trigger("click");
-        }
+        $comp.trigger("click");
         if (!event.ctrlKey) {
             $as_cox.val(((ui.position.left + x / 2) / dpm) * 100);
             $as_coy.val(((pcb_height - (ui.position.top + y / 2)) / dpm) * 100);
@@ -153,9 +151,15 @@ async function appendAssemblerComponentToPreview(key, cpos, $box) {
         }
     });
     $comp.on("click", function () {
-        if ($gui.is(":hidden")) {
-            $gui.prev().trigger("click");
-        }
+        $("#assembler-components-list")
+            .find(".assembler-component-body")
+            .each(function () {
+                let $box = $(this).find(".assembler-component-body-inner");
+                if (!$box.is(":hidden")) {
+                    $box.prev().trigger("click");
+                }
+            });
+        $gui.prev().trigger("click");
     });
     $as_cox.trigger("input");
     $as_coy.trigger("input");
@@ -312,8 +316,8 @@ function zoomAssemblerPreview(event) {
     }
 }
 $(async function () {
-    $("#assemble-preview-panel").on("keydown", zoomGerberPreview);
-    $("#assemble-preview-panel").on("mousewheel", event => {
+    $("#assemble-container").on("keydown", zoomAssemblerPreview);
+    $("#assemble-container").on("mousewheel", event => {
         if (event.originalEvent.wheelDelta > 0) {
             zoomAssemblerPreview({ code: "Equal", ctrlKey: true });
         } else {

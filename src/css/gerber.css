@@ -1,4 +1,4 @@
-.gerber-container {
+#gerber-container {
     height: 100%;
     width: 100%;
     display: flex;
@@ -28,6 +28,10 @@
 .gerber-preview {
     width: 100%;
     height: 45rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
     overflow: hidden;
     border: 0.1rem solid var(--background-level-2-border);
 }
@@ -36,8 +40,8 @@
 }
 #gerber-preview {
     display: block;
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: 100%;
     cursor: move;
     image-rendering: pixelated;
 }
@@ -200,4 +204,3 @@
     font-weight: 500;
     font-size: 1.1rem;
 }
-
