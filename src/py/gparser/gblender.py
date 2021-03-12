@@ -45,13 +45,13 @@ class Rectangle:
         self.Y = y
         self.HR = holeDiameter / 2
 
-    def flash(self, position, height, lift) -> BlenderObject:
+    def flash(self, position, height, lift) -> BpyObject:
         bpy_obj = Mesh.Rectangle(self.X, self.Y, height)
         Object.MoveBy(bpy_obj, position[0], position[1], lift)
         self.BACKEND.CURRENT_MATERIAL.assign(bpy_obj)
         return bpy_obj
 
-    def line(self, begin, end, height, lift) -> BlenderObject:
+    def line(self, begin, end, height, lift) -> BpyObject:
         bpy_obj = Mesh.Rectangle(self.X, self.Y, height)
         Object.MoveBy(bpy_obj, begin[0], begin[1], lift)
         vd = [end[0] - begin[0], end[1] - begin[1], 0]
@@ -84,14 +84,14 @@ class Circle:
         self.R = diameter / 2
         self.HR = holeDiameter / 2
 
-    def flash(self, position, height, lift) -> BlenderObject:
+    def flash(self, position, height, lift) -> BpyObject:
         diameter = self.R * 2
         bpy_obj = Mesh.Circle(diameter, diameter, height, vertices=18)
         Object.MoveBy(bpy_obj, position[0], position[1], lift)
         self.BACKEND.CURRENT_MATERIAL.assign(bpy_obj)
         return bpy_obj
 
-    def line(self, begin, end, height, lift) -> BlenderObject:
+    def line(self, begin, end, height, lift) -> BpyObject:
         vbe = [end[0] - begin[0], end[1] - begin[1]]
         len_vbe = (vbe[0] ** 2 + vbe[1] ** 2) ** 0.5
         if vbe[0] != 0:
@@ -256,6 +256,7 @@ class BlenderBackend(DrawingBackendAbstract):
             with Edit(obj) as edit:
                 edit.makeEdgeFace()
                 edit.extrude(0, 0, self.REGION_Z)
+                edit.makeNormalsConsistent()
             self.REGION_MATERIAL.assign(obj)
         self.merge_mesh()
 

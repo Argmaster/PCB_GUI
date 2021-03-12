@@ -102,8 +102,8 @@ async function appendAssemblerComponentToPreview(key, cpos, $box) {
     let dpm = userpref.get("debug.blender.dpi") * 40;
     let pcb_height = _pcb_CO.sy * dpm;
 
-    const center_x = $comp.offset().left + $comp.outerWidth() / 2;
-    const center_y = $comp.offset().top + $comp.outerHeight() / 2;
+    let center_x = $comp.offset().left + $comp.outerWidth() / 2;
+    let center_y = $comp.offset().top + $comp.outerHeight() / 2;
 
     function get_degrees(mouse_x, mouse_y) {
         const radians = Math.atan2(mouse_x, mouse_y);
@@ -131,19 +131,28 @@ async function appendAssemblerComponentToPreview(key, cpos, $box) {
         });
     });
     $comp.on("drag", function (event, ui) {
+        ui.position = {
+            left: ui.position.left / ASSEMBLER_PREVIEW_SCALE,
+            top: ui.position.top / ASSEMBLER_PREVIEW_SCALE,
+        };
+        ui.originalPosition = {
+            left: ui.originalPosition.left / ASSEMBLER_PREVIEW_SCALE,
+            top: ui.originalPosition.top / ASSEMBLER_PREVIEW_SCALE,
+        };
         $comp.trigger("click");
         if (!event.ctrlKey) {
             $as_cox.val(((ui.position.left + x / 2) / dpm) * 100);
             $as_coy.val(((pcb_height - (ui.position.top + y / 2)) / dpm) * 100);
+            center_x = $comp.offset().left + $comp.outerWidth() / 2;
+            center_y = $comp.offset().top + $comp.outerHeight() / 2;
         } else {
-            ui.position.top = $comp.css("top");
-            ui.position.left = $comp.css("top");
-            console.log(event.pageX - center_x, event.pageY - center_y);
+            ui.position.top = ui.originalPosition.top;
+            ui.position.left = ui.originalPosition.left;
             $as_rot.val(
                 Math.floor(
                     get_degrees(
                         event.pageX - center_x,
-                        event.pageY - center_y
+                        -(event.pageY - center_y)
                     ) / 90
                 ) * 90
             );
@@ -357,14 +366,11 @@ $(async function () {
         });
         if (file != undefined) {
             $this.val(file);
-            switch ($this.prev().text().trim()) {
-                case "Parts list":
-                    loadComponents.PARTSLIST(file[0]);
-                    break;
-                case "Place":
+            switch ($this.parent(".assembler-comp-src").attr("id")) {
+                case "assembler-comp-pl-p":
                     loadComponents.PLACE(file[0]);
                     break;
-                case "JSON":
+                case "assembler-comp-json":
                     loadComponents.JSON(file[0]);
                     break;
 
@@ -409,12 +415,11 @@ $(async function () {
                         filters: [{ name: "glTF 2.0", extensions: ["glb"] }],
                     });
                     if (file != undefined) {
-                        let setup = await prebuildComponents();
                         try {
-                            let resp = await blender_io.call(
+                            await blender_io.call(
                                 new IO_OUT("buildAssembler", {
                                     pcb: pcb_model,
-                                    setup: setup,
+                                    setup: convertToPositioning(pullComponentSetup()),
                                     out: file,
                                 })
                             );
@@ -444,7 +449,7 @@ $(async function () {
             return;
         }
     });
-    $("#assembler-controls :nth-child(4).div-button").on(
+    $("#assembler-controls :nth-child(3).div-button").on(
         "click",
         showAssemblerPreview
     );

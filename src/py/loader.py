@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import os
 import re
 import json
@@ -55,7 +56,7 @@ class TemplatePackage:
     def params_json(self):
         return json.dumps(self.tem_dict)
 
-    def execute(self, template_params: dict) -> BlenderObject:
+    def execute(self, template_params: dict, log_func: callable= lambda *x, **y: None) -> BpyObject:
         # clear workspace
         Global.deleteAll()
         exec(
@@ -79,6 +80,7 @@ class TemplatePackage:
                 "Global": Global,
                 "Edit": Edit,
                 "LowLevel": LowLevel,
+                "log": log_func,
             },
         )
         Object.join(Global.getActive(), *Global.getAll())

@@ -41,7 +41,8 @@
     width: 100%;
     padding: 0.3rem 1rem 0.3rem 1rem;
     background-color: var(--background-level-3);
-    box-shadow: inset 0 0 0.5rem var(--background-level-3-box-shadow);
+    /*box-shadow: inset 0 0 0.5rem var(--background-level-3-box-shadow);*/
+    border: 1px solid var(--background-level-3-box-shadow);
 }
 .assembler-subsection-header:hover {
     background-color: var(--background-level-3-hover);

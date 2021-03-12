@@ -10,6 +10,8 @@ from typing import Any, Iterable, List
 
 import numpy
 
+class BpyObject:
+    pass
 
 class Namespace:
     def __init__(self):
@@ -19,7 +21,7 @@ class Namespace:
 
 
 class TType(Namespace):
-    _float_regex = "[\\-+]?[0-9]*\\.?[0-9]+"
+    _float_regex = r"[\-+]?[0-9]*\.?[0-9]+"
     _angle_regex = [
         [re.compile(f"{_float_regex}rad"), "rad", 1],
         [re.compile(f"{_float_regex}deg"), "deg", math.pi / 180],

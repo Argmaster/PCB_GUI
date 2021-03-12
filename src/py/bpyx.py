@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from __future__ import annotations
 
 import json
@@ -8,28 +9,28 @@ import time
 from abc import ABC, abstractmethod
 from typing import Iterable, List, Tuple, Union
 
-import bmesh
-import bpy
-import numpy
-from mathutils import Vector
-
 sys.path.append(os.path.dirname(__file__))
 from src.py.ttype import *
 
-# $ <>=======================================================<>
-# $                 Complex Blender API wrapper
-# $ <>=======================================================<>
+import bmesh
+import bpy
+import numpy
 
 
-class BlenderObject:
-    """Blender object class representing internal Blender object
-    that exist at runtime but can't be reached while coding.
-    """
+from mathutils import *
 
 
 # $ <>=======================================================<>
 # $               Global operations handler
 # $ <>=======================================================<>
+
+
+def log(*args, **kwargs) -> None:
+    """Logging function available during execution.
+    Logged text will be stremed into blender log files in
+    temp folder.
+    """
+    pass
 
 
 class Global(Namespace):
@@ -46,7 +47,7 @@ class Global(Namespace):
         return hex(int(time.time() * 1e5)).upper()
 
     @staticmethod
-    def _Bpy_getActive() -> BlenderObject:
+    def _Bpy_getActive() -> BpyObject:
         """Get currentlu active object.
 
         Returns:
@@ -74,11 +75,11 @@ class Global(Namespace):
         bpy.ops.object.select_all(action="SELECT")
 
     @staticmethod
-    def getActive() -> BlenderObject:
+    def getActive() -> BpyObject:
         """Get currentlu active object.
 
         Returns:
-            BlenderObject: active blender object.
+            Object: active blender object.
         """
         return Global._Bpy_getActive()
 
@@ -87,7 +88,7 @@ class Global(Namespace):
         """Set currently active object
 
         Args:
-            bpy_obj (BlenderObject): blender object to be activated.
+            bpy_obj (Object): blender object to be activated.
         """
         return Global._Bpy_setActive(bpy_obj)
 
@@ -99,34 +100,34 @@ class Global(Namespace):
         """
         return bpy_obj.select_get()
 
-    def select(bpy_obj) -> BlenderObject:
+    def select(bpy_obj) -> BpyObject:
         """Selects this object. This method do not affect
         selection of other objects.
 
         Returns:
-            BlenderObject: bpy_obj
+            Object: bpy_obj
         """
         bpy_obj.select_set(True)
         return bpy_obj
 
     @staticmethod
-    def selectOnly(bpy_obj) -> BlenderObject:
+    def selectOnly(bpy_obj) -> BpyObject:
         """Select this object and deselect all other.
 
         Returns:
-            BlenderObject: bpy_obj
+            Object: bpy_obj
         """
         Global.deselectAll()
         Global.select(bpy_obj)
         return bpy_obj
 
     @staticmethod
-    def deselect(bpy_obj) -> BlenderObject:
+    def deselect(bpy_obj) -> BpyObject:
         """Deselects this object. This method do not affect
         selection of other objects.
 
         Returns:
-            BlenderObject: bpy_obj
+            Object: bpy_obj
         """
         bpy_obj.select_set(False)
         return bpy_obj
@@ -142,7 +143,7 @@ class Global(Namespace):
         Global._Bpy_deselectAll()
 
     @staticmethod
-    def delete(bpy_obj: BlenderObject, garbage_collection: bool = True) -> None:
+    def delete(bpy_obj: Object, garbage_collection: bool = True) -> None:
         """Removes this object, do not affects selection of other objects
         collects garbage object data.
         """
@@ -177,7 +178,7 @@ class Global(Namespace):
         """Returns list of all existing bpyx objects.
 
         Returns:
-            list: list of BlenderObjects
+            list: list of Object
         """
         return bpy.data.objects
 
@@ -614,12 +615,12 @@ class Edit:
     _isEditMode: bool = False
     BMESH = None
 
-    def __init__(self, bpy_obj: BlenderObject) -> None:
+    def __init__(self, bpy_obj: Object) -> None:
         """Edit mode is ment to be used with context manager to enter edit mode for short period of time to modify
         bpy_obj passed to constructor.
 
         Args:
-            bpy_obj: BlenderObject to be modfied.
+            bpy_obj: Object to be modfied.
         """
         self.bpy_obj = bpy_obj
 
@@ -1041,7 +1042,7 @@ class Edit:
 
 
 class Object(Namespace):
-    def MoveTo(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BlenderObject:
+    def MoveTo(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
         """Move object to x, y, z by overwriting current transform.
 
         Args:
@@ -1050,7 +1051,7 @@ class Object(Namespace):
             z (float, optional): z axis trasform, as value accepted by TType.UnitsOfLength.parse(z). Defaults to 0.
 
         Returns:
-            BlenderObject: self
+            Object: self
         """
         bpy_obj.location.x = TType.UnitOfLength.parse(x)
         bpy_obj.location.y = TType.UnitOfLength.parse(y)
@@ -1058,7 +1059,7 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
         return bpy_obj
 
-    def MoveBy(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BlenderObject:
+    def MoveBy(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
         """Move object by x, y, z by adding to current transform.
 
         Args:
@@ -1067,7 +1068,7 @@ class Object(Namespace):
             z (float, optional): z axis trasform, as value accepted by TType.UnitsOfLength.parse(z). Defaults to 0.
 
         Returns:
-            BlenderObject: self
+            Object: self
         """
         bpy_obj.location.x += TType.UnitOfLength.parse(x)
         bpy_obj.location.y += TType.UnitOfLength.parse(y)
@@ -1075,7 +1076,7 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
         return bpy_obj
 
-    def RotateTo(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BlenderObject:
+    def RotateTo(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
         """Rotate by given angle (overwrite current rotation angle).
 
         Args:
@@ -1084,7 +1085,7 @@ class Object(Namespace):
             z (float, optional): z axis rotation as value accepted by TType.Angle.parse(z). Defaults to 0.
 
         Returns:
-            BlenderObject: self
+            Object: self
         """
         bpy_obj.rotation_euler.x = TType.Angle.parse(x)
         bpy_obj.rotation_euler.y = TType.Angle.parse(y)
@@ -1092,7 +1093,7 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
         return bpy_obj
 
-    def RotateBy(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BlenderObject:
+    def RotateBy(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
         """Rotate by given angle (add value to current rotation angle).
 
         Args:
@@ -1101,7 +1102,7 @@ class Object(Namespace):
             z (float, optional): z axis rotation as value accepted by TType.Angle.parse(z). Defaults to 0.
 
         Returns:
-            BlenderObject: self
+            Object: self
         """
         bpy_obj.rotation_euler.x += TType.Angle.parse(x)
         bpy_obj.rotation_euler.y += TType.Angle.parse(y)
@@ -1109,7 +1110,7 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
         return bpy_obj
 
-    def ScaleTo(bpy_obj, x: float = 1, y: float = 1, z: float = 1) -> BlenderObject:
+    def ScaleTo(bpy_obj, x: float = 1, y: float = 1, z: float = 1) -> BpyObject:
         """Scale object to value. (overwrite current scale)
 
         Args:
@@ -1118,7 +1119,7 @@ class Object(Namespace):
             z (float, optional): z scale. Defaults to 1.
 
         Returns:
-            BlenderObject: self
+            Object: self
         """
         bpy_obj.scale.x = x
         bpy_obj.scale.y = y
@@ -1126,7 +1127,7 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
         return bpy_obj
 
-    def ScaleBy(bpy_obj, x: float = 1, y: float = 1, z: float = 1) -> BlenderObject:
+    def ScaleBy(bpy_obj, x: float = 1, y: float = 1, z: float = 1) -> BpyObject:
         """Scale object by value. (multiply current scale)
 
         Args:
@@ -1135,7 +1136,7 @@ class Object(Namespace):
             z (float, optional): z scale. Defaults to 1.
 
         Returns:
-            BlenderObject: self
+            Object: self
         """
         bpy_obj.scale.x *= x
         bpy_obj.scale.y *= y
@@ -1145,7 +1146,7 @@ class Object(Namespace):
 
     @staticmethod
     def TransformTo(
-        bpy_obj: BlenderObject,
+        bpy_obj: Object,
         location: tuple = None,
         rotation: tuple = None,
         scale: tuple = None,
@@ -1220,13 +1221,13 @@ class Object(Namespace):
         )
         return Global._Bpy_getActive()
 
-    def bboxCenter(bpy_obj: BlenderObject) -> Vector:
+    def bboxCenter(bpy_obj: Object) -> Vector:
         o = bpy_obj
         local_bbox_center = 0.125 * sum((Vector(b) for b in o.bound_box), Vector())
         global_bbox_center = o.matrix_world @ local_bbox_center
         return global_bbox_center
 
-    def bboxMaxDist(bpy_obj: BlenderObject) -> float:
+    def bboxMaxDist(bpy_obj: Object) -> float:
         o = bpy_obj
         bbox = [o.matrix_world @ Vector(b) for b in o.bound_box]
         max_dist = 0
@@ -1236,11 +1237,11 @@ class Object(Namespace):
                     max_dist = abs(val)
         return max_dist
 
-    def bbox(bpy_obj: BlenderObject) -> float:
+    def bbox(bpy_obj: Object) -> float:
         o = bpy_obj
         return [o.matrix_world @ Vector(b) for b in o.bound_box]
 
-    def convert(bpy_obj, target: str = "MESH") -> BlenderObject:
+    def convert(bpy_obj, target: str = "MESH") -> BpyObject:
         """Convert object from one type to another.
 
         Args:
@@ -1251,11 +1252,11 @@ class Object(Namespace):
         bpy.ops.object.convert(target=target)
         return bpy_obj
 
-    def join(bpy_obj, *args: BlenderObject) -> BlenderObject:
+    def join(bpy_obj, *args: Object) -> BpyObject:
         """Joins all passed object into one at first object
 
         Returns:
-            BlenderObject: joined object
+            Object: joined object
         """
         Global.deselectAll()
         for o in args:
@@ -1362,12 +1363,12 @@ class Camera:
 # $ <>=======================================================<>
 class Modifier:
     def Boolean(
-        bpy_obj: BlenderObject,
-        other: BlenderObject,
+        bpy_obj: Object,
+        other: Object,
         operation: str = "DIFFERENCE",
         solver: str = "EXACT",
         use_self: bool = False,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """
         Create instance of Boolean Blender modifier.
 
@@ -1393,14 +1394,14 @@ class Modifier:
         return bpy_obj
 
     def Array(
-        bpy_obj: BlenderObject,
+        bpy_obj: Object,
         offset_x: float = 0,
         offset_y: float = 0,
         offset_z: float = 0,
         count: int = 1,
         use_relative_offset: bool = False,
         use_constant_offset: bool = True,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """
         Create instance of Array Blender modifier.
 
@@ -1430,12 +1431,12 @@ class Modifier:
         return bpy_obj
 
     def SimpleDeform(
-        bpy_obj: BlenderObject,
+        bpy_obj: Object,
         deform_method: str = "BEND",
         deform_axis: str = "X",
         angle: float = math.pi / 4,
         limits: tuple = (0.0, 1.0),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """
         Create instance of Simple Deform Blender modifier.
 
@@ -1462,12 +1463,12 @@ class Modifier:
         return bpy_obj
 
     def Solidify(
-        bpy_obj: BlenderObject,
+        bpy_obj: Object,
         thickness: float = 0.01,
         offset: float = -1,
         use_even_offset: bool = False,
         use_quality_normals: bool = True,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """
         Create instance of Solidify Blender modifier.
 
@@ -1496,7 +1497,7 @@ class Modifier:
         return bpy_obj
 
     def Bevel(
-        bpy_obj: BlenderObject,
+        bpy_obj: Object,
         affect: str = "EDGES",
         offset_type: str = "OFFSET",
         width: TType.UnitOfLength = 0.1,
@@ -1504,7 +1505,7 @@ class Modifier:
         limit_method: str = "NONE",
         angle_limit: str = "30deg",
         use_clamp_overlap: bool = True,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """Applies blender Bevel modifier on to object represented by this.
 
         Args:
@@ -1966,7 +1967,7 @@ class MaterialNodes(Namespace):
 class Material:
     bpy_material: object
 
-    def __init__(self, bpy_obj: BlenderObject = None) -> None:
+    def __init__(self, bpy_obj: Object = None) -> None:
         if bpy_obj is None or len(bpy_obj.data.materials.keys()) == 0:
             self.bpy_material = bpy.data.materials.new(name=f"{Global.Unique()}")
             self.bpy_material.use_nodes = True
@@ -2144,7 +2145,7 @@ class LowLevel(Namespace):
     @staticmethod
     def fromPyData(
         vertexData: list = None, edgeData: list = None, faceData: list = None
-    ) -> BlenderObject:
+    ) -> BpyObject:
         if vertexData is None:
             vertexData = []
         if edgeData is None:
@@ -2165,7 +2166,7 @@ class LowLevel(Namespace):
         end: TType.Angle,
         vertices: int = 32,
         center_point: bool = False,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         radius = TType.UnitOfLength.parse(radius)
         begin = TType.Angle.parse(begin)
         end = TType.Angle.parse(end)
@@ -2192,7 +2193,7 @@ class LowLevel(Namespace):
         boostZ: float = 0.1,
         radius: float = 0.5,
         vertices: int = 16,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         begin = TType.Angle.parse("270deg")
         end = TType.Angle.parse("360deg")
         y /= 2
@@ -2224,7 +2225,7 @@ class LowLevel(Namespace):
         z: float = 1.0,  # height
         th: float = 0.1,  # thickness
         vertices: int = 16,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         pi_half = math.pi / 2
         y_half = y / 2
         th_half = th / 2
@@ -2260,7 +2261,7 @@ class Mesh(Namespace):
         scale: tuple = None,
         *,
         material: dict = None,
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """This class is able to create both flat Rectangle (for z_size = 0)
         and cuboid (with any other value for z_size)
 
@@ -2303,7 +2304,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """
         Args:
             x_size (TType.UnitOfLength.parse, optional): Value that can be parsed by TType.UnitsOfLength.parse(). Defaults to 1.
@@ -2345,7 +2346,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         radius = TType.UnitOfLength.parse(radius)
         x_size = TType.UnitOfLength.parse(x_size)
         z_size = TType.UnitOfLength.parse(z_size)
@@ -2384,7 +2385,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         bpy_obj = LowLevel.makeArc(
             radius, begin_angle, end_angle, vertices, center_point
         )
@@ -2412,7 +2413,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         bpy.ops.object.text_add(
             radius=1.0,
             enter_editmode=False,
@@ -2445,7 +2446,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         """
         Args:
             segments (int, optional): horizontal segments. Defaults to 32.
@@ -2484,7 +2485,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         height = TType.UnitOfLength.parse(height)
         length = TType.UnitOfLength.parse(length)
         thickness = TType.UnitOfLength.parse(thickness)
@@ -2530,7 +2531,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         height = TType.UnitOfLength.parse(height)
         length = TType.UnitOfLength.parse(length)
         thickness = TType.UnitOfLength.parse(thickness)
@@ -2565,7 +2566,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         height = TType.UnitOfLength.parse(height)
         radius = TType.UnitOfLength.parse(radius)
         bpy_obj = Mesh.Circle(radius * 2, radius * 2, vertices=vertices)
@@ -2607,7 +2608,7 @@ class Mesh(Namespace):
         location=(0, 0, 0),
         rotation=(0, 0, 0),
         scale=(1, 1, 1),
-    ) -> BlenderObject:
+    ) -> BpyObject:
         sizeX = TType.UnitOfLength.parse(sizeX)
         sizeY = TType.UnitOfLength.parse(sizeY)
         sizeZ = TType.UnitOfLength.parse(sizeZ)

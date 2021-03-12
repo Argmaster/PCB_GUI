@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from __future__ import annotations
 
 import json
@@ -202,7 +203,7 @@ def Detach(io_in: IO_IN, io: BlenderIO):
 
 LAYER_TYPES = {
     "COPPER": {
-        "dark_thickness": "0.5mm",
+        "dark_thickness": "0.4mm",
         "clear_thickness": "0.2mm",
         "region_thickness": "1mm",
         "dark_material": {
@@ -222,8 +223,8 @@ LAYER_TYPES = {
         },
     },
     "SILK": {
-        "dark_thickness": "0.1mm",
-        "clear_thickness": "0.05mm",
+        "dark_thickness": "0.05mm",
+        "clear_thickness": "0.02mm",
         "region_thickness": "0",
         "dark_material": {
             "color": "rgba(255, 255, 255, 255)",
@@ -245,8 +246,8 @@ LAYER_TYPES = {
         },
     },
     "SOLDER_MASK": {
-        "dark_thickness": "0.1mm",
-        "clear_thickness": "0.05mm",
+        "dark_thickness": "0.05mm",
+        "clear_thickness": "0.02mm",
         "region_thickness": "0",
         "dark_material": {
             "color": "rgba(135, 135, 135, 255)",
@@ -265,8 +266,8 @@ LAYER_TYPES = {
         },
     },
     "PASTE_MASK": {
-        "dark_thickness": "0.1mm",
-        "clear_thickness": "0.05mm",
+        "dark_thickness": "0.05mm",
+        "clear_thickness": "0.02mm",
         "region_thickness": "0",
         "dark_material": {
             "color": "rgba(105, 105, 105, 255)",
@@ -285,7 +286,6 @@ LAYER_TYPES = {
         },
     },
 }
-# TODO thickness is wrong scale -> mult by 1e3?
 
 
 def renderGerberLayer(io_in: IO_IN, io: BlenderIO):
@@ -315,6 +315,8 @@ def renderGerberLayer(io_in: IO_IN, io: BlenderIO):
         Object.join(backend.ROOT, *Global.getAll())
         if io_in.data["layer_type"] == "BOT":
             Object.ScaleBy(backend.ROOT, z=-1)
+            with Edit(backend.ROOT) as edit:
+                edit.makeNormalsConsistent()
         Global.Export(f"./temp/gerber/gerber-{io_in.data['layer_id']}.glb")
     return IO_OUT("END")
 
@@ -338,7 +340,7 @@ def joinLayers(io_in: IO_IN, io: BlenderIO):
     return IO_OUT("OK")
 
 
-def _render(root: BlenderObject, out: str, dpi: int):
+def _render(root: Object, out: str, dpi: int):
     # prepare to make a render
     width = root.dimensions.x
     height = root.dimensions.y
@@ -395,10 +397,12 @@ def renderPreview(io_in: IO_IN, io: BlenderIO):
 def buildAssembler(io_in: IO_IN, io: BlenderIO):
     Global.Import(io_in.data["pcb"])
     _bpy_PCB = Global.getActive()
+    lift_top = Object.bboxCenter(_bpy_PCB).z + _bpy_PCB.dimensions.z / 2
     for code, setup in io_in.data["setup"].items():
-        Global.Import(setup["path"])
+        Global.Import(f'{setup["model_pkg"]}./__mod__.glb')
         bpy_obj = Global.getActive()
-        Object.MoveTo(bpy_obj, setup["cox"], setup["coy"], 0)
+        bpy_obj.name = code
+        Object.MoveTo(bpy_obj, setup["cox"], setup["coy"], lift_top)
         Object.RotateTo(bpy_obj, z=TType.Angle.parse(f"{setup['rot']}deg"))
     Global.selectAll()
     Global.Export(io_in.data["out"])
@@ -487,7 +491,7 @@ def _photoBot(bpy_obj, out):
 def makeModelAssets(io_in: IO_IN, io: BlenderIO):
     Global.deleteAll()
     tp = TemplatePackage(io_in.data["template_path"])
-    bpy_obj = tp.execute(io_in.data["template_params"])
+    bpy_obj = tp.execute(io_in.data["template_params"], io.log)
     Global.Export(f'{io_in.data["model_path"]}/__mod__.glb')
     _photoTop(bpy_obj, f'{io_in.data["model_path"]}/__top__.png', io.render_dpi)
     _photoBot(bpy_obj, f"{io_in.data['model_path']}/__bot__.png")
@@ -511,7 +515,6 @@ def mainloop():
     while True:
         try:
             io_in = io.read()
-            io.log(io_in)
             io_out = commands[io_in.status](io_in, io)
             io.write(io_out)
         except DetachException:

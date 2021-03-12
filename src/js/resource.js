@@ -207,7 +207,7 @@ function initSettingsGui() {
         3000,
         10,
         1,
-        300,
+        600,
         "",
         "debug.blender.dpi"
     );

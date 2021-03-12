@@ -661,17 +661,13 @@ function zoomGerberPreview(event) {
 }
 function gerberUI() {
     $("#gerber-container").on("keydown", zoomGerberPreview);
-    $("#gerber-container")
-        .parent(".gerber-preview")
-        .on("mousewheel", event => {
-            if (event.ctrlKey) {
-                if (event.originalEvent.wheelDelta > 0) {
-                    zoomGerberPreview({ code: "Equal", ctrlKey: true });
-                } else {
-                    zoomGerberPreview({ code: "Minus", ctrlKey: true });
-                }
-            }
-        });
+    $("#gerber-container").on("mousewheel", event => {
+        if (event.originalEvent.wheelDelta > 0) {
+            zoomGerberPreview({ code: "Equal", ctrlKey: true });
+        } else {
+            zoomGerberPreview({ code: "Minus", ctrlKey: true });
+        }
+    });
     $("#gerber-preview").draggable();
     $(".gerber-add-layer").each(function () {
         $this = $(this);
