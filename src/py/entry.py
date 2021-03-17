@@ -6,6 +6,7 @@ import sys
 import time
 import logging
 from io import StringIO
+from typing import Callable
 
 sys.path.append(os.getcwd())
 from src.py.template import *
@@ -87,6 +88,22 @@ class Main(Singleton):
     def Detach(self):
         raise Main.DetachException()
 
+    @register
+    def buildAssembler(io_in: IO_IN, io: BlenderIO) -> IO_OUT:
+        Global.Import(io_in.data["pcb"])
+        _bpy_PCB = Global.getActive()
+        lift_top = Object.bboxCenter(_bpy_PCB).z + _bpy_PCB.dimensions.z / 2
+        for code, setup in io_in.data["setup"].items():
+            Global.Import(f'{setup["model_pkg"]}./__mod__.glb')
+            bpy_obj = Global.getActive()
+            bpy_obj.name = code
+            Transform.rotateZ(f"{setup['rot']}deg")
+            # Object.RotateTo(bpy_obj, z=TType.Angle.parse(f"{setup['rot']}deg")) for some reason doesnt work
+            Object.MoveTo(bpy_obj, setup["cox"], setup["coy"], lift_top)
+        Global.selectAll()
+        Global.Export(io_in.data["out"])
+        return IO_OUT("OK")
+
     def _render(root: Object, out: str, dpi: int) -> None:
         # prepare to make a render
         width = root.dimensions.x
@@ -133,22 +150,6 @@ class Main(Singleton):
             "sx": root.dimensions.x,
             "sy": root.dimensions.y,
         }
-
-    @register
-    def buildAssembler(io_in: IO_IN, io: BlenderIO) -> IO_OUT:
-        Global.Import(io_in.data["pcb"])
-        _bpy_PCB = Global.getActive()
-        lift_top = Object.bboxCenter(_bpy_PCB).z + _bpy_PCB.dimensions.z / 2
-        for code, setup in io_in.data["setup"].items():
-            Global.Import(f'{setup["model_pkg"]}./__mod__.glb')
-            bpy_obj = Global.getActive()
-            bpy_obj.name = code
-            Transform.rotateZ(f"{setup['rot']}deg")
-            # Object.RotateTo(bpy_obj, z=TType.Angle.parse(f"{setup['rot']}deg")) for some reason doesnt work
-            Object.MoveTo(bpy_obj, setup["cox"], setup["coy"], lift_top)
-        Global.selectAll()
-        Global.Export(io_in.data["out"])
-        return IO_OUT("OK")
 
     def _photoTop(bpy_obj, out, dpi) -> None:
         bbox = Object.bbox(bpy_obj)

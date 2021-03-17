@@ -1,12 +1,9 @@
-
 import socket
 import json
 import datetime
 import sys
 from typing import TextIO
 from src.py import Singleton
-
-
 
 
 class IO_OBJECT:

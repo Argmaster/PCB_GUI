@@ -17,14 +17,19 @@ def eval(*args, **kwargs):          raise RuntimeError("No code evaluation allow
 def __import__(*args, **kwargs):    raise RuntimeError("No import operation allowed in __gen__ file.")
 """
 
-TType.PathExpression.magic_symbols = {
-    "$fontdir": f"{os.getcwd()}/data/assets/fonts",
-    "$cwd": f"{os.getcwd()}",
-    "$default": f"{os.getcwd()}/data/assets/fonts/JetBrainsMono/JetBrainsMono.ttf",
-}
+TType.PathExpression.magic_symbols.update(
+    {
+        "$fontdir": f"{os.getcwd()}/data/assets/fonts",
+        "$cwd": f"{os.getcwd()}",
+        "$default": f"{os.getcwd()}/data/assets/fonts/JetBrainsMono/JetBrainsMono.ttf",
+    }
+)
 
 
 class TemplatePackage:
+    class NotPythonGtypeError:
+        pass
+
     def __init__(self, package_path: str) -> None:
         self.package_path = package_path
         self.pkg_path = f"{package_path}/__pkg__"
@@ -56,7 +61,9 @@ class TemplatePackage:
     def params_json(self):
         return json.dumps(self.tem_dict)
 
-    def execute(self, template_params: dict, log_func: callable= lambda *x, **y: None) -> BpyObject:
+    def execute(
+        self, template_params: dict, log_func: callable = lambda *x, **y: None
+    ) -> BpyObject:
         # clear workspace
         Global.deleteAll()
         exec(
