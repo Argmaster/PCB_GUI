@@ -1380,7 +1380,7 @@ class BpyObject:
     def copy(*args, **kwargs) -> Any: ...
     cycles: CyclesObjectSettings
     cycles_visibility: CyclesVisibilitySettings
-    data: Mesh
+    data: Any
     delta_location: Vector
     delta_rotation_euler: Euler
     delta_rotation_quaternion: Quaternion

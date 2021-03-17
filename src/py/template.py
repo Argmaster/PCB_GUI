@@ -88,6 +88,7 @@ class TemplatePackage:
                 "Edit": Edit,
                 "LowLevel": LowLevel,
                 "log": log_func,
+                'CONST': CONST,
             },
         )
         Object.join(Global.getActive(), *Global.getAll())

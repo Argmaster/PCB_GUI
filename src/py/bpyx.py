@@ -31,6 +31,180 @@ def log(*args, **kwargs) -> None:
     pass
 
 
+class ConstrantNamespace:
+    _instance = None
+
+    def __new__(class_, *args, **kwargs):
+        if not isinstance(class_._instance, class_):
+            class_._instance = object.__new__(class_, *args, **kwargs)
+        return class_._instance
+
+    def __getitem__(self, key: str) -> Any:
+        return self.__dict__[key]
+
+
+class CONST(ConstrantNamespace):
+    class LIGHT(ConstrantNamespace):
+        SUN: str = "SUN"
+        POINT: str = "POINT"
+        SPOT: str = "SPOT"
+        AREA: str = "AREA"
+
+    LIGHT = LIGHT()
+
+    class FIT_FLAT(ConstrantNamespace):
+        XY: Callable = lambda co: max(co.x, co.y)
+        YZ: Callable = lambda co: max(co.y, co.z)
+        ZX: Callable = lambda co: max(co.z, co.x)
+
+    FIT_FLAT = FIT_FLAT()
+
+    class ORIENT_TYPE(ConstrantNamespace):
+        GLOBAL: str = "GLOBAL"
+        LOCAL: str = "LOCAL"
+        NORMAL: str = "NORMAL"
+        GIMBAL: str = "GIMBAL"
+        VIEW: str = "VIEW"
+        CURSOR: str = "CURSOR"
+
+    ORIENT_TYPE = ORIENT_TYPE()
+
+    class AXIS(ConstrantNamespace):
+        X: str = "X"
+        Y: str = "Y"
+        Z: str = "Z"
+
+    AXIS = AXIS()
+
+    class DELETE(ConstrantNamespace):
+        VERT: str = "VERT"
+        EDGE: str = "EDGE"
+        FACE: str = "FACE"
+        EDGE_FACE: str = "EDGE_FACE"
+        ONLY_FACE: str = "ONLY_FACE"
+
+    DELETE = DELETE()
+
+    class SNAP(ConstrantNamespace):
+        CLOSEST: str = "CLOSEST"
+        CENTER: str = "CENTER"
+        MEDIAN: str = "MEDIAN"
+        ACTIVE: str = "ACTIVE"
+
+    SNAP = SNAP()
+
+    class ALIGN_X(ConstrantNamespace):
+        CENTER: str = "CENTER"
+        LEFT: str = "LEFT"
+        RIGHT: str = "RIGHT"
+        JUSTIFY: str = "JUSTIFY"
+        FLUSH: str = "FLUSH"
+
+    ALIGN_X = ALIGN_X()
+
+    class ALIGN_Y(ConstrantNamespace):
+        CENTER: str = "CENTER"
+        TOP_BASELINE: str = "TOP_BASELINE"
+        TOP: str = "TOP"
+        BOTTOM: str = "BOTTOM"
+        BOTTOM_BASELINE: str = "BOTTOM_BASELINE"
+
+    ALIGN_Y = ALIGN_Y()
+
+    class FILE_FORMAT(ConstrantNamespace):
+        OBJ: str = ".obj"
+        GLB: str = ".glb"
+        GLTF: str = ".glb"
+        FBX: str = ".fbx"
+        X3D: str = ".x3d"
+
+    FILE_FORMAT = FILE_FORMAT()
+
+    class ENGINE(ConstrantNamespace):
+        EEVEE: str = "BLENDER_EEVEE"
+        CYCLES: str = "CYCLES"
+
+    ENGINE = ENGINE()
+
+    class DEVICE(ConstrantNamespace):
+        GPU: str = "GPU"
+        CPU: str = "CPU"
+
+    DEVICE = DEVICE()
+
+    class CAM_TYPE(ConstrantNamespace):
+        ORTHOGRAPHIC: str = "ORTHO"
+        PANORAMIC: str = "PANO"
+        PERSPECTIVE: str = "PERSP"
+
+    CAM_TYPE = CAM_TYPE()
+
+    class BOOLEAN(ConstrantNamespace):
+        class OPERATION(ConstrantNamespace):
+            DIFFERENCE: str = "DIFFERENCE"
+            INTERSECT: str = "INTERSECT"
+            UNION: str = "UNION"
+
+        OPERATION = OPERATION()
+
+        class SOLVER(ConstrantNamespace):
+            FAST: str = "FAST"
+            EXACT: str = "EXACT"
+
+        SOLVER = SOLVER()
+
+    BOOLEAN = BOOLEAN()
+
+    class SDEFORM(ConstrantNamespace):
+        class METHOD(ConstrantNamespace):
+            TWIST: str = "TWIST"
+            BEND: str = "BEND"
+            TAPER: str = "TAPER"
+            STRETCH: str = "STRETCH"
+
+        METHOD = METHOD()
+
+    SDEFORM = SDEFORM()
+
+    class BEVEL(ConstrantNamespace):
+        class AFFECT(ConstrantNamespace):
+            VERTICES: str = "VERTICES"
+            EDGES: str = "EDGES"
+
+        AFFECT = AFFECT()
+
+        class OF_TYPE(ConstrantNamespace):
+            OFFSET: str = "OFFSET"
+            WIDTH: str = "WIDTH"
+            DEPTH: str = "DEPTH"
+            PERCENT: str = "PERCENT"
+            ABSOLUTE: str = "ABSOLUTE"
+
+        OF_TYPE = OF_TYPE()
+
+        class LIMIT(ConstrantNamespace):
+            NONE: str = "NONE"
+            ANGLE: str = "ANGLE"
+            WEIGHT: str = "WEIGHT"
+            VGROUP: str = "VGROUP"
+
+        LIMIT = LIMIT()
+
+    BEVEL = BEVEL()
+
+    class MODIFIER(ConstrantNamespace):
+        SIMPLE_DEFORM: str = "SIMPLE_DEFORM"
+        ARRAY: str = "ARRAY"
+        BOOLEAN: str = "BOOLEAN"
+        SOLIDIFY: str = "SOLIDIFY"
+        BEVEL: str = "BEVEL"
+
+    MODIFIER = MODIFIER()
+
+
+CONST = CONST()
+
+
 class Global(Namespace):
     class OperationCancelled(Exception):
         pass
@@ -225,14 +399,14 @@ class Global(Namespace):
                 bpy.data.cameras.remove(block)
 
     @staticmethod
-    def Import(path: str, format: str = None):
+    def Import(path: str, format: CONST.FILE_FORMAT = None):
         """Import object from file in "path" location. If format is None, format will
         be definded based on file name.
         Available formats are: .obj .glb .fbx .x3d
 
         Args:
             path (str): path to file.
-            format (str, optional): file format. Defaults to None.
+            format (CONST.FILE_FORMAT, optional): file format. Defaults to None.
 
         Raises:
             ValueError: raised if file format was not recognized as importable.
@@ -254,14 +428,14 @@ class Global(Namespace):
             raise ValueError(f"Unsupported file format {format}")
 
     @staticmethod
-    def Export(path: str = "./mesh.glb", format: str = None):
+    def Export(path: str = "./mesh.glb", format: CONST.FILE_FORMAT = None):
         """Export whole scene (all objects) to file in "path" location. If format is None,
         format will be definded based on file name.
         Available formats are: .obj .glb .fbx .x3d
 
         Args:
             path (str): path to file.
-            format (str, optional): file format. Defaults to None.
+            format (CONST.FILE_FORMAT, optional): file format. Defaults to None.
 
         Raises:
             ValueError: raised if file format was not recognized as exportable.
@@ -289,7 +463,7 @@ class Global(Namespace):
 
     @staticmethod
     def eevee(render_samples: int = 64, use_high_quality_normals: bool = True):
-        bpy.context.scene.render.engine = "BLENDER_EEVEE"
+        bpy.context.scene.render.engine = CONST.ENGINE.EEVEE
         eevee = bpy.context.scene.eevee
         eevee.taa_render_samples = render_samples
         bpy.context.scene.render.use_high_quality_normals = use_high_quality_normals
@@ -303,11 +477,11 @@ class Global(Namespace):
         use_denoising: bool = False,
         denoiser: str = "NLM",
     ):
-        bpy.context.scene.render.engine = "CYCLES"
+        bpy.context.scene.render.engine = CONST.ENGINE.CYCLES
         cycles = bpy.context.scene.cycles
         cycles.samples = render_samples
         cycles.feature_set = "EXPERIMENTAL" if use_experimentals else "SUPPORTED"
-        cycles.device = "GPU" if use_gpu else "CPU"
+        cycles.device = CONST.DEVICE.GPU if use_gpu else CONST.DEVICE.CPU
         cycles.use_adaptive_sampling = use_adaptive_sampling
         cycles.use_denoising = use_denoising
         cycles.denoiser = denoiser
@@ -330,7 +504,7 @@ class Global(Namespace):
         render.tile_y = tile_y
         render.film_transparent = film_transparent
 
-        if threads_count > 0:
+        if threads_count >= 0:
             render.threads_mode = "FIXED"
             render.threads = threads_count
         else:
@@ -376,9 +550,9 @@ class Transform(Namespace):
         x: TType.UnitOfLength = 0.0,
         y: TType.UnitOfLength = 0.0,
         z: TType.UnitOfLength = 0.0,
-        orient_type: str = "GLOBAL",
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         orient_matrix: tuple = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-        orient_matrix_type: str = "GLOBAL",
+        orient_matrix_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         constraint_axis: tuple = (False, False, False),
         mirror: bool = True,
         use_proportional_edit: bool = False,
@@ -394,8 +568,8 @@ class Transform(Namespace):
             x (TType.UnitOfLength, optional): distance, parsable for TType.UnitOfLength.parse()
             y (TType.UnitOfLength, optional): distance, parsable for TType.UnitOfLength.parse()
             z (TType.UnitOfLength, optional): distance, parsable for TType.UnitOfLength.parse()
-            orient_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
-            orient_matrix_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
+            orient_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
+            orient_matrix_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
         """
         rv = bpy.ops.transform.translate(
             value=(
@@ -424,9 +598,9 @@ class Transform(Namespace):
     def rotate(
         value: TType.Angle = 0,
         orient_axis: str = "X",
-        orient_type: str = "GLOBAL",
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         orient_matrix: tuple = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-        orient_matrix_type: str = "GLOBAL",
+        orient_matrix_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         constraint_axis: tuple = (False, False, False),
         mirror: bool = True,
         use_proportional_edit: bool = False,
@@ -444,8 +618,8 @@ class Transform(Namespace):
         Args:
             value (TType.Angle, optional): Angle, parsable by TType.Angle.parse(). Defaults to 0.
             orient_axis (str, optional): Axis to rotate around. Defaults to "X".
-            orient_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
-            orient_matrix_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
+            orient_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
+            orient_matrix_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
         """
         if center_override is not None:
             kwargs["center_override"] = center_override
@@ -549,9 +723,9 @@ class Transform(Namespace):
         x: float = 1.0,
         y: float = 1.0,
         z: float = 1.0,
-        orient_type: str = "GLOBAL",
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         orient_matrix: tuple = ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-        orient_matrix_type: str = "GLOBAL",
+        orient_matrix_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         constraint_axis: Tuple[bool, bool, bool] = (False, False, False),
         mirror: bool = True,
         use_proportional_edit: bool = False,
@@ -568,9 +742,9 @@ class Transform(Namespace):
             x (float, optional): scale along x axis
             y (float, optional): scale along y axis
             z (float, optional): scale along z axis
-            orient_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"]. Defaults to "GLOBAL".
+            orient_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
             orient_matrix (tuple, optional): . Defaults to ((1, 0, 0), (0, 1, 0), (0, 0, 1)).
-            orient_matrix_type (str, optional): . Defaults to "GLOBAL".
+            orient_matrix_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
             constraint_axis (Tuple[bool, bool, bool], optional): . Defaults to (False, False, False).
             mirror (bool, optional): . Defaults to True.
             use_proportional_edit (bool, optional): . Defaults to False.
@@ -714,7 +888,10 @@ class Edit:
         """
         return bpy.ops.mesh.remove_doubles(threshold=treshold)
 
-    def selectVerts(self, xyz_test: callable,) -> Edit:
+    def selectVerts(
+        self,
+        xyz_test: callable,
+    ) -> Edit:
         """Selects verices by their absolute position
 
         Args:
@@ -725,7 +902,10 @@ class Edit:
                 v.select = True
         return self
 
-    def selectEdges(self, co_test: callable,) -> Edit:
+    def selectEdges(
+        self,
+        co_test: callable,
+    ) -> Edit:
         for e in self.edges:
             if co_test(e.verts[0].co, e.verts[1].co):
                 e.select = True
@@ -754,7 +934,7 @@ class Edit:
         bpy.ops.mesh.select_all(action="DESELECT")
 
     @staticmethod
-    def delete(type: str = "VERT"):
+    def delete(type: CONST.DELETE = CONST.DELETE.VERT):
         """Delete currentlu selected components of edited mesh.
 
         Args:
@@ -806,11 +986,13 @@ class Edit:
 
     def extrude(
         self,
-        x: float = 0,
-        y: float = 0,
-        z: float = 0,
-        orient_type: str = "GLOBAL",
+        x: TType.UnitOfLength = 0,
+        y: TType.UnitOfLength = 0,
+        z: TType.UnitOfLength = 0,
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         constraint_axis: tuple = (False, False, False),
+        snap: bool = False,
+        snap_target: CONST.SNAP = CONST.SNAP.CLOSEST,
     ) -> Edit:
         """Perform extrude operation on currently selected vertices, faces and edges of edited mesh
 
@@ -818,7 +1000,7 @@ class Edit:
             x (TType.UnitOfLength, optional): distance as float in meters or as str parsable by TType.UnitOfLength.parse
             y (TType.UnitOfLength, optional): distance as float in meters or as str parsable by TType.UnitOfLength.parse
             z (TType.UnitOfLength, optional): distance as float in meters or as str parsable by TType.UnitOfLength.parse
-            orient_type (str, optional): vector orientation. Defaults to "GLOBAL".
+            orient_type (CONST.ORIENT_TYPE, optional): vector orientation. Defaults to CONST.ORIENT_TYPE.GLOBAL.
             constraint_axis (tuple, optional): constant axis flags. Defaults to (False, False, False).
 
         Returns:
@@ -831,10 +1013,14 @@ class Edit:
                 "mirror": False,
             },
             TRANSFORM_OT_translate={
-                "value": (x, y, z),
+                "value": (
+                    TType.UnitOfLength.parse(x),
+                    TType.UnitOfLength.parse(y),
+                    TType.UnitOfLength.parse(z),
+                ),
                 "orient_type": orient_type,
                 "orient_matrix": ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-                "orient_matrix_type": "GLOBAL",
+                "orient_matrix_type": CONST.ORIENT_TYPE.GLOBAL,
                 "constraint_axis": constraint_axis,
                 "mirror": False,
                 "use_proportional_edit": False,
@@ -842,8 +1028,8 @@ class Edit:
                 "proportional_size": 1,
                 "use_proportional_connected": False,
                 "use_proportional_projected": False,
-                "snap": False,
-                "snap_target": "CLOSEST",
+                "snap": snap,
+                "snap_target": snap_target,
                 "snap_point": (0, 0, 0),
                 "snap_align": False,
                 "snap_normal": (0, 0, 0),
@@ -861,17 +1047,23 @@ class Edit:
             )
         return self
 
-    def makeEdgeFace(self) -> set:
+    def makeEdgeFace(self) -> Edit:
         """Create Face connecting selected components of mesh"""
         if "CANCELLED" in bpy.ops.mesh.edge_face_add():
             raise Global.OperationCancelled(f"Cancelled operation makeEdgeFace().")
+        return self
+
+    def collapse(self) -> Edit:
+        if "CANCELLED" in bpy.ops.mesh.edge_collapse():
+            raise Global.OperationCancelled(f"Cancelled operation collapse().")
+        return self
 
     def MoveBy(
         self,
         x: float = 0,
         y: float = 0,
         z: float = 0,
-        orient_type: str = "GLOBAL",
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         **kwargs,
     ) -> Edit:
         """Move mesh relative to object root.
@@ -879,7 +1071,7 @@ class Edit:
             x (TType.UnitOfLength, optional): distance as float in meters or as str parsable by TType.UnitOfLength.parse
             y (TType.UnitOfLength, optional): distance as float in meters or as str parsable by TType.UnitOfLength.parse
             z (TType.UnitOfLength, optional): distance as float in meters or as str parsable by TType.UnitOfLength.parse
-            orient_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
+            orient_type (CONST.ORIENT_TYPE, optional):  Defaults to CONST.ORIENT_TYPE.GLOBAL.
         """
         if "CANCELLED" in bpy.ops.transform.translate(
             value=(
@@ -889,7 +1081,7 @@ class Edit:
             ),
             orient_type=orient_type,
             orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-            orient_matrix_type="GLOBAL",
+            orient_matrix_type=CONST.ORIENT_TYPE.GLOBAL,
             constraint_axis=(False, False, False),
             mirror=True,
             use_proportional_edit=False,
@@ -909,7 +1101,7 @@ class Edit:
         x: TType.Angle = 0,
         y: TType.Angle = 0,
         z: TType.Angle = 0,
-        orient_type: str = "GLOBAL",
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         center_override=(0.0, 0.0, 0.0),
         **kwargs,
     ) -> Edit:
@@ -921,9 +1113,7 @@ class Edit:
             x (TType.Angle, optional): angle as float in radians or as str parsable by TType.Angle.parse
             y (TType.Angle, optional): angle as float in radians or as str parsable by TType.Angle.parse
             z (TType.Angle, optional): angle as float in radians or as str parsable by TType.Angle.parse
-            orient_axis (str, optional): . Defaults to "X".
-            orient_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
-            orient_matrix_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"] Defaults to "GLOBAL".
+            orient_type (CONST.ORIENT_TYPE, optional): CONST.ORIENT_TYPE Defaults to CONST.ORIENT_TYPE.GLOBAL.
         """
         if center_override is not None:
             kwargs["center_override"] = center_override
@@ -933,10 +1123,10 @@ class Edit:
         if x:
             if "CANCELLED" in bpy.ops.transform.rotate(
                 value=x,
-                orient_axis="X",
+                orient_axis=CONST.AXIS.X,
                 orient_type=orient_type,
                 orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-                orient_matrix_type="GLOBAL",
+                orient_matrix_type=CONST.ORIENT_TYPE.GLOBAL,
                 constraint_axis=(False, False, False),
                 mirror=True,
                 use_proportional_edit=False,
@@ -953,10 +1143,10 @@ class Edit:
         if y:
             if "CANCELLED" in bpy.ops.transform.rotate(
                 value=y,
-                orient_axis="Y",
+                orient_axis=CONST.AXIS.Y,
                 orient_type=orient_type,
                 orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-                orient_matrix_type="GLOBAL",
+                orient_matrix_type=CONST.ORIENT_TYPE.GLOBAL,
                 constraint_axis=(False, False, False),
                 mirror=True,
                 use_proportional_edit=False,
@@ -973,10 +1163,10 @@ class Edit:
         if z:
             if "CANCELLED" in bpy.ops.transform.rotate(
                 value=z,
-                orient_axis="Z",
+                orient_axis=CONST.AXIS.Z,
                 orient_type=orient_type,
                 orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-                orient_matrix_type="GLOBAL",
+                orient_matrix_type=CONST.ORIENT_TYPE.GLOBAL,
                 constraint_axis=(False, False, False),
                 mirror=True,
                 use_proportional_edit=False,
@@ -997,7 +1187,7 @@ class Edit:
         x: float = 1,
         y: float = 1,
         z: float = 1,
-        orient_type: str = "GLOBAL",
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
         **kwargs,
     ) -> Edit:
         """Scale mesh.
@@ -1006,14 +1196,13 @@ class Edit:
             x (float, optional) scale in x axis
             y (float, optional) scale in y axis
             z (float, optional) scale in z axis
-            orient_type (str, optional): ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"]. Defaults to "GLOBAL".
-            orient_matrix (tuple, optional): . Defaults to ((1, 0, 0), (0, 1, 0), (0, 0, 1)).
+            orient_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
         """
         if "CANCELLED" in bpy.ops.transform.resize(
             value=(x, y, z),
             orient_type=orient_type,
             orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-            orient_matrix_type="GLOBAL",
+            orient_matrix_type=CONST.ORIENT_TYPE.GLOBAL,
             constraint_axis=(False, False, False),
             mirror=True,
             use_proportional_edit=False,
@@ -1034,7 +1223,9 @@ class Edit:
 
 
 class Object(Namespace):
-    def MoveTo(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
+    def MoveTo(
+        bpy_obj: BpyObject, x: float = 0, y: float = 0, z: float = 0
+    ) -> BpyObject:
         """Move object to x, y, z by overwriting current transform.
 
         Args:
@@ -1054,7 +1245,9 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
         return bpy_obj
 
-    def MoveBy(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
+    def MoveBy(
+        bpy_obj: BpyObject, x: float = 0, y: float = 0, z: float = 0
+    ) -> BpyObject:
         """Move object by x, y, z by adding to current transform.
 
         Args:
@@ -1074,7 +1267,9 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
         return bpy_obj
 
-    def RotateTo(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
+    def RotateTo(
+        bpy_obj: BpyObject, x: float = 0, y: float = 0, z: float = 0
+    ) -> BpyObject:
         """Rotate by given angle (overwrite current rotation angle).
 
         Args:
@@ -1094,7 +1289,9 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
         return bpy_obj
 
-    def RotateBy(bpy_obj, x: float = 0, y: float = 0, z: float = 0) -> BpyObject:
+    def RotateBy(
+        bpy_obj: BpyObject, x: float = 0, y: float = 0, z: float = 0
+    ) -> BpyObject:
         """Rotate by given angle (add value to current rotation angle).
 
         Args:
@@ -1114,7 +1311,9 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
         return bpy_obj
 
-    def ScaleTo(bpy_obj, x: float = 1, y: float = 1, z: float = 1) -> BpyObject:
+    def ScaleTo(
+        bpy_obj: BpyObject, x: float = 1, y: float = 1, z: float = 1
+    ) -> BpyObject:
         """Scale object to value. (overwrite current scale)
 
         Args:
@@ -1134,7 +1333,9 @@ class Object(Namespace):
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
         return bpy_obj
 
-    def ScaleBy(bpy_obj, x: float = 1, y: float = 1, z: float = 1) -> BpyObject:
+    def ScaleBy(
+        bpy_obj: BpyObject, x: float = 1, y: float = 1, z: float = 1
+    ) -> BpyObject:
         """Scale object by value. (multiply current scale)
 
         Args:
@@ -1179,12 +1380,12 @@ class Object(Namespace):
             Object.ScaleTo(bpy_obj, *scale)
 
     def duplicate(
-        bpy_obj,
+        bpy_obj: BpyObject,
         x: TType.UnitOfLength = 0,
         y: TType.UnitOfLength = 0,
         z: TType.UnitOfLength = 0,
         linked: bool = False,
-        orient_type: str = "GLOBAL",
+        orient_type: CONST.ORIENT_TYPE = CONST.ORIENT_TYPE.GLOBAL,
     ) -> object:
         """Duplicates and translates object in object mode. Newly created object is both
         active and selected and no other object is.
@@ -1192,7 +1393,7 @@ class Object(Namespace):
         Args:
             xyz (tuple, optional): translation of object. Defaults to (0, 0, 0).
             linked (bool, optional): linkage presence. Defaults to True.
-            orient_type (str, optional): one of ["GLOBAL", "LOCAL", "NORMAL", "GIMBAL", "VIEW", "CURSOR"]. Defaults to "GLOBAL".
+            orient_type (CONST.ORIENT_TYPE, optional): Defaults to CONST.ORIENT_TYPE.GLOBAL.
         Returns:
             bpy_object: duplicate
         """
@@ -1216,7 +1417,7 @@ class Object(Namespace):
                 "use_proportional_connected": False,
                 "use_proportional_projected": False,
                 "snap": False,
-                "snap_target": "CLOSEST",
+                "snap_target": CONST.SNAP.CLOSEST,
                 "snap_point": (0, 0, 0),
                 "snap_align": False,
                 "snap_normal": (0, 0, 0),
@@ -1287,21 +1488,60 @@ class Object(Namespace):
 
 
 def Light(
-    type: str = "SUN",
+    type: CONST.LIGHT = CONST.LIGHT.SUN,
     radius: float = 1.0,
-    align: str = "WORLD",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    rotation=(0, 0, 0),
-):
-    locx = TType.UnitOfLength.parse(location[0])
+    color: TType.Color = None,
+    power: float = None,
+    angle: TType.Angle = None,
+    location: Tuple[
+        TType.UnitOfLength,
+        TType.UnitOfLength,
+        TType.UnitOfLength,
+    ] = (0, 0, 0),
+    rotation: Tuple[
+        TType.Angle,
+        TType.Angle,
+        TType.Angle,
+    ] = (0, 0, 0),
+) -> BpyObject:
+    """Add light source to viewport.
+
+    Args:
+        type (CONST.LIGHT, optional): Constrant describing light type. Defaults to CONST.LIGHT.SUN.
+        radius (float, optional): radius of light source. Defaults to 1.0.
+        color (TType.Color, optional): Color of emitted light. Defaults to None.
+        power (float, optional): Light power. Defaults to None.
+        angle (TType.Angle, optional): Angular dimension of sun seen from earth. Defaults to None.
+        location (Tuple[ TType.UnitOfLength, TType.UnitOfLength, TType.UnitOfLength, ], optional): light location. Defaults to (0, 0, 0).
+        rotation (Tuple[ TType.Angle, TType.Angle, TType.Angle, ], optional): light rotation. Defaults to (0, 0, 0).
+
+    Returns:
+        BpyObject: light source object
+    """
     bpy.ops.object.light_add(
-        type="SUN",
-        radius=0.97,
+        type=type,
+        radius=radius,
         align="WORLD",
-        location=(0, -0.06, 0),
-        rotation=(0, 0, -0.010472),
+        location=(
+            TType.UnitOfLength.parse(location[0]),
+            TType.UnitOfLength.parse(location[1]),
+            TType.UnitOfLength.parse(location[2]),
+        ),
+        rotation=(
+            TType.Angle.parse(rotation[0]),
+            TType.Angle.parse(rotation[1]),
+            TType.Angle.parse(rotation[2]),
+        ),
     )
-    return Global.getActive()
+    light = Global.getActive()
+    if color is not None:
+        light.data.color = TType.Color.parse(color)
+    if power is not None:
+        light.data.power = power
+    if angle is not None:
+        light.data.angle = TType.Angle.parse(angle)
+
+    return light
 
 
 class Camera:
@@ -1343,7 +1583,7 @@ class Camera:
     def lookAt(
         self,
         bpy_obj: BpyObject,
-        roll: Union[float, str] = 0,
+        roll: TType.Angle = 0,
         keep_position: bool = False,
         margin_distance: float = 1.5,
         relative_pos: tuple = None,
@@ -1358,7 +1598,7 @@ class Camera:
 
         Args:
             bpy_obj (BpyObject): object to point onto
-            roll (Union[float, str], optional): camera roll as value parsable by TType.Angle.parse
+            roll (TType.Angle, optional): camera roll as value parsable by TType.Angle.parse
             keep_position (bool, optional): Preserve camera position?. Defaults to False.
             margin_distance (float, optional): Make camera be placed further from bpy_obj. Defaults to 1.5.
             relative_pos (tuple, optional): New position of camera relative to bpy_obj bbox center. Defaults to None.
@@ -1393,7 +1633,7 @@ class Camera:
                 (radius + margin_distance) / distance.length
             )
 
-    def resizeToFit(self, bpy_obj):
+    def fitFlat(self, bpy_obj: BpyObject, plane: CONST.FIT_FLAT):
         pass
 
     @property
@@ -1401,12 +1641,7 @@ class Camera:
         return self.camera.data.type
 
     @type.setter
-    def type(self, value: str) -> None:
-        """Camera type
-
-        Args:
-            value (str): ["ORTHO", "PANO", "PERSP"]
-        """
+    def type(self, value: CONST.CAM_TYPE) -> None:
         self.camera.data.type = value
 
     @property
@@ -1457,8 +1692,8 @@ class Modifier:
     def Boolean(
         bpy_obj: BpyObject,
         other: BpyObject,
-        operation: str = "DIFFERENCE",
-        solver: str = "EXACT",
+        operation: CONST.BOOLEAN.OPERATION = CONST.BOOLEAN.OPERATION.DIFFERENCE,
+        solver: CONST.BOOLEAN.SOLVER = CONST.BOOLEAN.SOLVER.EXACT,
         use_self: bool = False,
     ) -> BpyObject:
         """
@@ -1466,8 +1701,8 @@ class Modifier:
 
         Args:
             other (object): blender object to be used as modifier object.
-            operation (str, optional): ["DIFFERENCE", "INTERSECT", "UNION"]. Defaults to "DIFFERENCE".
-            solver (str, optional): ["FAST", "EXACT]. Defaults to "EXACT".
+            operation (CONST.BOOLEAN.OPERATION, optional): Defaults to "DIFFERENCE".
+            solver (CONST.BOOLEAN.SOLVER, optional): Defaults to "EXACT".
             use_self (bool, optional): [description]. Defaults to False.
 
         Returns:
@@ -1475,7 +1710,9 @@ class Modifier:
         """
         if Edit.isEditMode():
             raise RuntimeError("You cannot add modifiers in edit mode.")
-        MODIFIER = bpy_obj.modifiers.new(f"__BOOL_MOD_{Global.Unique()}__", "BOOLEAN")
+        MODIFIER = bpy_obj.modifiers.new(
+            f"__BOOL_MOD_{Global.Unique()}__", CONST.MODIFIER.BOOLEAN
+        )
         MODIFIER.object = other
         MODIFIER.operation = operation
         MODIFIER.solver = solver
@@ -1510,7 +1747,9 @@ class Modifier:
         """
         if Edit.isEditMode():
             raise RuntimeError("You cannot add modifiers in edit mode.")
-        MODIFIER = bpy_obj.modifiers.new(f"__ARRAY_MOD_{Global.Unique()}__", "ARRAY")
+        MODIFIER = bpy_obj.modifiers.new(
+            f"__ARRAY_MOD_{Global.Unique()}__", CONST.MODIFIER.ARRAY
+        )
         MODIFIER.use_relative_offset = use_relative_offset
         MODIFIER.use_constant_offset = use_constant_offset
         MODIFIER.constant_offset_displace[0] = offset_x
@@ -1524,8 +1763,8 @@ class Modifier:
 
     def SimpleDeform(
         bpy_obj: BpyObject,
-        deform_method: str = "BEND",
-        deform_axis: str = "X",
+        deform_method: CONST.SDEFORM.METHOD = CONST.SDEFORM.METHOD.BEND,
+        deform_axis: CONST.AXIS = CONST.AXIS.X,
         angle: float = math.pi / 4,
         limits: tuple = (0.0, 1.0),
     ) -> BpyObject:
@@ -1533,8 +1772,8 @@ class Modifier:
         Create instance of Simple Deform Blender modifier.
 
         Args:
-            deform_method (str, optional): ["TWIST", "BEND", "TAPER", "STRETCH"]. Defaults to "BEND".
-            deform_axis (str, optional): "X", "Y", "Z". Defaults to "X".
+            deform_method (CONST.SDEFORM.METHOD, optional): Defaults to "BEND".
+            deform_axis (str, optional): Defaults to "X".
             angle (float, optional): Angle in radians. Defaults to pi/4.
             limits (Tuple[float, float], optional): Defaults to (0.0, 1.0).
         Returns:
@@ -1543,7 +1782,7 @@ class Modifier:
         if Edit.isEditMode():
             raise RuntimeError("You cannot add modifiers in edit mode.")
         MODIFIER = bpy_obj.modifiers.new(
-            f"__SD_MOD_{Global.Unique()}__", "SIMPLE_DEFORM"
+            f"__SD_MOD_{Global.Unique()}__", CONST.MODIFIER.SIMPLE_DEFORM
         )
         MODIFIER.deform_method = deform_method
         MODIFIER.deform_axis = deform_axis
@@ -1576,7 +1815,7 @@ class Modifier:
         if Edit.isEditMode():
             raise RuntimeError("You cannot add modifiers in edit mode.")
         MODIFIER = bpy_obj.modifiers.new(
-            f"__SOLIDIFY_MOD_{Global.Unique()}__", "SOLIDIFY"
+            f"__SOLIDIFY_MOD_{Global.Unique()}__", CONST.MODIFIER.SOLIDIFY
         )
         MODIFIER.thickness = thickness
         MODIFIER.offset = offset
@@ -1590,30 +1829,32 @@ class Modifier:
 
     def Bevel(
         bpy_obj: BpyObject,
-        affect: str = "EDGES",
-        offset_type: str = "OFFSET",
+        affect: CONST.BEVEL.AFFECT = CONST.BEVEL.AFFECT.EDGES,
+        offset_type: CONST.BEVEL.OF_TYPE = CONST.BEVEL.OF_TYPE.OFFSET,
         width: TType.UnitOfLength = 0.1,
         segments: int = 1,
-        limit_method: str = "NONE",
-        angle_limit: str = "30deg",
+        limit_method: CONST.BEVEL.LIMIT = CONST.BEVEL.LIMIT.NONE,
+        angle_limit: TType.Angle = "30deg",
         use_clamp_overlap: bool = True,
     ) -> BpyObject:
         """Applies blender Bevel modifier on to object represented by this.
 
         Args:
-            affect (str, optional): ["VERTICES", "EDGES"]. Defaults to "EDGES".
-            offset_type (str, optional):  Defaults to "OFFSET".
-            width (float, optional): . Defaults to 0.1.
-            segments (int, optional): . Defaults to 1.
-            limit_method (str, optional): ['NONE', 'ANGLE', 'WEIGHT', 'VGROUP'] Defaults to "NONE".
-            angle_limit (str, optional): . Defaults to "30deg".
+            affect (CONST.BEVEL.AFFECT, optional): . Defaults to "EDGES".
+            offset_type (CONST.BEVEL.OF_TYPE, optional):  Defaults to "OFFSET".
+            width (float, optional): Defaults to 0.1.
+            segments (int, optional): Defaults to 1.
+            limit_method (CONST.BEVEL.LIMIT, optional): Defaults to "NONE".
+            angle_limit (TType.Angle, optional): Defaults to "30deg".
 
         Returns:
             BlenderModifier: self
         """
         if Edit.isEditMode():
             raise RuntimeError("You cannot add modifiers in edit mode.")
-        MODIFIER = bpy_obj.modifiers.new(f"__BEVEL_MOD_{Global.Unique()}__", "BEVEL")
+        MODIFIER = bpy_obj.modifiers.new(
+            f"__BEVEL_MOD_{Global.Unique()}__", CONST.MODIFIER.BEVEL
+        )
         MODIFIER.affect = affect
         MODIFIER.offset_type = offset_type
         MODIFIER.width = TType.UnitOfLength.parse(width)
@@ -1992,7 +2233,11 @@ class MaterialNodes(Namespace):
 
             self.output: INVERT_node_output = INVERT_node_output(self)
 
-        def update(self, factor: float = None, color: TType.Color = None,) -> Material:
+        def update(
+            self,
+            factor: float = None,
+            color: TType.Color = None,
+        ) -> Material:
             """Update Invert node represented by this object.
 
             Args:
@@ -2068,7 +2313,7 @@ class Material:
         self.update = self.BSDF_node.update
         self.OUTPUT_node = MaterialNodes.MATERIAL_OUTPUT_node(self)
 
-    def assign(self, bpy_obj) -> Material:
+    def assign(self, bpy_obj: BpyObject) -> Material:
         bpy_obj.data.materials.append(self.bpy_material)
         return self
 
@@ -2080,7 +2325,7 @@ class Material:
         return node_type(self)
 
     @staticmethod
-    def Smooth(bpy_obj):
+    def Smooth(bpy_obj: BpyObject):
         with Edit(bpy_obj) as edit:
             for face in edit.faces:
                 face.smooth = True
@@ -2269,7 +2514,8 @@ class LowLevel(Namespace):
         if center_point:
             vd.append((0, 0, 0))
         return LowLevel.fromPyData(
-            vd, [(index, index + 1) for index in range(vertices - 1)],
+            vd,
+            [(index, index + 1) for index in range(vertices - 1)],
         )
 
     @staticmethod
@@ -2301,7 +2547,8 @@ class LowLevel(Namespace):
             + [(x, y, z)]
         )
         return LowLevel.fromPyData(
-            vd, [(index, index + 1) for index in range(len(vd) - 1)],
+            vd,
+            [(index, index + 1) for index in range(len(vd) - 1)],
         )
 
     @staticmethod
@@ -2332,7 +2579,8 @@ class LowLevel(Namespace):
             + [(x, y_half, height)]
         )
         return LowLevel.fromPyData(
-            vd, [(index, index + 1) for index in range(len(vd) - 1)],
+            vd,
+            [(index, index + 1) for index in range(len(vd) - 1)],
         )
 
 
@@ -2490,8 +2738,8 @@ class Mesh(Namespace):
         font: str = "",
         size: float = 1.0,
         depth: float = 0.0,
-        align_x: str = "CENTER",
-        align_y: str = "CENTER",
+        align_x: CONST.ALIGN_X = CONST.ALIGN_X.CENTER,
+        align_y: CONST.ALIGN_Y = CONST.ALIGN_Y.CENTER,
         resolution: int = 10,
         *,
         material: dict = None,
@@ -2578,7 +2826,14 @@ class Mesh(Namespace):
         boostHeight = TType.UnitOfLength.parse(boostHeight)
         boostWidth = TType.UnitOfLength.parse(boostWidth)
         radius = TType.UnitOfLength.parse(radius)
-        bpy_obj = LowLevel.LShape(length, width, height, boostHeight, radius, vertices,)
+        bpy_obj = LowLevel.LShape(
+            length,
+            width,
+            height,
+            boostHeight,
+            radius,
+            vertices,
+        )
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
@@ -2614,7 +2869,13 @@ class Mesh(Namespace):
         length = TType.UnitOfLength.parse(length)
         thickness = TType.UnitOfLength.parse(thickness)
         width = TType.UnitOfLength.parse(width)
-        bpy_obj = LowLevel.SShape(length, width, height, thickness, vertices,)
+        bpy_obj = LowLevel.SShape(
+            length,
+            width,
+            height,
+            thickness,
+            vertices,
+        )
         with Edit(bpy_obj) as edit:
             edit.selectAll()
             edit.extrude(y=-width)
@@ -2696,7 +2957,9 @@ class Mesh(Namespace):
                     if co0.z >= tz and co1.z >= tz:
                         edge.select = True
                 edit.bevel(
-                    offset=topEdgeRing[0], segments=topEdgeRing[1], offset_type="WIDTH",
+                    offset=topEdgeRing[0],
+                    segments=topEdgeRing[1],
+                    offset_type="WIDTH",
                 )
             if botEdgeRing is not None:
                 edit.deselectAll()
@@ -2706,7 +2969,9 @@ class Mesh(Namespace):
                     if co0.z <= -tz and co1.z <= -tz:
                         edge.select = True
                 edit.bevel(
-                    offset=botEdgeRing[0], segments=botEdgeRing[1], offset_type="WIDTH",
+                    offset=botEdgeRing[0],
+                    segments=botEdgeRing[1],
+                    offset_type="WIDTH",
                 )
             if sideEdges is not None:
                 edit.deselectAll()
@@ -2716,7 +2981,9 @@ class Mesh(Namespace):
                     if co0.z != co1.z:
                         edge.select = True
                 edit.bevel(
-                    offset=sideEdges[0], segments=sideEdges[1], offset_type="WIDTH",
+                    offset=sideEdges[0],
+                    segments=sideEdges[1],
+                    offset_type="WIDTH",
                 )
         Object.TransformTo(bpy_obj, location, rotation, scale)
         if material is not None:
