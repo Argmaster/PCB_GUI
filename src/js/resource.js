@@ -34,8 +34,8 @@ async function loadModelSpec(dir) {
         ) {
             await model.makeModelAssets();
         }
+        model.$this = appendModelBox($("#library-passets-list"), model);
         models[model._model] = model;
-        appendModelBox($("#library-position-box-container"), model);
         $("#models-names").append(`<option value="${model._model}"></option>`);
     } catch (e) {
         showErrorBox(`Unable to load model ${dir}\n due to error`, e);

@@ -74,9 +74,8 @@ String.prototype.hashCode = function () {
 };
 function disableComponent(target) {
     if (!$(target).attr("disabled")) {
+        $(target).addClass("disabled-component-style");
         $(target).attr("disabled", true);
-        $(target).css("cursor", "wait");
-        $(target).css("filter", "saturate(50%)");
         return true;
     } else {
         return false;
@@ -84,8 +83,7 @@ function disableComponent(target) {
 }
 function enableComponent(target) {
     $(target).attr("disabled", false);
-    $(target).css("cursor", "pointer");
-    $(target).css("filter", "saturate(100%)");
+        $(target).removeClass("disabled-component-style");
 }
 function showErrorBox(message, error) {
     if (userpref.get("debug.log.javascript.stack"))

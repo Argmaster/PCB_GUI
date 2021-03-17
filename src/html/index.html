@@ -52,22 +52,32 @@
             </nav>
             <main id="workspace-container">
                 <div class="workspace-box">
-                    <div class="global-logo-container">
-                        <img
-                            class="global-logo"
-                            src="../../data/assets/img/logo-big.png"
-                        />
-                        <div class="global-logo-title">PCB Assembler 3D</div>
+                    <div id="global-workspace-box">
+                        <div class="global-logo-container">
+                            <img
+                                class="global-logo"
+                                src="../../data/assets/img/logo-big-new.png"
+                            />
+                            <div class="global-logo-title">
+                                PCB Assembler 3D
+                            </div>
+                        </div>
+                        <div
+                            class="globals-flex-container"
+                            id="global-settings-box"
+                        ></div>
                     </div>
-                    <div
-                        class="globals-flex-container"
-                        id="global-settings-box"
-                    ></div>
                 </div>
                 <div class="workspace-box">
                     <div id="model-workspace-box">
-                        <div id="library-position-box-container">
+                        <div id="library-passets-list">
                             <div class="library-controls-box">
+                                <div
+                                    class="div-button"
+                                    onclick="LIBRARY.rebuildAll();"
+                                >
+                                    Rebuild All
+                                </div>
                                 <div
                                     class="div-button"
                                     onclick="importModelWrapper();"
@@ -211,9 +221,19 @@
                                     class="assembler-subsection-body"
                                     id="assembler-controls"
                                 >
-                                    <div class="div-button">Build and save</div>
-                                    <div class="div-button">Export setup</div>
+                                    <div class="div-button">
+                                        Build and Save As 3D Model
+                                    </div>
+                                    <div class="div-button">
+                                        Build and Save As 2D PNG
+                                    </div>
+                                    <div class="div-button">
+                                        Export Setup As ASTP
+                                    </div>
                                     <div class="div-button">Update Preview</div>
+                                    <div class="div-button">
+                                        Clear Current Setup
+                                    </div>
                                 </div>
                             </div>
                             <div class="assembler-subsection">
@@ -237,7 +257,7 @@
                                             value="select"
                                         >
                                             <option value="assembler-comp-pl-p">
-                                                Place
+                                                Place (FreePCB)
                                             </option>
                                             <option value="assembler-comp-json">
                                                 ASTP file

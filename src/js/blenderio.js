@@ -23,7 +23,7 @@ exports.IO_OUT = IO_OUT;
 class BlenderIO {
     constructor(
         userpref,
-        script = `./src/py/blenderio.py`,
+        script = `./src/py/entry.py`,
         blender_executable = `${process.cwd()}\\blender\\blender.exe`,
     ) {
         this.js_log_in = userpref.get("debug.log.javascript.in");

@@ -117,7 +117,7 @@ input[type="file"].standard-text-input::-webkit-file-upload-button:active {
     }
 }
 .breath-div-button {
-    animation: div-button-breath-anim 1s alternate infinite;
+    animation: div-button-breath-anim 2s alternate infinite;
 }
 #global-container {
     display: flex;
@@ -208,12 +208,14 @@ nav {
     background-color: var(--background-level-1);
     height: 100%;
     width: 100%;
-    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 .workspace-box {
     height: 100%;
     width: 100%;
-    display: none;
+    display: flex;
 }
 .text-input-changed {
     border-color: var(--text-input-changed-background) !important;
@@ -222,4 +224,27 @@ nav {
 .text-input-mistake {
     border-color: var(--text-input-mistake-background) !important;
     background-color: var(--text-input-mistake-border) !important;
+}
+@keyframes disabled-component-anim {
+    0% {
+        background-color: var(--disabled-style-bg);
+        border-color: var(--disabled-style-bd);
+        color: var(--disabled-style-ft);
+    }
+    50% {
+        background-color: var(--disabled-style-bg-h);
+        border-color: var(--disabled-style-bd-h);
+        color: var(--disabled-style-ft-h);
+    }
+    100% {
+        background-color: var(--disabled-style-bg);
+        border-color: var(--disabled-style-bd);
+        color: var(--disabled-style-ft);
+    }
+}
+.disabled-component-style {
+    animation: disabled-component-anim 2s alternate infinite;
+    background-color: var(--disabled-style-bg);
+    border-color: var(--disabled-style-bd);
+    color: var(--disabled-style-ft);
 }

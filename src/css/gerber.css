@@ -3,6 +3,7 @@
     width: 100%;
     display: flex;
     flex-direction: row;
+    overflow-x: scroll;
 }
 .gereber-sublabel {
     font-size: 0.9rem;

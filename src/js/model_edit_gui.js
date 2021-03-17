@@ -1,3 +1,45 @@
+let LIBRARY = {
+    rebuildAll: function () {
+        if (disableComponent($("#model-workspace-box"))) {
+            for (let key in models) {
+                models[key].makeModelAssets();
+            }
+            enableComponent($("#model-workspace-box"));
+        }
+    },
+    clearModelSelection: function () {
+        $(".library-position-box-active").each(function () {
+            $(this).removeClass("library-position-box-active");
+        });
+    },
+    selectModel: function (model_key) {
+        try {
+            LIBRARY.clearModelSelection();
+            let model = models[model_key];
+            model.$this.addClass("library-position-box-active");
+            ACTIVE_MODEL = model;
+            LIBRARY.fillEditPanel();
+        } catch (e) {
+            showErrorBox("Unable to load model edit menu due to error", e);
+        }
+    },
+    getEditPanel: function () {
+        return $("#model-edit-panel");
+    },
+    clearEditPanel: function () {
+        let panel = LIBRARY.getEditPanel();
+        panel.hide();
+        panel.empty();
+        return panel;
+    },
+    fillEditPanel: function () {
+        let panel = LIBRARY.clearEditPanel();
+        panel.show();
+        modelWorkspaceAdd.editMenu(panel);
+        modelWorkspaceAdd.template(panel, "Properties", "");
+    },
+};
+
 const MATERIAL_TEMPLATE = {
     color: {
         ttype: "Color",
@@ -495,6 +537,7 @@ modelWorkspaceAdd = {
         $target.empty();
         $target.append(`
         <div class="model-edit-title">
+            <div onclick="LIBRARY.clearEditPanel()">&#x2715;</div>
             <span class="model-title-small">model</span>
             <span>${ACTIVE_MODEL._model}</span>
             <span class="model-title-small">class</span>
@@ -662,6 +705,7 @@ let appendModelBox = function ($target, model) {
                 <div class="library-position-type">dynamic</div>
                 <div class="div-button model-edit-button">More</div>
                 <div class="div-button model-edit-button"">Make</div>
+                <div class="div-button model-edit-button"">Rebuild</div>
             </div>
         </div>`
     );
@@ -671,7 +715,7 @@ let appendModelBox = function ($target, model) {
     });
     $this
         .find(":nth-child(2).model-edit-button")
-        .on("click", () => init3DModelEditMenu($this, model));
+        .on("click", () => LIBRARY.selectModel(model._model));
     $this
         .find(":nth-child(3).model-edit-button")
         .on("click", async function () {
@@ -703,29 +747,23 @@ let appendModelBox = function ($target, model) {
                 $(this).removeClass("breath-div-button");
             }
         });
-};
-function init3DModelEditMenu($this, model) {
-    $(".library-position-box").each(function () {
-        $(this).removeClass("library-position-box-active");
+    $this.find(":nth-child(4).model-edit-button").on("click", async () => {
+        if (disableComponent(this)) {
+            await model.makeModelAssets();
+            enableComponent(this);
+        }
     });
-    try {
-        $this.addClass("library-position-box-active");
-        let panel = $("#model-edit-panel");
-        ACTIVE_MODEL = model;
-        modelWorkspaceAdd.editMenu(panel);
-        modelWorkspaceAdd.template(panel, "Properties", "");
-    } catch (e) {
-        showErrorBox("Unable to load model edit menu due to error", e);
-    }
-}
+    return $target.find("div.library-position-box").last();
+};
 $(async function () {
     initSettingsGui();
+    LIBRARY.clearEditPanel();
     setInterval(autoSave, 100);
     await loadTemplates();
     await loadModels();
     $("#library-search").on("input", function () {
         let regex = new RegExp($(this).val());
-        $("#library-position-box-container")
+        $("#library-passets-list")
             .find(".library-position-box")
             .each(function () {
                 let text = $(this)

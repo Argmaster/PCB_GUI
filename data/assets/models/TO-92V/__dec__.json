@@ -3,7 +3,7 @@
     "other": [],
     "class": "TO",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "Bend version of TO-92 transistor.",
+    "dscp": "TO-92 transistor. Simple component based on TO template class.",
     "version": "v1.1",
     "prm_dict": {
         "case": {
@@ -51,7 +51,7 @@
             "style": "Rectangle",
             "boostZ": "0",
             "boostWidth": "0",
-            "bend": true,
+            "bend": false,
             "bendRadius": "0.5mm",
             "bevel": "0",
             "segments": "0",

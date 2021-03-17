@@ -382,7 +382,7 @@ async function generateGerberModel() {
                     TOKENS_DONE = TOKEN_STACK_SIZE;
                     setGerberProgress(TOKENS_DONE, TOKEN_STACK_SIZE);
                     await joinGerberLayers(top_layers, bot_layers);
-                    dialog.showMessageBoxSync({
+                    dialog.showMessageBox({
                         type: "info",
                         buttons: ["Ok"],
                         title: "Finished generating 3D model files.",

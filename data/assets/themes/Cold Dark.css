@@ -81,4 +81,10 @@
     --gerber-progress-label-shadow: #000000;
 
     --assembler-check: #ffffff05;
+    --disabled-style-bg: rgb(27, 27, 27);
+    --disabled-style-bd: rgb(48, 48, 48);
+    --disabled-style-ft: rgb(80, 80, 80);
+    --disabled-style-bg-h: rgb(59, 59, 59);
+    --disabled-style-bd-h: rgb(109, 109, 109);
+    --disabled-style-ft-h: rgb(194, 194, 194);
 }

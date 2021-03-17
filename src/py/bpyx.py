@@ -1,15 +1,13 @@
 # -*- encoding: utf-8 -*-
 from __future__ import annotations
 
-import json
+
 import math
 import os
-import sys
 import time
 from abc import ABC, abstractmethod
 from typing import Iterable, List, Tuple, Union
 
-sys.path.append(os.path.dirname(__file__))
 from src.py.ttype import *
 
 import bmesh
@@ -143,7 +141,7 @@ class Global(Namespace):
         Global._Bpy_deselectAll()
 
     @staticmethod
-    def delete(bpy_obj: Object, garbage_collection: bool = True) -> None:
+    def delete(bpy_obj: BpyObject, garbage_collection: bool = True) -> None:
         """Removes this object, do not affects selection of other objects
         collects garbage object data.
         """
@@ -615,12 +613,12 @@ class Edit:
     _isEditMode: bool = False
     BMESH = None
 
-    def __init__(self, bpy_obj: Object) -> None:
+    def __init__(self, bpy_obj: BpyObject) -> None:
         """Edit mode is ment to be used with context manager to enter edit mode for short period of time to modify
         bpy_obj passed to constructor.
 
         Args:
-            bpy_obj: Object to be modfied.
+            bpy_obj: BpyObject to be modfied.
         """
         self.bpy_obj = bpy_obj
 
@@ -1053,9 +1051,12 @@ class Object(Namespace):
         Returns:
             Object: self
         """
-        bpy_obj.location.x = TType.UnitOfLength.parse(x)
-        bpy_obj.location.y = TType.UnitOfLength.parse(y)
-        bpy_obj.location.z = TType.UnitOfLength.parse(z)
+        if x is not None:
+            bpy_obj.location.x = TType.UnitOfLength.parse(x)
+        if y is not None:
+            bpy_obj.location.y = TType.UnitOfLength.parse(y)
+        if z is not None:
+            bpy_obj.location.z = TType.UnitOfLength.parse(z)
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
         return bpy_obj
 
@@ -1070,9 +1071,12 @@ class Object(Namespace):
         Returns:
             Object: self
         """
-        bpy_obj.location.x += TType.UnitOfLength.parse(x)
-        bpy_obj.location.y += TType.UnitOfLength.parse(y)
-        bpy_obj.location.z += TType.UnitOfLength.parse(z)
+        if x is not None:
+            bpy_obj.location.z += TType.UnitOfLength.parse(z)
+        if y is not None:
+            bpy_obj.location.x += TType.UnitOfLength.parse(x)
+        if z is not None:
+            bpy_obj.location.y += TType.UnitOfLength.parse(y)
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
         return bpy_obj
 
@@ -1087,9 +1091,12 @@ class Object(Namespace):
         Returns:
             Object: self
         """
-        bpy_obj.rotation_euler.x = TType.Angle.parse(x)
-        bpy_obj.rotation_euler.y = TType.Angle.parse(y)
-        bpy_obj.rotation_euler.z = TType.Angle.parse(z)
+        if x is not None:
+            bpy_obj.rotation_euler.x = TType.Angle.parse(x)
+        if y is not None:
+            bpy_obj.rotation_euler.y = TType.Angle.parse(y)
+        if z is not None:
+            bpy_obj.rotation_euler.z = TType.Angle.parse(z)
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
         return bpy_obj
 
@@ -1104,9 +1111,12 @@ class Object(Namespace):
         Returns:
             Object: self
         """
-        bpy_obj.rotation_euler.x += TType.Angle.parse(x)
-        bpy_obj.rotation_euler.y += TType.Angle.parse(y)
-        bpy_obj.rotation_euler.z += TType.Angle.parse(z)
+        if x is not None:
+            bpy_obj.rotation_euler.x += TType.Angle.parse(x)
+        if y is not None:
+            bpy_obj.rotation_euler.y += TType.Angle.parse(y)
+        if z is not None:
+            bpy_obj.rotation_euler.z += TType.Angle.parse(z)
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
         return bpy_obj
 
@@ -1121,9 +1131,12 @@ class Object(Namespace):
         Returns:
             Object: self
         """
-        bpy_obj.scale.x = x
-        bpy_obj.scale.y = y
-        bpy_obj.scale.z = z
+        if x is not None:
+            bpy_obj.scale.x = x
+        if y is not None:
+            bpy_obj.scale.y = y
+        if z is not None:
+            bpy_obj.scale.z = z
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
         return bpy_obj
 
@@ -1138,15 +1151,18 @@ class Object(Namespace):
         Returns:
             Object: self
         """
-        bpy_obj.scale.x *= x
-        bpy_obj.scale.y *= y
-        bpy_obj.scale.z *= z
+        if x is not None:
+            bpy_obj.scale.x *= x
+        if y is not None:
+            bpy_obj.scale.y *= y
+        if z is not None:
+            bpy_obj.scale.z *= z
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
         return bpy_obj
 
     @staticmethod
     def TransformTo(
-        bpy_obj: Object,
+        bpy_obj: BpyObject,
         location: tuple = None,
         rotation: tuple = None,
         scale: tuple = None,
@@ -1221,25 +1237,33 @@ class Object(Namespace):
         )
         return Global._Bpy_getActive()
 
-    def bboxCenter(bpy_obj: Object) -> Vector:
-        o = bpy_obj
-        local_bbox_center = 0.125 * sum((Vector(b) for b in o.bound_box), Vector())
-        global_bbox_center = o.matrix_world @ local_bbox_center
+    def bboxCenter(bpy_obj: BpyObject) -> Vector:
+        local_bbox_center = 0.125 * sum(
+            (Vector(b) for b in bpy_obj.bound_box), Vector()
+        )
+        global_bbox_center = bpy_obj.matrix_world @ local_bbox_center
         return global_bbox_center
 
-    def bboxMaxDist(bpy_obj: Object) -> float:
-        o = bpy_obj
-        bbox = [o.matrix_world @ Vector(b) for b in o.bound_box]
-        max_dist = 0
-        for vec in bbox:
-            for val in vec:
-                if abs(val) > max_dist:
-                    max_dist = abs(val)
-        return max_dist
+    def bboxRadiusMax(bpy_obj: BpyObject, center: Vector = None) -> float:
+        """Calculate radius of a sphere that bounding box can fit in.
+        Center param can be used to change assumed center of bbox,
+        from default center of bbox to eg. location of object.
 
-    def bbox(bpy_obj: Object) -> float:
-        o = bpy_obj
-        return [o.matrix_world @ Vector(b) for b in o.bound_box]
+        Args:
+            bpy_obj (BpyObject): object to calculate radius of
+            center (Vector, optional): Override to center of sphere. Defaults to None.
+
+        Returns:
+            float: sphere radius
+        """
+        if center is None:
+            loc = Object.bboxCenter(bpy_obj)
+        return max(
+            [(bpy_obj.matrix_world @ Vector(b)) - loc for b in bpy_obj.bound_box]
+        ).length
+
+    def bbox(bpy_obj: BpyObject) -> float:
+        return [bpy_obj.matrix_world @ Vector(b) for b in bpy_obj.bound_box]
 
     def convert(bpy_obj, target: str = "MESH") -> BpyObject:
         """Convert object from one type to another.
@@ -1252,7 +1276,7 @@ class Object(Namespace):
         bpy.ops.object.convert(target=target)
         return bpy_obj
 
-    def join(bpy_obj, *args: Object) -> BpyObject:
+    def join(bpy_obj, *args: BpyObject) -> BpyObject:
         """Joins all passed object into one at first object
 
         Returns:
@@ -1303,6 +1327,62 @@ class Camera:
 
     def setMain(self):
         bpy.context.scene.camera = self.camera
+
+    def lookAt(
+        self,
+        bpy_obj: BpyObject,
+        roll: Union[float, str] = 0,
+        keep_position: bool = False,
+        margin_distance: float = 1.5,
+        relative_pos: tuple = None,
+    ):
+        """Rotate and tranform camera so it is looking at given
+        object. If keep_distance is True, camera will preserve its
+        location and will only get rotated towards bpy_obj.
+        Otherwise it will be both rotated and placed so it is lying
+        on radius of sphere containing bbox of bpy_obj. If relative_pos
+        is not None, position of the camera will be changed to offset from
+        bpy_obj bouding box center by relative_pos.
+
+        Args:
+            bpy_obj (BpyObject): object to point onto
+            roll (Union[float, str], optional): camera roll as value parsable by TType.Angle.parse
+            keep_position (bool, optional): Preserve camera position?. Defaults to False.
+            margin_distance (float, optional): Make camera be placed further from bpy_obj. Defaults to 1.5.
+            relative_pos (tuple, optional): New position of camera relative to bpy_obj bbox center. Defaults to None.
+        """
+        roll = TType.Angle.parse(roll)
+        target = Object.bboxCenter(bpy_obj)
+        if relative_pos is None:
+            _from = self.camera.location
+            _from = Vector(_from)
+        else:
+            _from = Vector(relative_pos) + target
+            self.camera.location = _from
+        distance = target - _from
+        quat = distance.to_track_quat("-Z", "Y")
+        quat = quat.to_matrix().to_4x4()
+        rollMatrix = Matrix.Rotation(roll, 4, "Z")
+        self.camera.matrix_world = quat @ rollMatrix
+        rot = self.camera.rotation_euler.copy()
+        self.camera.matrix_world = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ]
+        self.camera.rotation_euler = rot
+        radius = Object.bboxRadiusMax(bpy_obj)
+        if keep_position:
+            self.camera.location = _from
+        else:
+            self.camera.location = target
+            self.camera.location -= distance * (
+                (radius + margin_distance) / distance.length
+            )
+
+    def resizeToFit(self, bpy_obj):
+        pass
 
     @property
     def type(self) -> str:
@@ -1363,8 +1443,8 @@ class Camera:
 # $ <>=======================================================<>
 class Modifier:
     def Boolean(
-        bpy_obj: Object,
-        other: Object,
+        bpy_obj: BpyObject,
+        other: BpyObject,
         operation: str = "DIFFERENCE",
         solver: str = "EXACT",
         use_self: bool = False,
@@ -1394,7 +1474,7 @@ class Modifier:
         return bpy_obj
 
     def Array(
-        bpy_obj: Object,
+        bpy_obj: BpyObject,
         offset_x: float = 0,
         offset_y: float = 0,
         offset_z: float = 0,
@@ -1431,7 +1511,7 @@ class Modifier:
         return bpy_obj
 
     def SimpleDeform(
-        bpy_obj: Object,
+        bpy_obj: BpyObject,
         deform_method: str = "BEND",
         deform_axis: str = "X",
         angle: float = math.pi / 4,
@@ -1463,7 +1543,7 @@ class Modifier:
         return bpy_obj
 
     def Solidify(
-        bpy_obj: Object,
+        bpy_obj: BpyObject,
         thickness: float = 0.01,
         offset: float = -1,
         use_even_offset: bool = False,
@@ -1497,7 +1577,7 @@ class Modifier:
         return bpy_obj
 
     def Bevel(
-        bpy_obj: Object,
+        bpy_obj: BpyObject,
         affect: str = "EDGES",
         offset_type: str = "OFFSET",
         width: TType.UnitOfLength = 0.1,
@@ -1967,7 +2047,7 @@ class MaterialNodes(Namespace):
 class Material:
     bpy_material: object
 
-    def __init__(self, bpy_obj: Object = None) -> None:
+    def __init__(self, bpy_obj: BpyObject = None) -> None:
         if bpy_obj is None or len(bpy_obj.data.materials.keys()) == 0:
             self.bpy_material = bpy.data.materials.new(name=f"{Global.Unique()}")
             self.bpy_material.use_nodes = True

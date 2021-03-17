@@ -3,7 +3,7 @@
     "other": [],
     "class": "TO",
     "author": "Krzysztof Wiśniewski",
-    "dscp": "Base version of TO-218 transistor case.",
+    "dscp": "Horizontal version of TO-218 transistor case.",
     "version": "v1.0",
     "prm_dict": {
         "case": {

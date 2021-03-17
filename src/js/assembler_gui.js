@@ -1,14 +1,7 @@
-function addAssemblerComponent(
-    signature,
-    model,
-    footprint,
-    cox,
-    coy,
-    rot,
-    top
-) {
-    $("#assembler-components-list").append(
-        `<div class="assembler-component-body">
+ASSEMBLER = {
+    appendSetup: function (signature, model, footprint, cox, coy, rot, top) {
+        ASSEMBLER.getSetupGUI().append(
+            `<div class="assembler-component-body">
             <div class="assembler-component-body-title" signature="${signature}"><div>&#x203A;</div>${signature}</div>
             <div class="assembler-component-body-inner">
                 <div class="assembler-component-body-row">
@@ -34,303 +27,369 @@ function addAssemblerComponent(
                 </div>
             </div>
         </div>`
-    );
-    let $this = $("#assembler-components-list")
-        .find(".assembler-component-body")
-        .last();
-    $this.find(".assembler-component-body-title").on("click", function () {
-        $body = $(this).next();
-        if ($body.is(":hidden")) {
-            $body.show();
-            $(this).find("div").css({ transform: "rotate(90deg)" });
-        } else {
-            $body.hide();
-            $(this).find("div").css({ transform: "rotate(0deg)" });
-        }
-    });
-    $this.find(".switch input").attr("checked", top);
-    $this.find(".assembler-component-body-title").trigger("click");
-}
-function imageSize($target) {
-    return new Promise(resolve =>
-        $target.on("load", function () {
-            resolve([this.width, this.height]);
-        })
-    );
-}
-let previewPCB_ID = null;
-let _pcb_CO = null;
-async function renderAssemblerPCB() {
-    let pcb_path = $("#assembler-pcb-src").val();
-    let hashCode = pcb_path.hashCode();
-    if (pcb_path.length == 0) {
-        throw Error("No PCB model selected.");
-    } else if (!fs.existsSync(pcb_path)) {
-        throw Error("Selected path to PCB model doesn't exist.");
-    }
-    let pcb_img_path = `${process.cwd()}/temp/pcb${hashCode}.png`;
-    if (hashCode != previewPCB_ID) {
-        if (previewPCB_ID != null) {
-            fs.unlinkSync(`${process.cwd()}/temp/pcb${previewPCB_ID}.png`);
-        }
-        let blender_io = new BlenderIO(userpref);
-        await blender_io.begin();
-        try {
-            _pcb_CO = (
-                await blender_io.call(
-                    new IO_OUT("renderPreview", {
-                        source: pcb_path,
-                        render_file: pcb_img_path,
-                    }),
-                    "OK"
-                )
-            ).data.co;
-
-            previewPCB_ID = hashCode;
-        } finally {
-            blender_io.kill();
-        }
-    }
-    return pcb_img_path;
-}
-async function appendAssemblerComponentToPreview(key, cpos, $box) {
-    $box.append(
-        `<img src="${cpos.model_pkg}/__top__.png" class="component" >${key}</img>`
-    );
-    let $comp = $box.find(".component").last();
-    let [x, y] = await imageSize($comp);
-    let dpm = userpref.get("debug.blender.dpi") * 40;
-    let pcb_height = _pcb_CO.sy * dpm;
-
-    let center_x = $comp.offset().left + $comp.outerWidth() / 2;
-    let center_y = $comp.offset().top + $comp.outerHeight() / 2;
-
-    function get_degrees(mouse_x, mouse_y) {
-        const radians = Math.atan2(mouse_x, mouse_y);
-        const degrees = Math.round(radians * (180 / Math.PI) * -1 + 100);
-
-        return degrees;
-    }
-
-    $comp.draggable();
-    let $gui = $(`[signature="${key}"]`).next();
-    let $as_cox = $gui.find("#as-cox");
-    let $as_coy = $gui.find("#as-coy");
-    let $as_rot = $gui.find("#as-rot");
-    $as_cox.on("input", () => {
-        $comp.css({ left: `${($as_cox.val() / 100) * dpm - x / 2}px` });
-    });
-    $as_coy.on("input", () => {
-        $comp.css({
-            top: `${pcb_height - ($as_coy.val() / 100) * dpm - y / 2}px`,
+        );
+        let $this = $("#assembler-components-list")
+            .find(".assembler-component-body")
+            .last();
+        $this.find(".assembler-component-body-title").on("click", function () {
+            $body = $(this).next();
+            if ($body.is(":hidden")) {
+                $body.show();
+                $(this).find("div").css({ transform: "rotate(90deg)" });
+            } else {
+                $body.hide();
+                $(this).find("div").css({ transform: "rotate(0deg)" });
+            }
         });
-    });
-    $as_rot.on("input", () => {
-        $comp.css({
-            transform: `rotateZ(${$as_rot.val()}deg)`,
+        $this.find(".switch input").attr("checked", top);
+        $this.find(".assembler-component-body-title").trigger("click");
+    },
+    imageSize: function ($target) {
+        return new Promise(resolve =>
+            $target.on("load", function () {
+                resolve([this.width, this.height]);
+            })
+        );
+    },
+    previewPCB_ID: null,
+    _pcb_CO: null,
+    renderPCB: async function () {
+        let pcb_path = $("#assembler-pcb-src").val();
+        let hashCode = pcb_path.hashCode();
+        if (pcb_path.length == 0) {
+            throw Error("No PCB model selected.");
+        } else if (!fs.existsSync(pcb_path)) {
+            throw Error("Selected path to PCB model doesn't exist.");
+        }
+        let pcb_img_path = `${process.cwd()}/temp/pcb${hashCode}.png`;
+        if (hashCode != ASSEMBLER.previewPCB_ID) {
+            if (ASSEMBLER.previewPCB_ID != null) {
+                fs.unlinkSync(
+                    `${process.cwd()}/temp/pcb${ASSEMBLER.previewPCB_ID}.png`
+                );
+            }
+            let blender_io = new BlenderIO(userpref);
+            await blender_io.begin();
+            try {
+                ASSEMBLER._pcb_CO = (
+                    await blender_io.call(
+                        new IO_OUT("renderPreview", {
+                            source: pcb_path,
+                            render_file: pcb_img_path,
+                        }),
+                        "OK"
+                    )
+                ).data.co;
+
+                ASSEMBLER.previewPCB_ID = hashCode;
+            } finally {
+                blender_io.kill();
+            }
+        }
+        return pcb_img_path;
+    },
+    appendPreview: async function (key, cpos, $box) {
+        $box.append(
+            `<img src="${cpos.model_pkg}/__top__.png" class="component" >${key}</img>`
+        );
+        let $comp = $box.find(".component").last();
+        let [x, y] = await ASSEMBLER.imageSize($comp);
+        let dpm = userpref.get("debug.blender.dpi") * 40;
+        let pcb_height = ASSEMBLER._pcb_CO.sy * dpm;
+
+        function get_degrees(mouse_x, mouse_y) {
+            const radians = Math.atan2(mouse_y, mouse_x);
+            let degrees = Math.floor(radians * (180 / Math.PI));
+            if (degrees < 0) {
+                degrees = 360 + degrees;
+            }
+            console.log(mouse_x, mouse_y, degrees);
+
+            return degrees;
+        }
+
+        $comp.draggable();
+        let $gui = $(`[signature="${key}"]`).next();
+        let $as_cox = $gui.find("#as-cox");
+        let $as_coy = $gui.find("#as-coy");
+        let $as_rot = $gui.find("#as-rot");
+
+        $as_cox.on("input", () => {
+            $comp.css({ left: `${($as_cox.val() / 100) * dpm - x / 2}px` });
         });
-    });
-    $comp.on("drag", function (event, ui) {
-        ui.position = {
-            left: ui.position.left / ASSEMBLER_PREVIEW_SCALE,
-            top: ui.position.top / ASSEMBLER_PREVIEW_SCALE,
-        };
-        ui.originalPosition = {
-            left: ui.originalPosition.left / ASSEMBLER_PREVIEW_SCALE,
-            top: ui.originalPosition.top / ASSEMBLER_PREVIEW_SCALE,
-        };
-        $comp.trigger("click");
-        if (!event.ctrlKey) {
+        $as_coy.on("input", () => {
+            $comp.css({
+                top: `${pcb_height - ($as_coy.val() / 100) * dpm - y / 2}px`,
+            });
+        });
+        $as_rot.on("input", () => {
+            $comp.css({
+                transform: `rotateZ(${$as_rot.val()}deg)`,
+            });
+        });
+
+        $comp.on("drag", function (event, ui) {
+            ui.position = {
+                left: ui.position.left / ASSEMBLER.PREVIEW_SCALE,
+                top: ui.position.top / ASSEMBLER.PREVIEW_SCALE,
+            };
+            ui.originalPosition = {
+                left: ui.originalPosition.left / ASSEMBLER.PREVIEW_SCALE,
+                top: ui.originalPosition.top / ASSEMBLER.PREVIEW_SCALE,
+            };
+            $comp.trigger("click");
+
             $as_cox.val(((ui.position.left + x / 2) / dpm) * 100);
             $as_coy.val(((pcb_height - (ui.position.top + y / 2)) / dpm) * 100);
-            center_x = $comp.offset().left + $comp.outerWidth() / 2;
-            center_y = $comp.offset().top + $comp.outerHeight() / 2;
-        } else {
-            ui.position.top = ui.originalPosition.top;
-            ui.position.left = ui.originalPosition.left;
-            $as_rot.val(
-                Math.floor(
-                    get_degrees(
-                        event.pageX - center_x,
-                        -(event.pageY - center_y)
-                    ) / 90
-                ) * 90
-            );
-            $as_rot.trigger("input");
+        });
+        $comp.on("click", function (event) {
+            $("#assembler-components-list")
+                .find(".assembler-component-body")
+                .each(function () {
+                    let $box = $(this).find(".assembler-component-body-inner");
+                    if (!$box.is(":hidden")) {
+                        $box.prev().trigger("click");
+                    }
+                });
+            $gui.prev().trigger("click");
+            if (event.ctrlKey) {
+                $as_rot.val(
+                    (Math.floor(parseFloat($as_rot.val()) / 45) * 45 + 45) % 360
+                );
+                $as_rot.trigger("input");
+            }
+        });
+        $as_cox.trigger("input");
+        $as_coy.trigger("input");
+        $as_rot.trigger("input");
+    },
+    getPreview: function () {
+        return $("#assemble-preview-panel").find(".assembler-preview-box");
+    },
+    clearPreview: function () {
+        let $box = ASSEMBLER.getPreview();
+        $box.empty();
+        return $box;
+    },
+    showPreview: async function () {
+        if (disableComponent(this)) {
+            try {
+                let setup = ASSEMBLER.getSetup();
+                let pcb_img_path = await ASSEMBLER.renderPCB();
+                let $box = ASSEMBLER.clearPreview();
+                $box.append(`<img src="${pcb_img_path}" />`);
+                let cpos = ASSEMBLER.toPosition(setup);
+                for (let k in cpos) {
+                    if (cpos[k].top) ASSEMBLER.appendPreview(k, cpos[k], $box);
+                }
+            } catch (e) {
+                showErrorBox("Unable render PCB preview.", e);
+            }
+            enableComponent(this);
         }
-    });
-    $comp.on("click", function () {
+    },
+    getSetupGUI: function () {
+        return $("#assembler-components-list");
+    },
+    clearSetupGUI: function () {
+        ASSEMBLER.clearPreview();
+        ASSEMBLER.getSetupGUI().empty();
+    },
+    loadSetupGUI: function (dict) {
+        ASSEMBLER.clearSetupGUI();
+        let keys = Object.keys(dict)
+            .sort()
+            .reduce((obj, key) => {
+                obj[key] = dict[key];
+                return obj;
+            }, {});
+        for (let key in keys) {
+            ASSEMBLER.appendSetup(
+                key,
+                dict[key].model,
+                dict[key].footprint,
+                dict[key].cox,
+                dict[key].coy,
+                dict[key].rot,
+                dict[key].top
+            );
+        }
+    },
+    getSetup: function () {
+        let setup = {};
         $("#assembler-components-list")
             .find(".assembler-component-body")
             .each(function () {
-                let $box = $(this).find(".assembler-component-body-inner");
-                if (!$box.is(":hidden")) {
-                    $box.prev().trigger("click");
+                let $this = $(this);
+                let key = $this
+                    .find(".assembler-component-body-title")
+                    .attr("signature");
+                let model = $this.find("#as-model").val();
+                if (models[model] == undefined) {
+                    throw Error(
+                        `Model: "${model}" used for component '${key}' not found in library.`
+                    );
                 }
+                setup[key] = {
+                    model: model,
+                    footprint: $this.find("#as-footprint").val(),
+                    cox: $this.find("#as-cox").val(),
+                    coy: $this.find("#as-coy").val(),
+                    rot: $this.find("#as-rot").val(),
+                    top: $this.find("#as-top").prop("checked"),
+                };
             });
-        $gui.prev().trigger("click");
-    });
-    $as_cox.trigger("input");
-    $as_coy.trigger("input");
-    $as_rot.trigger("input");
-}
-async function showAssemblerPreview() {
-    if (disableComponent(this)) {
-        try {
-            let setup = pullComponentSetup();
-            let pcb_img_path = await renderAssemblerPCB();
-            let $box = $("#assemble-preview-panel").find(
-                ".assembler-preview-box"
-            );
-            $box.empty();
-            $box.append(`<img src="${pcb_img_path}" />`);
-            let cpos = convertToPositioning(setup);
-            for (let k in cpos) {
-                appendAssemblerComponentToPreview(k, cpos[k], $box);
-            }
-        } catch (e) {
-            showErrorBox("Unable render PCB preview.", e);
-        }
-        enableComponent(this);
-    }
-}
-function buildComponentsList(dict) {
-    let keys = Object.keys(dict)
-        .sort()
-        .reduce((obj, key) => {
-            obj[key] = dict[key];
-            return obj;
-        }, {});
-    for (let key in keys) {
-        addAssemblerComponent(
-            key,
-            dict[key].model,
-            dict[key].footprint,
-            dict[key].cox,
-            dict[key].coy,
-            dict[key].rot,
-            dict[key].top
-        );
-    }
-}
-function pullComponentSetup() {
-    let setup = {};
-    $("#assembler-components-list")
-        .find(".assembler-component-body")
-        .each(function () {
-            let $this = $(this);
-            let key = $this
-                .find(".assembler-component-body-title")
-                .attr("signature");
-            let model = $this.find("#as-model").val();
-            if (models[model] == undefined) {
-                throw Error(
-                    `Model: "${model}" used for component '${key}' not found in library.`
-                );
-            }
-            setup[key] = {
-                model: model,
-                footprint: $this.find("#as-footprint").val(),
-                cox: $this.find("#as-cox").val(),
-                coy: $this.find("#as-coy").val(),
-                rot: $this.find("#as-rot").val(),
-                top: $this.find("#as-top").attr("checked"),
+        return setup;
+    },
+    toPosition: function (setup) {
+        let out = {};
+        for (let key in setup) {
+            out[key] = {
+                model_pkg: models[setup[key].model].package_path,
+                cox: parseFloat(setup[key].cox) / 100,
+                coy: parseFloat(setup[key].coy) / 100,
+                rot: parseFloat(setup[key].rot),
+                top: setup[key].top,
             };
-        });
-    return setup;
-}
-function convertToPositioning(setup) {
-    let out = {};
-    for (let key in setup) {
-        out[key] = {
-            model_pkg: models[setup[key].model].package_path,
-            cox: parseFloat(setup[key].cox) / 100,
-            coy: parseFloat(setup[key].coy) / 100,
-            rot: parseFloat(setup[key].rot),
-            top: setup[key].top,
-        };
-    }
-    return out;
-}
-const loadComponents = {
-    JSON: function (path) {
-        try {
-            buildComponentsList(JSON.parse(fs.readFileSync(path).toString()));
-        } catch (e) {
-            showErrorBox("Unable to load json file.", e);
+        }
+        return out;
+    },
+    loadFile: {
+        JSON: function (path) {
+            try {
+                ASSEMBLER.loadSetupGUI(
+                    JSON.parse(fs.readFileSync(path).toString())
+                );
+            } catch (e) {
+                showErrorBox("Unable to load json file.", e);
+            }
+        },
+        PLACE: function (path) {
+            try {
+                let source = fs.readFileSync(path).toString();
+                place_list = {};
+                let PROJECT_NAME = source.match(/(?:Project:)\s*(.*)\s+/)[1];
+                let units = source.match(/(?:Units:)\s*(.*)\s+/)[1];
+                let multiplier = 1;
+                // convert to cm
+                switch (units) {
+                    case "INCH":
+                        multiplier = 2.54;
+                        break;
+
+                    default:
+                        break;
+                }
+                source = source.replace(/.*?----------  ----\s+/s, "").trim();
+                for (let line of source.split("\n")) {
+                    let [
+                        mark,
+                        footprint,
+                        side,
+                        cox,
+                        coy,
+                        rot,
+                        glux,
+                        gluy,
+                        gludia,
+                        tech,
+                        pins,
+                    ] = line.split(/\s+/);
+                    place_list[mark] = {
+                        model: footprint,
+                        footprint: footprint,
+                        cox: cox * multiplier,
+                        coy: coy * multiplier,
+                        rot: rot,
+                        top: side == "Top",
+                    };
+                }
+                ASSEMBLER.loadSetupGUI(place_list);
+            } catch (e) {
+                showErrorBox("Unable to load place file.", e);
+            }
+        },
+    },
+    PREVIEW_SCALE: 1,
+    zoomPreview: function (event) {
+        if (event.code == "Equal" && event.ctrlKey) {
+            ASSEMBLER.PREVIEW_SCALE *= 1.1;
+            $("#assemble-preview-panel")
+                .find(".assembler-preview-box")
+                .css({
+                    transform: `scale(${ASSEMBLER.PREVIEW_SCALE})`,
+                });
+        } else if (event.code == "Minus" && event.ctrlKey) {
+            ASSEMBLER.PREVIEW_SCALE /= 1.1;
+            $("#assemble-preview-panel")
+                .find(".assembler-preview-box")
+                .css({
+                    transform: `scale(${ASSEMBLER.PREVIEW_SCALE})`,
+                });
         }
     },
-    PLACE: function (path) {
+    build3DModel: async function (pcb_model, output_file) {
+        if (output_file == undefined) return;
+        let blender_io = new BlenderIO(userpref);
+        await blender_io.begin();
         try {
-            let source = fs.readFileSync(path).toString();
-            place_list = {};
-            let PROJECT_NAME = source.match(/(?:Project:)\s*(.*)\s+/)[1];
-            let units = source.match(/(?:Units:)\s*(.*)\s+/)[1];
-            let multiplier = 1;
-            // convert to cm
-            switch (units) {
-                case "INCH":
-                    multiplier = 2.54;
-                    break;
-
-                default:
-                    break;
-            }
-            source = source.replace(/.*?----------  ----\s+/s, "").trim();
-            for (let line of source.split("\n")) {
-                let [
-                    mark,
-                    footprint,
-                    side,
-                    cox,
-                    coy,
-                    rot,
-                    glux,
-                    gluy,
-                    gludia,
-                    tech,
-                    pins,
-                ] = line.split(/\s+/);
-                place_list[mark] = {
-                    model: footprint,
-                    footprint: footprint,
-                    cox: cox * multiplier,
-                    coy: coy * multiplier,
-                    rot: rot,
-                    top: side == "Top",
-                };
-            }
-            buildComponentsList(place_list);
-        } catch (e) {
-            showErrorBox("Unable to load place file.", e);
+            await blender_io.call(
+                new IO_OUT("buildAssembler", {
+                    pcb: pcb_model,
+                    setup: ASSEMBLER.toPosition(ASSEMBLER.getSetup()),
+                    out: output_file,
+                })
+            );
+        } finally {
+            blender_io.kill();
         }
+        dialog.showMessageBox({
+            type: "info",
+            buttons: ["Ok"],
+            title: "Finished generating 3D model.",
+            message: "Finished generating 3D model.",
+        });
+    },
+    make2Dimage: async function (pcb_model, output_file) {
+        if (output_file == undefined) return;
+        let blender_io = new BlenderIO(userpref);
+        await blender_io.begin();
+        try {
+            await blender_io.call(
+                new IO_OUT("buildAssembler", {
+                    pcb: pcb_model,
+                    setup: ASSEMBLER.toPosition(ASSEMBLER.getSetup()),
+                    out: output_file,
+                })
+            );
+        } finally {
+            blender_io.kill();
+        }
+    },
+    askForFile: async function ($filter_source, title) {
+        let filters = [];
+        for (let pair of $filter_source.attr("ext").split(";")) {
+            let pair_split = pair.split(":");
+            filters.push({
+                name: pair_split[0],
+                extensions: [pair_split[1]],
+            });
+        }
+        let file = dialog.showOpenDialogSync({
+            title: title,
+            properties: ["openFile"],
+            filters: filters,
+        });
+        return file;
     },
 };
-let ASSEMBLER_PREVIEW_SCALE = 1;
-function zoomAssemblerPreview(event) {
-    if (event.code == "Equal" && event.ctrlKey) {
-        ASSEMBLER_PREVIEW_SCALE *= 1.1;
-        $("#assemble-preview-panel")
-            .find(".assembler-preview-box")
-            .css({
-                transform: `scale(${ASSEMBLER_PREVIEW_SCALE})`,
-            });
-    } else if (event.code == "Minus" && event.ctrlKey) {
-        ASSEMBLER_PREVIEW_SCALE /= 1.1;
-        $("#assemble-preview-panel")
-            .find(".assembler-preview-box")
-            .css({
-                transform: `scale(${ASSEMBLER_PREVIEW_SCALE})`,
-            });
-    }
-}
 $(async function () {
-    $("#assemble-container").on("keydown", zoomAssemblerPreview);
+    $("#assemble-container").on("keydown", ASSEMBLER.zoomPreview);
     $("#assemble-container").on("mousewheel", event => {
         if (event.originalEvent.wheelDelta > 0) {
-            zoomAssemblerPreview({ code: "Equal", ctrlKey: true });
+            ASSEMBLER.zoomPreview({ code: "Equal", ctrlKey: true });
         } else {
-            zoomAssemblerPreview({ code: "Minus", ctrlKey: true });
+            ASSEMBLER.zoomPreview({ code: "Minus", ctrlKey: true });
         }
     });
     $("#assemble-preview-panel").find(".assembler-preview-box").draggable();
@@ -352,26 +411,20 @@ $(async function () {
         }
     });
     $(".assembler-subsection-header").trigger("click");
-    $(`.assembler-comp-src input`).on("click", function () {
+    $(`.assembler-comp-src input`).on("click", async function () {
         let $this = $(this);
-        let filters = [];
-        for (let pair of $this.attr("ext").split(";")) {
-            let pair_split = pair.split(":");
-            filters.push({ name: pair_split[0], extensions: [pair_split[1]] });
-        }
-        let file = dialog.showOpenDialogSync({
-            title: `Open ${$this.prev().text().trim()} file`,
-            properties: ["openFile"],
-            filters: filters,
-        });
+        let file = await ASSEMBLER.askForFile(
+            $this,
+            `Open ${$this.prev().text().trim()} file`
+        );
         if (file != undefined) {
             $this.val(file);
             switch ($this.parent(".assembler-comp-src").attr("id")) {
                 case "assembler-comp-pl-p":
-                    loadComponents.PLACE(file[0]);
+                    ASSEMBLER.loadFile.PLACE(file[0]);
                     break;
                 case "assembler-comp-json":
-                    loadComponents.JSON(file[0]);
+                    ASSEMBLER.loadFile.JSON(file[0]);
                     break;
 
                 default:
@@ -379,18 +432,12 @@ $(async function () {
             }
         }
     });
-    $("#assembler-pcb-src").on("click", function () {
+    $("#assembler-pcb-src").on("click", async function () {
         let $this = $(this);
-        let filters = [];
-        for (let pair of $this.attr("ext").split(";")) {
-            let pair_split = pair.split(":");
-            filters.push({ name: pair_split[0], extensions: [pair_split[1]] });
-        }
-        let file = dialog.showOpenDialogSync({
-            title: `Open ${$this.prev().text().trim()} file`,
-            properties: ["openFile"],
-            filters: filters,
-        });
+        let file = await ASSEMBLER.askForFile(
+            $this,
+            `Open ${$this.prev().text().trim()} file`
+        );
         if (file != undefined) {
             $this.val(file);
         }
@@ -400,33 +447,17 @@ $(async function () {
         "click",
         async function () {
             if (disableComponent(this)) {
-                let blender_io = new BlenderIO(userpref);
-                await blender_io.begin();
                 try {
                     let pcb_model = $("#assembler-pcb-src").val();
                     if (pcb_model.length == 0) {
                         throw Error("No PCB model selected.");
-                    } else if (!fs.existsSync(pcb_model)) {
-                        throw Error("Selected file doesn't exist.");
                     }
                     let file = dialog.showSaveDialogSync({
                         title: "Save assembled 3D model",
                         properties: [],
                         filters: [{ name: "glTF 2.0", extensions: ["glb"] }],
                     });
-                    if (file != undefined) {
-                        try {
-                            await blender_io.call(
-                                new IO_OUT("buildAssembler", {
-                                    pcb: pcb_model,
-                                    setup: convertToPositioning(pullComponentSetup()),
-                                    out: file,
-                                })
-                            );
-                        } finally {
-                            blender_io.kill();
-                        }
-                    }
+                    await ASSEMBLER.build3DModel(pcb_model, file);
                 } catch (e) {
                     showErrorBox("Unable to build 3D model.", e);
                 }
@@ -434,7 +465,29 @@ $(async function () {
             }
         }
     );
-    $("#assembler-controls :nth-child(2).div-button").on("click", function () {
+    $("#assembler-controls :nth-child(2).div-button").on(
+        "click",
+        async function () {
+            if (disableComponent(this)) {
+                try {
+                    let pcb_model = $("#assembler-pcb-src").val();
+                    if (pcb_model.length == 0) {
+                        throw Error("No PCB model selected.");
+                    }
+                    let file = dialog.showSaveDialogSync({
+                        title: "Save assembled 3D model",
+                        properties: [],
+                        filters: [{ name: "PNG Image", extensions: ["png"] }],
+                    });
+                    await ASSEMBLER.make2Dimage(pcb_model, file);
+                } catch (e) {
+                    showErrorBox("Unable to build 3D model.", e);
+                }
+                enableComponent(this);
+            }
+        }
+    );
+    $("#assembler-controls :nth-child(3).div-button").on("click", function () {
         try {
             let file = dialog.showSaveDialogSync({
                 title: "Save assembler setup to file",
@@ -442,15 +495,20 @@ $(async function () {
                 filters: [{ name: "Assembler Setup", extensions: ["astp"] }],
             });
             if (file != undefined) {
-                fs.writeFileSync(file, JSON.stringify(pullComponentSetup()));
+                fs.writeFileSync(file, JSON.stringify(ASSEMBLER.getSetup()));
             }
         } catch (e) {
             showErrorBox("Unable to export setup.", e);
             return;
         }
     });
-    $("#assembler-controls :nth-child(3).div-button").on(
+    $("#assembler-controls :nth-child(4).div-button").on(
         "click",
-        showAssemblerPreview
+        ASSEMBLER.showPreview
     );
+    $("#assembler-controls :nth-child(5).div-button").on("click", () => {
+        $("#assembler-pcb-src").val("");
+        $(".assembler-comp-src").find("input").val("");
+        ASSEMBLER.clearSetupGUI();
+    });
 });
