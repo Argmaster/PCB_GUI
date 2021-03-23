@@ -64,7 +64,7 @@ class ModelPackage:
         render_half_size = max(abs(render_half_size.x), abs(render_half_size.y))
         # add light to viewport, it should light up object from
         # both top and bottom due to angle="179deg"
-        light = Light(
+        Light(
             CONST.LIGHT.SUN,
             rotation=(0, 0 if top else "179deg", 0),
             power=2
@@ -72,7 +72,7 @@ class ModelPackage:
         # create new camera either below or above object and
         # adjust rotation to face towards the object
         # camera is in ortographic mode to keep proper scale
-        camera = Camera(
+        Camera(
             location=(
                 bpy_obj.location.x,
                 bpy_obj.location.y,
@@ -89,7 +89,7 @@ class ModelPackage:
             Global.eevee(sample_count)
         elif engine == CONST.ENGINE.CYCLES:
             Global.cycles(sample_count)
-        pixel_width = render_half_size * dpi * 40 * 2
+        pixel_width = render_half_size * dpi * 40 * 2.2
         if pixel_width * pixel_width > max_pixel_count:
             raise RuntimeError(
                 f"Output image is too big [{pixel_width}x{pixel_width}], lower your dpi and retry."

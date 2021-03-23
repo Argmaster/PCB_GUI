@@ -97,17 +97,6 @@ ASSEMBLER = {
         let dpm = userpref.get("debug.blender.dpi") * 40;
         let pcb_height = ASSEMBLER._pcb_CO.sy * dpm;
 
-        function get_degrees(mouse_x, mouse_y) {
-            const radians = Math.atan2(mouse_y, mouse_x);
-            let degrees = Math.floor(radians * (180 / Math.PI));
-            if (degrees < 0) {
-                degrees = 360 + degrees;
-            }
-            console.log(mouse_x, mouse_y, degrees);
-
-            return degrees;
-        }
-
         $comp.draggable();
         let $gui = $(`[signature="${key}"]`).next();
         let $as_cox = $gui.find("#as-cox");
@@ -124,7 +113,7 @@ ASSEMBLER = {
         });
         $as_rot.on("input", () => {
             $comp.css({
-                transform: `rotateZ(${$as_rot.val()}deg)`,
+                transform: `rotateZ(-${$as_rot.val()}deg)`,
             });
         });
 
