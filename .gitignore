@@ -9,3 +9,6 @@ test.glb
 dist/
 blender/
 PIL/
+__top__.png
+__bot__.png
+__mod__.glb
