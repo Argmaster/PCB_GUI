@@ -6,7 +6,7 @@ import math
 import os
 import time
 from abc import ABC, abstractmethod
-from typing import Iterable, Tuple, Union
+from typing import Iterable, Tuple
 
 from src.py.ttype import *
 
@@ -18,9 +18,12 @@ import numpy
 from mathutils import *
 
 
-# $ <>=======================================================<>
-# $               Global operations handler
-# $ <>=======================================================<>
+# ---------------------------------------------------------------------------- #
+# bpyx is a generous wrapper around blender python api. It provides visible for
+# IDEs function definitions and simplifies some of overcomplicated and usual
+# tasks programmer can face during usage of raw bpy. It is also main API for
+# creating python generator modules for PCB Assembler 3D app.
+# ---------------------------------------------------------------------------- #
 
 
 def log(*args, **kwargs) -> None:
@@ -41,6 +44,11 @@ class ConstrantNamespace:
 
     def __getitem__(self, key: str) -> Any:
         return self.__dict__[key]
+
+
+# ---------------------------------------------------------------------------- #
+# ----------------------- ANCHOR bpyx config constants ----------------------- #
+# ---------------------------------------------------------------------------- #
 
 
 class CONST(ConstrantNamespace):
@@ -203,6 +211,10 @@ class CONST(ConstrantNamespace):
 
 
 CONST = CONST()
+
+# ---------------------------------------------------------------------------- #
+# ---------------------- ANCHOR bpyx Global ops wrapper ---------------------- #
+# ---------------------------------------------------------------------------- #
 
 
 class Global(Namespace):
@@ -399,7 +411,7 @@ class Global(Namespace):
                 bpy.data.cameras.remove(block)
 
     @staticmethod
-    def Import(path: str, format: CONST.FILE_FORMAT = None):
+    def Import(path: str, format: CONST.FILE_FORMAT = None) -> BpyObject:
         """Import object from file in "path" location. If format is None, format will
         be definded based on file name.
         Available formats are: .obj .glb .fbx .x3d
@@ -426,6 +438,7 @@ class Global(Namespace):
             bpy.ops.import_scene.x3d(filepath=path, use_selection=True)
         else:
             raise ValueError(f"Unsupported file format {format}")
+        return Global.getActive()
 
     @staticmethod
     def Export(path: str = "./mesh.glb", format: CONST.FILE_FORMAT = None):
@@ -496,6 +509,8 @@ class Global(Namespace):
         threads_count: int = 0,
         film_transparent: bool = True,
     ):
+        if os.path.exists(outpath):
+            os.remove(outpath)
         render = bpy.context.scene.render
         render.filepath = outpath
         render.resolution_x = resolution_x
@@ -776,9 +791,9 @@ class Transform(Namespace):
 
 Global.deleteAll()
 
-# $ <>=======================================================<>
-# $                   Edit mode handler
-# $ <>=======================================================<>
+# ---------------------------------------------------------------------------- #
+# ---------------------- ANCHOR Edit mode wrapper ---------------------------- #
+# ---------------------------------------------------------------------------- #
 
 
 class Edit:
@@ -1217,9 +1232,9 @@ class Edit:
         return self
 
 
-# $ <>=======================================================<>
-# $              Object and global ops handlers
-# $ <>=======================================================<>
+# ---------------------------------------------------------------------------- #
+# ----------------------- ANCHOR bpx Object ops wrapper ---------------------- #
+# ---------------------------------------------------------------------------- #
 
 
 class Object(Namespace):
@@ -1487,6 +1502,11 @@ class Object(Namespace):
         return bpy_obj
 
 
+# ---------------------------------------------------------------------------- #
+# -------------------------- ANCHOR bpyx Light and Camera -------------------- #
+# ---------------------------------------------------------------------------- #
+
+
 def Light(
     type: CONST.LIGHT = CONST.LIGHT.SUN,
     radius: float = 1.0,
@@ -1522,22 +1542,27 @@ def Light(
         type=type,
         radius=radius,
         align="WORLD",
-        location=(
-            TType.UnitOfLength.parse(location[0]),
-            TType.UnitOfLength.parse(location[1]),
-            TType.UnitOfLength.parse(location[2]),
-        ),
-        rotation=(
-            TType.Angle.parse(rotation[0]),
-            TType.Angle.parse(rotation[1]),
-            TType.Angle.parse(rotation[2]),
-        ),
+        location=(0, 0, 0),
+        rotation=(0, 0, 0),
     )
     light = Global.getActive()
+    light.rotation_euler = (
+        TType.Angle.parse(rotation[0]),
+        TType.Angle.parse(rotation[1]),
+        TType.Angle.parse(rotation[2]),
+    )
+    light.location = (
+        TType.UnitOfLength.parse(location[0]),
+        TType.UnitOfLength.parse(location[1]),
+        TType.UnitOfLength.parse(location[2]),
+    )
     if color is not None:
         light.data.color = TType.Color.parse(color)
     if power is not None:
-        light.data.power = power
+        if type == CONST.LIGHT.SUN:
+            light.data.energy = power
+        else:
+            light.data.power = power
     if angle is not None:
         light.data.angle = TType.Angle.parse(angle)
 
@@ -1547,9 +1572,16 @@ def Light(
 class Camera:
     def __init__(
         self,
+        type: CONST.CAM_TYPE = None,
+        angle: float = None,
+        ortho_scale: float = None,
+        lens: float = None,
+        clip_start: float = None,
+        clip_end: float = None,
         location: tuple = (0, 0, 1),
         rotation: tuple = (0, 0, 0),
         scale: tuple = (1, 1, 1),
+        main: bool = True,
     ) -> None:
         """Object representing Camera with most significant camera properties available
 
@@ -1558,24 +1590,40 @@ class Camera:
             rotation (tuple, optional): 3-tuple, values parsable by TType.Angle.parse(). Defaults to (0, 0, 0).
             scale (tuple, optional): 3-tuple of floats. Defaults to (1, 1, 1).
         """
-        location = (
-            TType.UnitOfLength.parse(location[0]),
-            TType.UnitOfLength.parse(location[1]),
-            TType.UnitOfLength.parse(location[2]),
+        bpy.ops.object.camera_add(
+            enter_editmode=False,
+            align="VIEW",
+            location=(0, 0, 0),
+            rotation=(0, 0, 0),
+            scale=scale,
         )
-        rotation = (
+        self.camera = Global.getActive()
+        Object.RotateTo(
+            self.camera,
             TType.Angle.parse(rotation[0]),
             TType.Angle.parse(rotation[1]),
             TType.Angle.parse(rotation[2]),
         )
-        bpy.ops.object.camera_add(
-            enter_editmode=False,
-            align="VIEW",
-            location=location,
-            rotation=rotation,
-            scale=scale,
+        Object.MoveTo(
+            self.camera,
+            TType.UnitOfLength.parse(location[0]),
+            TType.UnitOfLength.parse(location[1]),
+            TType.UnitOfLength.parse(location[2]),
         )
-        self.camera = Global.getActive()
+        if type is not None:
+            self.type = type
+        if angle is not None:
+            self.angle = angle
+        if ortho_scale is not None:
+            self.ortho_scale = ortho_scale
+        if lens is not None:
+            self.lens = lens
+        if clip_start is not None:
+            self.clip_start = clip_start
+        if clip_end is not None:
+            self.clip_end = clip_end
+        if main:
+            self.setMain()
 
     def setMain(self):
         bpy.context.scene.camera = self.camera
@@ -1633,9 +1681,6 @@ class Camera:
                 (radius + margin_distance) / distance.length
             )
 
-    def fitFlat(self, bpy_obj: BpyObject, plane: CONST.FIT_FLAT):
-        pass
-
     @property
     def type(self) -> str:
         return self.camera.data.type
@@ -1685,9 +1730,11 @@ class Camera:
         self.camera.data.clip_end = value
 
 
-# $ <>=======================================================<>
-# $                    Modifiers handlers
-# $ <>=======================================================<>
+# ---------------------------------------------------------------------------- #
+# ----------------------- ANCHOR bpyx Modifier wrappers ---------------------- #
+# ---------------------------------------------------------------------------- #
+
+
 class Modifier:
     def Boolean(
         bpy_obj: BpyObject,
@@ -1869,9 +1916,9 @@ class Modifier:
         return bpy_obj
 
 
-# $ <>=======================================================<>
-# $                     Materials handlers
-# $ <>=======================================================<>
+# ---------------------------------------------------------------------------- #
+# ------------------- ANCHOR bpyx Material and node wrapper ------------------ #
+# ---------------------------------------------------------------------------- #
 
 
 class MaterialNodes(Namespace):
@@ -2469,9 +2516,9 @@ class Material(Namespace):
 
 '''
 
-# $ <>=======================================================<>
-# $              Mesh object creation handlers
-# $ <>=======================================================<>
+# ---------------------------------------------------------------------------- #
+# -- ANCHOR utility functions for creation of simple and more complex meshes - #
+# ---------------------------------------------------------------------------- #
 
 
 class LowLevel(Namespace):
@@ -2506,8 +2553,12 @@ class LowLevel(Namespace):
 
         vertices = int((abs(end - begin) / (2 * math.pi)) * vertices)
 
-        fx = lambda alpha: radius * math.cos(alpha)
-        fy = lambda alpha: radius * math.sin(alpha)
+        def fx(alpha):
+            return radius * math.cos(alpha)
+
+        def fy(alpha):
+            return radius * math.sin(alpha)
+
         vd = [
             (fx(alpha), fy(alpha), 0) for alpha in numpy.linspace(begin, end, vertices)
         ]
@@ -2530,8 +2581,12 @@ class LowLevel(Namespace):
         begin = TType.Angle.parse("270deg")
         end = TType.Angle.parse("360deg")
         y /= 2
-        fx = lambda alpha: radius * math.cos(alpha)
-        fz = lambda alpha: radius * math.sin(alpha)
+
+        def fx(alpha):
+            return radius * math.cos(alpha)
+
+        def fz(alpha):
+            return radius * math.sin(alpha)
 
         if 0 < boostZ < (z - radius):
             vb_prefix = [(0, y, 0), (0, y, boostZ - z * 10e-4), (0, y, boostZ)]

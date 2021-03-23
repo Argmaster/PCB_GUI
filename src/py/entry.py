@@ -5,7 +5,7 @@ import os
 import sys
 import time
 import logging
-from io import StringIO
+import traceback
 from typing import Callable
 
 sys.path.append(os.getcwd())
@@ -50,22 +50,22 @@ class Main(Singleton):
         while True:
             try:
                 self.io_in = self.io.read()
-                self.io.write(self.uri[self.io_in.status](self))
+                self.dispatch(self.io_in)
             except Main.DetachException:
                 break
             except Exception as e:
-                error_message = StringIO()
-                logging.basicConfig(stream=error_message)
-                logging.exception(e)
                 self.io.write(
                     IO_OUT(
                         "ERROR",
                         {
-                            "trace": error_message.getvalue(),
+                            "trace": traceback.format_exc(),
                             "cls": e.__class__.__name__,
                         },
                     )
                 )
+
+    def dispatch(self, io_in: IO_IN) -> Any:
+        self.uri[io_in.status](self, **io_in.data)
 
     class register:
         def __init__(self, uri: dict) -> None:
@@ -75,13 +75,14 @@ class Main(Singleton):
             if name is None:
                 name = function.__name__
             self.uri[name] = function
+            return self
 
     register = register(uri)
 
     @register
     def exitNow(self):
         self.io.write(IO_OUT("OK"))
-        time.sleep(0.5)
+        time.sleep(0.2)
         exit()
 
     @register
@@ -89,22 +90,23 @@ class Main(Singleton):
         raise Main.DetachException()
 
     @register
-    def buildAssembler(io_in: IO_IN, io: BlenderIO) -> IO_OUT:
-        Global.Import(io_in.data["pcb"])
+    def buildAssembler(self, pcb: str, setup: dict, out: str) -> IO_OUT:
+        Global.Import(pcb)
         _bpy_PCB = Global.getActive()
         lift_top = Object.bboxCenter(_bpy_PCB).z + _bpy_PCB.dimensions.z / 2
-        for code, setup in io_in.data["setup"].items():
+        for code, setup in setup.items():
             Global.Import(f'{setup["model_pkg"]}./__mod__.glb')
             bpy_obj = Global.getActive()
             bpy_obj.name = code
             Transform.rotateZ(f"{setup['rot']}deg")
-            # Object.RotateTo(bpy_obj, z=TType.Angle.parse(f"{setup['rot']}deg")) for some reason doesnt work
             Object.MoveTo(bpy_obj, setup["cox"], setup["coy"], lift_top)
         Global.selectAll()
-        Global.Export(io_in.data["out"])
-        return IO_OUT("OK")
+        Global.Export(out)
+        self.io.write(IO_OUT("OK"))
 
-    def _render(root: Object, out: str, dpi: int) -> None:
+    def _render(
+        engine: CONST.ENGINE, samples: int, root: Object, out: str, dpi: int
+    ) -> None:
         # prepare to make a render
         width = root.dimensions.x
         height = root.dimensions.y
@@ -124,14 +126,15 @@ class Main(Singleton):
         camera.ortho_scale = max(width, height)
         camera.type = "ORTHO"
         camera.setMain()
-        if RENDER_ENGINE == "EEVEE":
+        if engine == "EEVEE":
             # set eevee as rendering engine
-            Global.eevee(RENDER_SAMPLES)
-        elif RENDER_ENGINE == "CYCLES":
-            Global.cycles(RENDER_SAMPLES)
+            Global.eevee(samples)
+        elif engine == "CYCLES":
+            Global.cycles(samples)
         # render image
         w = width * dpi * 40
         h = height * dpi * 40
+
         if w * h > 1e8:
             raise RuntimeError("Output image is too big, lower your dpi and retry.")
         else:
@@ -151,7 +154,7 @@ class Main(Singleton):
             "sy": root.dimensions.y,
         }
 
-    def _photoTop(bpy_obj, out, dpi) -> None:
+    """def _photoTop(bpy_obj, out, dpi) -> None:
         bbox = Object.bbox(bpy_obj)
         max_xy = 0
         for co in bbox:
@@ -225,40 +228,34 @@ class Main(Singleton):
             os.remove(out)
         Global.render(out, 512, 512)
         Global.delete(camera.camera)
-        Global.delete(light)
+        Global.delete(light)"""
 
     @register
-    def makeModelAssets(self) -> IO_OUT:
+    def makeModelAssets(self, template_params: dict, model_path: str) -> IO_OUT:
         Global.deleteAll()
-        tp = TemplatePackage(self.io_in.data["template_path"])
-        bpy_obj = tp.execute(self.io_in.data["template_params"], self.io.log)
-        path = f'{self.io_in.data["model_path"]}/__mod__.glb'
-        if os.path.exists(path):
-            os.remove(path)
-        Global.Export(path)
-        path = f'{self.io_in.data["model_path"]}/__top__.png'
-        if os.path.exists(path):
-            os.remove(path)
-        self._photoTop(bpy_obj, path, self.io.render_dpi)
-        path = f'{self.io_in.data["model_path"]}/__bot__.png'
-        if os.path.exists(path):
-            os.remove(path)
-        self._photoBot(bpy_obj, path)
-        return IO_OUT("OK")
-
-
-    @register
-    def getTemplateParams(self):
-        TemplatePackage(self.io_in.data["template_path"]).params_json()
-        return IO_OUT("OK")
-
-    @register
-    def make3DModel(self):
-        TemplatePackage(self.io_in.data["template_pkg_path"]).execute(
-            self.io_in.data["template_params"]
+        modelpkg = ModelPackage(model_path)
+        modelpkg.make(template_params, self.io.log)
+        modelpkg.shot(
+            self.io.render_dpi,
+            self.io.render_engine,
+            self.io.render_samples,
+            True,
+            modelpkg.top_path,
         )
-        Global.Export(self.io_in.data["save_as"])
-        return IO_OUT("OK")
+        modelpkg.shot(
+            self.io.render_dpi,
+            self.io.render_engine,
+            self.io.render_samples,
+            False,
+            modelpkg.bot_path,
+        )
+        self.io.write(IO_OUT("OK"))
+
+    @register
+    def make3DModel(self, template_pkg_path: str, template_params: dict, save_as: str):
+        TemplatePackage(template_pkg_path).execute(template_params)
+        Global.Export(save_as)
+        self.io.write(IO_OUT("OK"))
 
 
 class Gerber(Namespace):
@@ -350,12 +347,11 @@ class Gerber(Namespace):
     }
 
     @Main.register
-    def renderGerberLayer(self):
-        self.io_in.data["layer"]
-        if self.io_in.data["layer"]["mode"] in self.LAYER_TYPES.keys():
-            layer_appearance = self.LAYER_TYPES[self.io_in.data["layer"]["mode"]]
+    def renderGerberLayer(self, layer: dict, layer_type: dict, layer_id: str):
+        if layer["mode"] in Gerber.LAYER_TYPES.keys():
+            layer_appearance = Gerber.LAYER_TYPES[layer["mode"]]
         else:
-            layer_appearance = self.io_in.data["layer"]["data"]
+            layer_appearance = layer["data"]
         backend = BlenderBackend(
             layer_appearance["dark_thickness"],
             layer_appearance["clear_thickness"],
@@ -365,7 +361,7 @@ class Gerber(Namespace):
             layer_appearance["region_material"],
         )
         parser = GerberParser(backend)
-        parser.feed(self.io_in.data["layer"]["path"])
+        parser.feed(layer["path"])
         self.io.write(IO_OUT("STREAM", {"token_count": parser.TOKEN_STACK_SIZE}))
         for progress in parser:
             if progress % 17 == 0:
@@ -375,23 +371,23 @@ class Gerber(Namespace):
                     break
         else:
             Object.join(backend.ROOT, *Global.getAll())
-            if self.io_in.data["layer_type"] == "BOT":
+            if layer_type == "BOT":
                 Object.ScaleBy(backend.ROOT, z=-1)
                 with Edit(backend.ROOT) as edit:
                     edit.makeNormalsConsistent()
-            Global.Export(f"./temp/gerber/gerber-{self.io_in.data['layer_id']}.glb")
-        return IO_OUT("END")
+            Global.Export(f"./temp/gerber/gerber-{layer_id}.glb")
+        self.io.write(IO_OUT("END"))
 
     @Main.register
-    def joinLayers(self):
+    def joinLayers(self, top_layers: list, bot_layers: list):
         desired = 0
-        for path in self.io_in.data["top_layers"]:
+        for path in top_layers:
             Global.Import(path)
             bpy_obj = Global.getActive()
             Object.MoveTo(bpy_obj, z=desired)
             desired += bpy_obj.dimensions.z
         desired = 0
-        for path in self.io_in.data["bot_layers"]:
+        for path in bot_layers:
             Global.Import(path)
             bpy_obj = Global.getActive()
             Object.MoveTo(bpy_obj, z=-desired)
@@ -399,16 +395,26 @@ class Gerber(Namespace):
         root = Mesh.Rectangle(0, 0, 0)
         Object.join(root, *Global.getAll())
         Global.Export(f"{os.getcwd()}/temp/gerber/merged.glb")
-        return IO_OUT("OK")
+        self.io.write(IO_OUT("OK"))
 
     @Main.register
-    def renderPreview(self) -> IO_OUT:
-        Global.Import(self.io_in.data["source"])
+    def renderPreview(self: Main, source: str, render_file: str) -> IO_OUT:
+        Global.Import(source)
         root = Global.getActive()
-        return IO_OUT(
-            "OK", {"co": Main._render(root, self.io_in.data["render_file"], self.io.render_dpi)}
+        self.io.write(
+            IO_OUT(
+                "DONE",
+                {
+                    "co": Main._render(
+                        self.io.render_engine,
+                        self.io.render_samples,
+                        root,
+                        render_file,
+                        self.io.render_dpi,
+                    )
+                },
+            )
         )
-
 
 
 Main().mainloop()

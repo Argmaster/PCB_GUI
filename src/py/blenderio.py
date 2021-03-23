@@ -100,10 +100,8 @@ class BlenderIO(Singleton):
         self.python_log_in = mess.data["python_log_in"]
         self.python_log_out = mess.data["python_log_out"]
         self.render_dpi = mess.data["render_dpi"]
-        global RENDER_ENGINE
-        global RENDER_SAMPLES
-        RENDER_ENGINE = mess.data["render_engine"]
-        RENDER_SAMPLES = mess.data["render_samples"]
+        self.render_engine = mess.data["render_engine"]
+        self.render_samples = mess.data["render_samples"]
         self.write(IO_OUT("WAITING SOCKET"))
 
     def _write_stream(self, message: IO_OUT) -> None:

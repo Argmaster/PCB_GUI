@@ -441,7 +441,7 @@ async function renderPreview() {
                         source: `${process.cwd()}/temp/gerber/merged.glb`,
                         render_file: `${process.cwd()}/temp/gerber/${render_file}.png`,
                     }),
-                    "OK"
+                    "DONE"
                 );
             } finally {
                 blender_io.kill();

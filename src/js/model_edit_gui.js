@@ -2,9 +2,16 @@ let LIBRARY = {
     rebuildAll: function () {
         if (disableComponent($("#model-workspace-box"))) {
             for (let key in models) {
-                models[key].makeModelAssets();
+                this.rebuildOne(key);
             }
             enableComponent($("#model-workspace-box"));
+        }
+    },
+    rebuildOne: async function (key) {
+        try {
+            return await models[key].makeModelAssets();
+        } catch (e) {
+            showErrorBox("Unable to rebuild model due to error", e);
         }
     },
     clearModelSelection: function () {
@@ -749,7 +756,7 @@ let appendModelBox = function ($target, model) {
         });
     $this.find(":nth-child(4).model-edit-button").on("click", async () => {
         if (disableComponent(this)) {
-            await model.makeModelAssets();
+            await LIBRARY.rebuildOne(model._model);
             enableComponent(this);
         }
     });

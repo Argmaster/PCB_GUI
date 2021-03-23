@@ -35,22 +35,18 @@ class ModelPackage {
         this._other = this.dec_dict.other;
         this.prm_dict = this.dec_dict.prm_dict;
     }
-    // TODO Remove params()
-    params() {
-        return this.prm_dict;
-    }
     async makeModelAssets() {
         let blender_io = new BlenderIO(userpref);
         await blender_io.begin();
         try {
             await blender_io.call(
                 new IO_OUT("makeModelAssets", {
-                    template_path: this.template.package_path,
                     template_params: this.traverse(),
                     model_path: this.package_path,
                 }),
                 "OK"
             );
+
         } finally {
             blender_io.kill();
         }

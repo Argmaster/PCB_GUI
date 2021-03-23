@@ -81,6 +81,7 @@
     max-width: 10rem;
     border-radius: 0.5rem;
     border: 0.1rem solid var(--library-position-img-border);
+    background-color: rgb(230, 230, 230);
 }
 .library-position-img img {
     position: absolute;
@@ -90,6 +91,10 @@
     left: -2.5%;
     overflow: hidden;
     border-radius: 0.5rem;
+}
+.library-position-img :nth-child(2) {
+    image-rendering: pixelated;
+
 }
 .model-icon-disable {
     display: none;
@@ -196,6 +201,7 @@
     width: 300px;
     height: 300px;
     border-radius: 0.5rem;
+    image-rendering: pixelated;
 }
 .model-edit-pinroot-data {
     padding-left: 1rem;

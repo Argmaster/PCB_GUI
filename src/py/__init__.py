@@ -1,4 +1,4 @@
-class Singleton(type):
+class Singleton:
     _instance = None
 
     def __new__(class_, *args, **kwargs):

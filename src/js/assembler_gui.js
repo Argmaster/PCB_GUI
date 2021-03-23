@@ -77,7 +77,7 @@ ASSEMBLER = {
                             source: pcb_path,
                             render_file: pcb_img_path,
                         }),
-                        "OK"
+                        "DONE"
                     )
                 ).data.co;
 
